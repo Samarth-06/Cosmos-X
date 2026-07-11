@@ -66,7 +66,7 @@ function OrbitRing({ radius, highlighted }: { radius: number; highlighted: boole
   const geo = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
   return (
     <line>
-      {/* @ts-expect-error r3f primitive */}
+      
       <primitive attach="geometry" object={geo} />
       <lineBasicMaterial
         color={highlighted ? "#5B6CFF" : "#3a4470"}
@@ -238,7 +238,7 @@ function Stars() {
   }, []);
   return (
     <points>
-      {/* @ts-expect-error r3f primitive */}
+      
       <primitive attach="geometry" object={geo} />
       <pointsMaterial size={0.6} color="#ffffff" sizeAttenuation transparent opacity={0.75} />
     </points>

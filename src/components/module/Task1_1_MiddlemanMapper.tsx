@@ -1,25 +1,67 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, ArrowRight, ChevronRight, Lightbulb, Check, Globe } from "lucide-react";
-import TaskWorkspaceLayout from "./TaskWorkspaceLayout";
+import { CheckCircle2, XCircle, ArrowRight, ChevronRight, Trophy, Star, Shield, AlertTriangle, Zap, Lock, Globe } from "lucide-react";
 import { saveTaskScore } from "@/lib/module1-store";
 
-interface Props {
-  onComplete: () => void;
+/* ─────────────────────────────────────────────
+   TYPES & CONSTANTS
+───────────────────────────────────────────── */
+
+type Step = "theory" | "demo" | "quiz" | "game" | "complete";
+
+interface SidebarTask {
+  id: Step;
+  label: string;
+  hint: string;
+  icon: string;
 }
 
-interface Scenario {
-  id: number;
-  title: string;
-  flow: string[];
-  question: string;
-  options: string[];
-  correct: number;
-  explanation: string;
-  xpReward: number;
-}
+const SIDEBAR_TASKS: SidebarTask[] = [
+  { id: "theory", label: "Core Theory", hint: "Learn how centralized middlemen add fees and risks to payments.", icon: "📖" },
+  { id: "demo", label: "UPI vs P2P Demo", hint: "Simulate transaction hops. Toggle networks and fail routing nodes.", icon: "🔬" },
+  { id: "quiz", label: "Knowledge Check", hint: "Answer 3 questions. Get at least 2 correct to unlock the mapping challenge.", icon: "❓" },
+  { id: "game", label: "Mapping Hops", hint: "Scan 5 real-world scenarios and map the number of middlemen.", icon: "⚔️" },
+];
 
-const SCENARIOS: Scenario[] = [
+const STEP_ORDER: Step[] = ["theory", "demo", "quiz", "game", "complete"];
+
+const QUIZ_QUESTIONS = [
+  {
+    q: "Why do traditional bank transfers require payment networks (like UPI or SWIFT)?",
+    options: [
+      "To encrypt individual account names.",
+      "Because bank databases are isolated and need an intermediary router to clear transactions.",
+      "To speed up transfers to under one second.",
+      "Because customers prefer paying transaction routing fees.",
+    ],
+    correct: 1,
+    explanation: "Correct! Isolated bank ledgers cannot talk directly, so a middleman router matches credits and debits.",
+  },
+  {
+    q: "What is a major risk of routing payments through multiple intermediaries?",
+    options: [
+      "The payment amount automatically increases.",
+      "Each hop is a potential point of failure, delay, and added transaction cost.",
+      "The sender's wallet is locked forever.",
+      "No data is recorded on the final receiving bank.",
+    ],
+    correct: 1,
+    explanation: "Spot on! Hops introduce ledger delays, transaction clearance fees, and technical single-failure nodes.",
+  },
+  {
+    q: "How does a peer-to-peer blockchain transaction differ from a traditional bank payment?",
+    options: [
+      "It requires more correspondent bank verifications.",
+      "It is directly written to a shared public ledger without middle settlement authorities.",
+      "It is always processed by a central government server.",
+      "It doesn't require any network connections.",
+    ],
+    correct: 2,
+    explanation: "Indeed! By utilizing a shared cryptographically-secured ledger, nodes synchronize directly, bypassing middle banks.",
+  },
+];
+
+const SCENARIOS = [
   {
     id: 1,
     title: "Sending ₹5,000 to a friend",
@@ -77,18 +119,244 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
+/* ─────────────────────────────────────────────
+   SVGs
+───────────────────────────────────────────── */
+
+function CentralizedPaymentFlowSVG({ nodeOffline }: { nodeOffline: string | null }) {
+  return (
+    <svg viewBox="0 0 360 160" className="w-full h-full" style={{ filter: "drop-shadow(0 0 8px rgba(239,68,68,0.1))" }}>
+      <defs>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 2 L 10 5 L 0 8 z" fill="#ef4444" />
+        </marker>
+        <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 2 L 10 5 L 0 8 z" fill="#22d3ee" />
+        </marker>
+      </defs>
+
+      {/* Nodes */}
+      <g transform="translate(30, 80)">
+        <circle r="16" fill="#1e1b4b" stroke="#6366f1" strokeWidth="1.5" />
+        <text y="4" textAnchor="middle" fill="#c4b5fd" fontSize="9" fontFamily="monospace" fontWeight="bold">YOU</text>
+      </g>
+
+      <g transform="translate(110, 80)">
+        <circle r="18" fill={nodeOffline === "bankA" ? "#311" : "#0d1e2e"} stroke={nodeOffline === "bankA" ? "#ef4444" : "#22d3ee"} strokeWidth="1.5" style={{ transition: "all 0.5s" }} />
+        {nodeOffline === "bankA" && <text y="4" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">✕</text>}
+        {nodeOffline !== "bankA" && <text y="4" textAnchor="middle" fill="#22d3ee" fontSize="8" fontFamily="monospace">Bank A</text>}
+      </g>
+
+      <g transform="translate(180, 80)">
+        <circle r="18" fill={nodeOffline === "upi" ? "#311" : "#111827"} stroke={nodeOffline === "upi" ? "#ef4444" : "#8b5cf6"} strokeWidth="1.5" style={{ transition: "all 0.5s" }} />
+        {nodeOffline === "upi" && <text y="4" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">✕</text>}
+        {nodeOffline !== "upi" && <text y="4" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">UPI</text>}
+      </g>
+
+      <g transform="translate(250, 80)">
+        <circle r="18" fill={nodeOffline === "bankB" ? "#311" : "#0d1e2e"} stroke={nodeOffline === "bankB" ? "#ef4444" : "#22d3ee"} strokeWidth="1.5" style={{ transition: "all 0.5s" }} />
+        {nodeOffline === "bankB" && <text y="4" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">✕</text>}
+        {nodeOffline !== "bankB" && <text y="4" textAnchor="middle" fill="#22d3ee" fontSize="8" fontFamily="monospace">Bank B</text>}
+      </g>
+
+      <g transform="translate(330, 80)">
+        <circle r="16" fill="#1e1b4b" stroke="#6366f1" strokeWidth="1.5" />
+        <text y="4" textAnchor="middle" fill="#c4b5fd" fontSize="9" fontFamily="monospace" fontWeight="bold">FRIEND</text>
+      </g>
+
+      {/* Edges */}
+      <line x1="46" y1="80" x2="92" y2="80" stroke={nodeOffline === "bankA" ? "#ef4444" : "#22d3ee"} strokeWidth="1.5" markerEnd={nodeOffline === "bankA" ? "url(#arrowRed)" : "url(#arrowCyan)"} />
+      <line x1="128" y1="80" x2="162" y2="80" stroke={nodeOffline === "bankA" || nodeOffline === "upi" ? "#ef4444" : "#8b5cf6"} strokeWidth="1.5" markerEnd={nodeOffline === "bankA" || nodeOffline === "upi" ? "url(#arrowRed)" : "url(#arrowCyan)"} />
+      <line x1="198" y1="80" x2="232" y2="80" stroke={nodeOffline === "upi" || nodeOffline === "bankB" ? "#ef4444" : "#8b5cf6"} strokeWidth="1.5" markerEnd={nodeOffline === "upi" || nodeOffline === "bankB" ? "url(#arrowRed)" : "url(#arrowCyan)"} />
+      <line x1="268" y1="80" x2="314" y2="80" stroke={nodeOffline === "bankB" ? "#ef4444" : "#22d3ee"} strokeWidth="1.5" markerEnd={nodeOffline === "bankB" ? "url(#arrowRed)" : "url(#arrowCyan)"} />
+
+      {/* Hops text */}
+      <text x="180" y="30" textAnchor="middle" fill="#ef4444" fontSize="8" fontFamily="monospace" tracking-wider>3 INTERMEDIARY HOPS (FEE + RISK)</text>
+      <text x="180" y="145" textAnchor="middle" fill="rgba(148,163,184,0.5)" fontSize="7" fontFamily="monospace">Each hop maintains an isolated ledger copy</text>
+    </svg>
+  );
+}
+
+function DirectPaymentFlowSVG({ offline }: { offline: boolean }) {
+  return (
+    <svg viewBox="0 0 360 160" className="w-full h-full" style={{ filter: "drop-shadow(0 0 8px rgba(16,185,129,0.1))" }}>
+      <defs>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 2 L 10 5 L 0 8 z" fill="#10b981" />
+        </marker>
+        <marker id="arrowRedD" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 2 L 10 5 L 0 8 z" fill="#ef4444" />
+        </marker>
+      </defs>
+
+      {/* Nodes */}
+      <g transform="translate(60, 80)">
+        <circle r="20" fill="#064e3b" stroke={offline ? "#ef4444" : "#10b981"} strokeWidth="1.5" style={{ transition: "all 0.5s" }} />
+        {offline && <text y="4" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">✕</text>}
+        {!offline && <text y="4" textAnchor="middle" fill="#a7f3d0" fontSize="9" fontFamily="monospace" fontWeight="bold">YOU</text>}
+      </g>
+
+      <g transform="translate(300, 80)">
+        <circle r="20" fill="#064e3b" stroke="#10b981" strokeWidth="1.5" />
+        <text y="4" textAnchor="middle" fill="#a7f3d0" fontSize="9" fontFamily="monospace" fontWeight="bold">FRIEND</text>
+      </g>
+
+      {/* Edge */}
+      <line x1="80" y1="80" x2="280" y2="80" stroke={offline ? "#ef4444" : "#10b981"} strokeWidth="2" strokeDasharray={offline ? "4 4" : "none"} markerEnd={offline ? "url(#arrowRedD)" : "url(#arrowGreen)"} style={{ transition: "all 0.5s" }} />
+
+      {!offline && (
+        <circle r="4" fill="#67e8f9">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M80,80 L280,80" />
+        </circle>
+      )}
+
+      {/* Description text */}
+      <text x="180" y="30" textAnchor="middle" fill="#10b981" fontSize="9" fontFamily="monospace" tracking-wider>DIRECT WALLET-TO-WALLET (0 MIDDLEMEN)</text>
+      <text x="180" y="145" textAnchor="middle" fill="rgba(148,163,184,0.5)" fontSize="7" fontFamily="monospace">Directly validated by distributed network consensus</text>
+    </svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   QUIZ COMPONENT
+───────────────────────────────────────────── */
+
+function QuizPart({ onPass }: { onPass: () => void }) {
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>([null, null, null]);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [locked, setLocked] = useState(false);
+
+  const score = answers.filter((a, i) => a === QUIZ_QUESTIONS[i]?.correct).length;
+  const passed = score >= 2;
+  const q = QUIZ_QUESTIONS[currentQ];
+
+  const handleAnswer = (idx: number) => {
+    if (showFeedback || locked) return;
+    setLocked(true);
+    const next = [...answers];
+    next[currentQ] = idx;
+    setAnswers(next);
+    setShowFeedback(true);
+
+    setTimeout(() => {
+      setShowFeedback(false);
+      setLocked(false);
+      if (currentQ < QUIZ_QUESTIONS.length - 1) {
+        setCurrentQ((c) => c + 1);
+      } else {
+        setSubmitted(true);
+      }
+    }, 1800);
+  };
+
+  const retry = () => {
+    setAnswers([null, null, null]);
+    setCurrentQ(0);
+    setShowFeedback(false);
+    setSubmitted(false);
+    setLocked(false);
+  };
+
+  if (submitted) {
+    return (
+      <div className={`rounded-2xl border p-5 text-center space-y-4 ${passed ? "bg-emerald-500/10 border-emerald-400/30" : "bg-rose-500/10 border-rose-400/30"}`}>
+        <div className="text-4xl">{passed ? "🎯" : "💡"}</div>
+        <h4 className={`text-base font-bold ${passed ? "text-emerald-300" : "text-rose-300"}`}>
+          {passed ? `${score}/3 — Middleman Quiz Passed!` : `${score}/3 — Re-examine Middlemen`}
+        </h4>
+        <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed">
+          {passed ? "Excellent! You understand why centralized routing paths are vulnerable and slow. The Middleman Mapping Scanner challenge is unlocked." : "Take a closer look at the payment clearance channels and retry."}
+        </p>
+        {passed ? (
+          <button onClick={onPass} className="px-6 py-2.5 bg-emerald-400 text-slate-950 rounded-xl font-bold text-xs hover:bg-emerald-300 transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+            Open Mapping Scanner →
+          </button>
+        ) : (
+          <button onClick={retry} className="px-5 py-2.5 bg-white/10 border border-white/20 text-white rounded-xl font-mono text-[10px] hover:bg-white/15 transition flex items-center gap-1.5 mx-auto">
+            <RotateCcw className="w-3.5 h-3.5" /> Retry Checkpoint
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
+        <span>Question {currentQ + 1} of 3</span>
+        <span>Score: {answers.filter((a, i) => a === QUIZ_QUESTIONS[i]?.correct).length}/3</span>
+      </div>
+
+      <div className="rounded-xl bg-slate-950/80 border border-white/10 p-4">
+        <h4 className="text-xs font-semibold text-white leading-relaxed">{q.q}</h4>
+      </div>
+
+      <div className="space-y-2">
+        {q.options.map((opt, i) => {
+          const selected = answers[currentQ] === i;
+          const isCorrect = i === q.correct;
+          let cls = "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/8 cursor-pointer";
+          if (showFeedback && selected && isCorrect) cls = "border-emerald-400/70 bg-emerald-500/15 text-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.15)] cursor-default";
+          else if (showFeedback && selected && !isCorrect) cls = "border-rose-400/70 bg-rose-500/15 text-rose-200 cursor-default";
+          else if (showFeedback && isCorrect) cls = "border-emerald-400/35 bg-emerald-500/8 text-emerald-300 cursor-default";
+          else if (locked) cls = "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed";
+
+          return (
+            <button key={i} onClick={() => handleAnswer(i)} className={`w-full text-left rounded-xl border p-3 text-xs font-mono transition-all duration-200 ${cls}`}>
+              <span className="text-slate-500 mr-2">{String.fromCharCode(65 + i)}.</span>
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+
+      {showFeedback && (
+        <div className={`rounded-xl border p-3 text-[11px] leading-relaxed ${answers[currentQ] === q.correct ? "bg-emerald-500/10 border-emerald-400/30 text-emerald-200" : "bg-rose-500/10 border-rose-400/30 text-rose-200"}`}>
+          <strong>{answers[currentQ] === q.correct ? "Correct! " : "Incorrect. "}</strong>
+          {q.explanation}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────── */
+
 export default function Task1_1_MiddlemanMapper({ onComplete }: Props) {
+  const [step, setStep] = useState<Step>("theory");
+  const [completedSteps, setCompletedSteps] = useState<Step[]>([]);
+  const [demoMode, setDemoMode] = useState<"upi" | "p2p">("upi");
+  const [demoOfflineNode, setDemoOfflineNode] = useState<string | null>(null);
+  const [demoP2POffline, setDemoP2POffline] = useState(false);
+
+  // Scenario task state
   const [currentScenario, setCurrentScenario] = useState(0);
   const [selections, setSelections] = useState<Record<number, number>>({});
   const [showExplanations, setShowExplanations] = useState<Record<number, boolean>>({});
-  const [showHints, setShowHints] = useState<Record<number, boolean>>({});
-  const [allDone, setAllDone] = useState(false);
 
+  const markComplete = (s: Step) => {
+    setCompletedSteps((prev) => (prev.includes(s) ? prev : [...prev, s]));
+  };
+
+  const goToStep = (s: Step) => {
+    markComplete(step);
+    setStep(s);
+  };
+
+  const isStepUnlocked = (s: Step) => {
+    const idx = STEP_ORDER.indexOf(s);
+    if (idx === 0) return true;
+    return completedSteps.includes(STEP_ORDER[idx - 1]) || STEP_ORDER.indexOf(step) >= idx;
+  };
+
+  // Scenario calculator
   const scenario = SCENARIOS[currentScenario];
   const selected = selections[currentScenario] !== undefined ? selections[currentScenario] : null;
-  const isCorrect = selected === scenario.correct;
   const showExplanation = showExplanations[currentScenario] || false;
-  const showHint = showHints[currentScenario] || false;
 
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
@@ -96,288 +364,366 @@ export default function Task1_1_MiddlemanMapper({ onComplete }: Props) {
     setShowExplanations((prev) => ({ ...prev, [currentScenario]: true }));
   };
 
-  const handleNext = () => {
+  const handleNextScenario = () => {
     if (currentScenario < SCENARIOS.length - 1) {
       setCurrentScenario((n) => n + 1);
     } else {
-      setAllDone(true);
+      const scoreTotal = SCENARIOS.reduce((acc, sc, idx) => acc + (selections[idx] === sc.correct ? sc.xpReward : 0), 0);
+      saveTaskScore("task1_1", scoreTotal, 15, scoreTotal >= 9);
+      goToStep("complete");
     }
   };
 
-  const totalScore = SCENARIOS.reduce((acc, sc, idx) => {
-    return acc + (selections[idx] === sc.correct ? sc.xpReward : 0);
-  }, 0);
-
-  const allAnswered = SCENARIOS.every((_, i) => selections[i] !== undefined);
-
-  const getScenarioTheory = (id: number) => {
-    switch (id) {
-      case 1:
-        return (
-          <div className="space-y-3 text-[11.5px] leading-relaxed text-slate-300">
-            <h4 className="font-mono text-cyan-400 font-bold uppercase tracking-wider">Centralized Financial Clearing</h4>
-            <p>When sending currency to another party digitally, you adjust entry fields in a database rather than handling physical assets.</p>
-            <p>Because banks operate isolated databases, they utilize payment routing networks (like UPI or SWIFT) to settle credits and debits.</p>
-            <p>This adds multiple layers of third-party clearing, introducing delay, costs, and single-failure endpoints.</p>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="space-y-3 text-[11.5px] leading-relaxed text-slate-300">
-            <h4 className="font-mono text-cyan-400 font-bold uppercase tracking-wider">Platform Governance & Custody</h4>
-            <p>E-commerce hubs function as central trade matching brokers. They act as trust escrows and purchase regulators.</p>
-            <p>Because the database is owned by a single company (like Amazon), they have root permissions to hold funds or freeze vendor logs at will.</p>
-            <p>This shows how centralized authority can reverse transactions or cancel services unilaterally.</p>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="space-y-3 text-[11.5px] leading-relaxed text-slate-300">
-            <h4 className="font-mono text-cyan-400 font-bold uppercase tracking-wider">Data Ownership Limits</h4>
-            <p>Uploading files or publishing posts on social networks puts your media in database storage arrays owned by platform companies.</p>
-            <p>The platform possesses full read/write/delete privileges over the files, which limits your actual control over your content.</p>
-            <p>Content flags or account blocks can delete your digital media instantly with no alternative copy.</p>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-3 text-[11.5px] leading-relaxed text-slate-300">
-            <h4 className="font-mono text-cyan-400 font-bold uppercase tracking-wider">Cloud Dependencies</h4>
-            <p>Online file hosting storage gives convenient multi-device access, but keeps the data physical on third-party host servers.</p>
-            <p>If security flags or billing issues trigger access restrictions, you lose local access to your file portfolio immediately.</p>
-            <p>This shows the need for cryptographically verified local database networks where you control validation keys.</p>
-          </div>
-        );
-      case 5:
-        return (
-          <div className="space-y-3 text-[11.5px] leading-relaxed text-slate-300">
-            <h4 className="font-mono text-cyan-400 font-bold uppercase tracking-wider">Correspondent Settlement Chains</h4>
-            <p>Cross-border financial routing cannot connect banks directly. It uses SWIFT network messages across correspondent banks.</p>
-            <p>Each bank along the settlement route processes transactions sequentially, adding settlement fees and manual verification delays.</p>
-            <p>This explains why international bank transfers require days instead of completing instantly.</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getScenarioHint = (id: number) => {
-    switch (id) {
-      case 1: return "Hint: Count all intermediate boxes in the flow list (everything between 'You' and 'Friend').";
-      case 2: return "Hint: Which platform entity exercises master database access privileges and holds trade escrow?";
-      case 3: return "Hint: Since Meta/Instagram owns the server repository, they can alter files anytime.";
-      case 4: return "Hint: Account suspension locks you out of the server storage completely.";
-      case 5: return "Hint: Correspondent bank routes require multiple business days to verify logs.";
-      default: return "";
-    }
-  };
-
-  if (allDone) {
-    return (
-      <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-6 bg-slate-950/20 rounded-2xl border border-white/10">
-        <div className="max-w-md w-full bg-slate-950/80 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl text-center space-y-4">
-          <Globe className="w-10 h-10 text-cyan-400 mx-auto" />
-          <h3 className="font-rushblade text-emerald-400 text-sm tracking-widest uppercase">
-            Sector Scan Complete
-          </h3>
-          <p className="text-white font-mono text-xs">
-            Intermediaries Mapped: <span className="text-cyan-400 font-bold">12 total</span> across 5 scenarios
-          </p>
-          <div className="bg-slate-900/60 border border-white/5 rounded-xl p-4 text-xs text-slate-300 leading-relaxed text-left">
-            <span className="text-amber-400 font-bold">DEBRIEF: </span>
-            Every system you use depends on middlemen that you must trust with your data and your money.
-            They charge fees, add delays, can make mistakes, and can be compromised. Blockchain was invented
-            to ask: <span className="text-cyan-400 font-bold">what if we could remove some of these middlemen for specific use cases?</span>
-          </div>
-          <div className="flex items-center justify-between pt-2 border-t border-white/5">
-            <div className="text-[10px] font-mono text-slate-400">
-              Score: <span className="text-emerald-400 font-bold">{totalScore} XP</span> earned
-            </div>
-            <button
-              onClick={() => { saveTaskScore("task1_1", totalScore, 15, totalScore >= 9); onComplete(); }}
-              className="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold px-5 py-2 rounded-full text-[10px] font-rushblade shadow-lg transition uppercase tracking-wider animate-pulse"
-            >
-              Proceed to Task 1.2 ➔
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const scoreTotal = SCENARIOS.reduce((acc, sc, idx) => acc + (selections[idx] === sc.correct ? sc.xpReward : 0), 0);
 
   return (
-    <TaskWorkspaceLayout
-      moduleColor="#22d3ee"
-      taskTitle="Task 1.1 — Map the Middlemen"
-      taskConcept="Centralized dependencies and trust"
-      theoryContent={
-        <div className="space-y-4">
-          {getScenarioTheory(scenario.id)}
-          
-          {/* Question Navigator */}
-          <div className="border border-white/5 bg-slate-900/40 p-2.5 rounded-lg select-none">
-            <div className="flex items-center justify-between">
-              <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest block mb-1">Scenario Index</span>
-              <div className="flex gap-1">
-                <button
-                  disabled={currentScenario === 0}
-                  onClick={() => setCurrentScenario((c) => c - 1)}
-                  className="px-1.5 py-0.5 bg-slate-800 border border-white/5 rounded text-[8px] font-mono text-slate-400 hover:text-white disabled:opacity-30 transition"
-                >
-                  ◀
-                </button>
-                <button
-                  disabled={currentScenario === SCENARIOS.length - 1}
-                  onClick={() => setCurrentScenario((c) => c + 1)}
-                  className="px-1.5 py-0.5 bg-slate-800 border border-white/5 rounded text-[8px] font-mono text-slate-400 hover:text-white disabled:opacity-30 transition"
-                >
-                  ▶
-                </button>
-              </div>
-            </div>
-            <div className="flex gap-1.5 mt-1.5">
-              {SCENARIOS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentScenario(i)}
-                  className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[9px] transition-all duration-300 ${
-                    i === currentScenario
-                      ? "bg-cyan-500 text-slate-950 font-bold scale-110 shadow-lg shadow-cyan-500/20"
-                      : selections[i] !== undefined
-                      ? selections[i] === SCENARIOS[i].correct
-                        ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
-                        : "bg-rose-500/20 border border-rose-500/30 text-rose-400"
-                      : "bg-slate-800 border border-white/5 text-slate-400 hover:border-slate-500"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="flex h-full bg-[#040816] text-white overflow-hidden">
+      
+      {/* Chapter internal navigation */}
+      <aside className="w-52 shrink-0 border-r border-white/10 bg-slate-950/40 flex flex-col overflow-hidden">
+        <div className="px-4 py-3 border-b border-white/8 shrink-0">
+          <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">Task 1.1</p>
+          <h3 className="font-rushblade text-xs text-white mt-1 leading-snug">Map Intermediaries</h3>
         </div>
-      }
-      challengeContent={
-        <div className="space-y-4">
-          <div className="bg-slate-900/40 border border-white/5 rounded-xl p-3.5">
-            <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-wider block mb-1">Active Scenario</span>
-            <h4 className="text-[12px] text-white font-semibold">{scenario.title}</h4>
-          </div>
 
-          <div className="bg-slate-900/60 rounded-xl p-4 border border-white/5">
-            <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest mb-3">Transaction Flow</p>
-            {/* Elegant Horizontal Wrapping Pipeline Flow */}
-            <div className="flex flex-row flex-wrap items-center gap-y-3 gap-x-2">
-              {scenario.flow.map((node, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div
-                    className={`px-2.5 py-1.5 rounded-lg text-[9.5px] font-mono font-bold border transition-all ${
-                      i === 0 || i === scenario.flow.length - 1
-                        ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-md shadow-cyan-950/20"
-                        : "bg-slate-800/80 border-white/10 text-slate-300"
+        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-1">
+          {SIDEBAR_TASKS.map((task, i) => {
+            const isDone = completedSteps.includes(task.id);
+            const isActive = step === task.id;
+            const unlocked = isStepUnlocked(task.id);
+
+            return (
+              <button key={task.id} onClick={() => unlocked && setStep(task.id)} disabled={!unlocked}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left transition-all text-[10px] font-mono ${
+                  isActive
+                    ? "bg-cyan-500/10 border border-cyan-400/20 text-cyan-300"
+                    : isDone
+                    ? "bg-emerald-500/5 border border-emerald-400/15 text-emerald-400"
+                    : unlocked
+                    ? "text-slate-400 hover:bg-white/5"
+                    : "text-slate-700 cursor-not-allowed"
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 text-[8px] ${
+                  isDone ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-400" : isActive ? "border-cyan-400/60 bg-cyan-400/10 text-cyan-400" : "border-white/10 text-slate-600"
+                }`}>
+                  {isDone ? "✓" : !unlocked ? <Lock className="w-2 h-2" /> : task.icon}
+                </span>
+                <span className="truncate">{task.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-3 bg-violet-500/5 border-t border-white/5 text-[9px] text-slate-400 leading-relaxed shrink-0">
+          <span className="font-bold text-violet-300 block mb-0.5">Objective:</span>
+          Analyze payment chains, discover clearance overheads, and flag central checkpoints.
+        </div>
+      </aside>
+
+      {/* Main page content container */}
+      <main className="flex-1 overflow-y-auto p-6 relative">
+        <AnimatePresence mode="wait">
+
+          {/* ── STEP 1: THEORY ── */}
+          {step === "theory" && (
+            <motion.div key="theory" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5 max-w-2xl">
+              <div>
+                <p className="font-mono text-[8px] text-cyan-400 uppercase tracking-widest">Section 1: Core Theory</p>
+                <h2 className="text-xl font-bold text-white mt-0.5">The Toll of the Middleman</h2>
+                <p className="text-xs text-slate-400 leading-relaxed mt-1">
+                  In a centralized world, entities do not transact directly. We depend on intermediary ledger matchers to reconcile claims.
+                </p>
+              </div>
+
+              {/* Side-by-side payment route visualizer */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-rose-500/20 bg-[#0b060f]/60 p-3 space-y-2">
+                  <span className="font-mono text-[8px] text-rose-400 uppercase tracking-wider block">Centralized Payment Clearing Hops</span>
+                  <div className="h-32 flex items-center justify-center">
+                    <CentralizedPaymentFlowSVG nodeOffline={null} />
+                  </div>
+                </div>
+                <div className="rounded-xl border border-emerald-500/20 bg-[#040e0a]/60 p-3 space-y-2">
+                  <span className="font-mono text-[8px] text-emerald-400 uppercase tracking-wider block">Decentralized Direct Settlement</span>
+                  <div className="h-32 flex items-center justify-center">
+                    <DirectPaymentFlowSVG offline={false} />
+                  </div>
+                </div>
+              </div>
+
+              {/* THM Style cards */}
+              <div className="space-y-3">
+                {THEORY_CARDS.map((card, i) => (
+                  <div key={i} className="rounded-xl border border-white/5 bg-slate-950/60 p-3.5 flex gap-3.5 relative overflow-hidden" style={{ borderLeft: `3px solid ${card.border}` }}>
+                    <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ color: card.color, backgroundColor: card.bg }}>
+                      <Shield className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ color: card.color, backgroundColor: card.bg }}>{card.tag}</span>
+                      <h4 className="text-xs font-bold text-white mt-1.5">{card.title}</h4>
+                      <p className="text-[11px] text-slate-300 leading-relaxed mt-1">{card.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Key pills */}
+              <div className="rounded-xl border border-white/8 bg-slate-950/40 p-4">
+                <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest mb-2.5">Clearing Terminologies</p>
+                <div className="flex flex-wrap gap-2">
+                  {GLOSSARY_TERMS.map((kt) => (
+                    <span key={kt.term} className="px-2.5 py-1 rounded-full text-[9px] font-mono border" style={{ borderColor: `${kt.color}30`, color: kt.color, backgroundColor: `${kt.color}08` }}>
+                      {kt.term}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <button onClick={() => goToStep("demo")} className="px-5 py-2.5 bg-cyan-400/20 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-400/30 text-xs font-bold font-mono rounded-xl transition flex items-center gap-1">
+                Explore UPI vs P2P Hops <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── STEP 2: DEMO ── */}
+          {step === "demo" && (
+            <motion.div key="demo" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5 max-w-2xl">
+              <div>
+                <p className="font-mono text-[8px] text-cyan-400 uppercase tracking-widest">Section 2: Interactive Demo</p>
+                <h2 className="text-xl font-bold text-white mt-0.5">Toggle Hops & Outages</h2>
+                <p className="text-xs text-slate-400 mt-1">Select a clearing model, click structural nodes to shut them down, and observe the payment clearance outcome.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {(["upi", "p2p"] as const).map((m) => (
+                  <button key={m} onClick={() => { setDemoMode(m); setDemoOfflineNode(null); setDemoP2POffline(false); }}
+                    className={`rounded-xl border p-3.5 text-left transition-all ${
+                      demoMode === m
+                        ? m === "upi" ? "border-rose-400/50 bg-rose-500/10" : "border-emerald-400/50 bg-emerald-500/10"
+                        : "border-white/10 hover:bg-white/3"
                     }`}
                   >
-                    {node}
-                  </div>
-                  {i < scenario.flow.length - 1 && (
-                    <ArrowRight className="w-3.5 h-3.5 text-cyan-500/50 shrink-0" />
+                    <span className="text-xl">{m === "upi" ? "🏦" : "📱"}</span>
+                    <h4 className="text-xs font-bold text-white mt-1">{m === "upi" ? "UPI Clearing Hops (Centralized)" : "Direct P2P Settlement (Decentralized)"}</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{m === "upi" ? "Uses 3 intermediate nodes. If 1 fails, settlement stops." : "Zero intermediates. Resilient against middle node outage."}</p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-slate-950/80 p-5 flex flex-col items-center justify-center min-h-[180px]">
+                {demoMode === "upi" ? (
+                  <CentralizedPaymentFlowSVG nodeOffline={demoOfflineNode} />
+                ) : (
+                  <DirectPaymentFlowSVG offline={demoP2POffline} />
+                )}
+
+                <div className={`w-full mt-4 rounded-xl p-3 text-[11px] font-mono border ${
+                  demoOfflineNode || demoP2POffline
+                    ? "bg-rose-500/10 border-rose-500/20 text-rose-200"
+                    : "bg-white/5 border-white/5 text-slate-400"
+                }`}>
+                  {demoMode === "upi" ? (
+                    demoOfflineNode
+                      ? `⚠ Alert: Middle node ${demoOfflineNode.toUpperCase()} went offline. Ledger update message blocked. Transaction failed.`
+                      : "Click on Bank A, UPI, or Bank B node buttons below to simulate a node crash:"
+                  ) : (
+                    demoP2POffline
+                      ? "⚠ Alert: Sender went offline or has no balance. Transaction aborted."
+                      : "P2P nodes communicate directly. Click Sender to toggle your own online state:"
                   )}
                 </div>
-              ))}
-            </div>
-            <div className="mt-4 flex items-center gap-1.5 text-[9px] font-mono text-amber-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-              {scenario.flow.length - 2} intermediar{scenario.flow.length - 2 === 1 ? "y" : "ies"} in the path
-            </div>
-          </div>
-        </div>
-      }
-      labContent={
-        <div className="space-y-3">
-          <div className="bg-slate-900/60 border border-white/10 rounded-xl p-3">
-            <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Verify question</span>
-            <p className="text-[11.5px] text-white font-medium">{scenario.question}</p>
-          </div>
+              </div>
 
-          <div className="grid grid-cols-1 gap-2">
-            {scenario.options.map((opt, i) => {
-              const isSelected = selected === i;
-              const isCorrectOpt = i === scenario.correct;
-              let style = "bg-slate-900/60 border-white/10 text-slate-300 hover:border-cyan-500/40 hover:bg-slate-800/60";
-              if (selected !== null) {
-                if (isCorrectOpt) style = "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold";
-                else if (isSelected) style = "bg-rose-500/15 border-rose-500/40 text-rose-300";
-                else style = "bg-slate-900/40 border-white/5 text-slate-500 opacity-60";
-              }
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleSelect(i)}
-                  disabled={selected !== null}
-                  className={`text-left border rounded-xl px-3 py-2.5 text-[11px] font-mono transition-all flex items-center justify-between ${style}`}
-                >
-                  <span>{opt}</span>
-                  {selected !== null && isCorrectOpt && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                  {selected !== null && isSelected && !isCorrectOpt && <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Explanation */}
-          <AnimatePresence>
-            {showExplanation && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
-                <div
-                  className={`rounded-xl p-3 border text-[10px] font-mono leading-relaxed ${
-                    isCorrect ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-300" : "bg-amber-500/10 border-amber-500/25 text-amber-300"
-                  }`}
-                >
-                  <span className="font-bold uppercase tracking-wider">
-                    {isCorrect ? "✓ Verified — " : "✗ Conflict — "}
-                  </span>
-                  {scenario.explanation}
-                </div>
-                
-                {/* Navigation and Submission actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleNext}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 py-2 rounded-full text-[10px] font-rushblade shadow-md transition uppercase tracking-wider"
+              {/* Node trigger buttons */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {demoMode === "upi" ? (
+                  (["bankA", "upi", "bankB"] as const).map((node) => (
+                    <button key={node} onClick={() => setDemoOfflineNode(node === demoOfflineNode ? null : node)}
+                      className={`px-3 py-1.5 rounded-xl border text-[10px] font-mono transition-all ${
+                        demoOfflineNode === node ? "bg-rose-500/20 border-rose-400 text-rose-300" : "border-white/10 hover:bg-white/5 text-slate-400"
+                      }`}
+                    >
+                      Crash {node === "bankA" ? "Bank A" : node === "upi" ? "UPI Router" : "Bank B"}
+                    </button>
+                  ))
+                ) : (
+                  <button onClick={() => setDemoP2POffline(!demoP2POffline)}
+                    className={`px-3 py-1.5 rounded-xl border text-[10px] font-mono transition-all ${
+                      demoP2POffline ? "bg-rose-500/20 border-rose-400 text-rose-300" : "border-white/10 hover:bg-white/5 text-slate-400"
+                    }`}
                   >
-                    {currentScenario < SCENARIOS.length - 1 ? "Next Scenario" : allAnswered ? "Submit Results" : "Next Scenario"}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    Disconnect Sender
                   </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Hint system */}
-          <AnimatePresence>
-            {selected !== null && !isCorrect && !showExplanation && (
-              <div className="space-y-2">
-                <button
-                  onClick={() => setShowHints((prev) => ({ ...prev, [currentScenario]: true }))}
-                  className="w-full flex items-center justify-between px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[10px] text-amber-400 font-mono hover:bg-amber-500/15"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Lightbulb className="w-3.5 h-3.5" />
-                    Reveal Hint
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-                {showHint && (
-                  <div className="bg-amber-950/30 border border-amber-500/20 rounded-xl p-3 text-[10px] font-mono text-amber-300 leading-relaxed">
-                    {getScenarioHint(scenario.id)}
-                  </div>
+                )}
+                {(demoOfflineNode || demoP2POffline) && (
+                  <button onClick={() => { setDemoOfflineNode(null); setDemoP2POffline(false); }} className="px-3 py-1.5 bg-slate-800 border border-white/10 rounded-xl text-[10px] font-mono text-slate-400 hover:text-white">
+                    Reset Outage
+                  </button>
                 )}
               </div>
-            )}
-          </AnimatePresence>
-        </div>
-      }
-    />
+
+              <button onClick={() => goToStep("quiz")} className="w-full py-2.5 bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl hover:bg-cyan-300 transition flex items-center justify-center gap-1 shadow-[0_0_15px_rgba(34,211,238,0.25)]">
+                Take the Quiz <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── STEP 3: QUIZ ── */}
+          {step === "quiz" && (
+            <motion.div key="quiz" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4 max-w-2xl">
+              <div>
+                <p className="font-mono text-[8px] text-amber-400 uppercase tracking-widest">Section 3: Checkpoint</p>
+                <h2 className="text-xl font-bold text-white mt-0.5">Verification Scan</h2>
+                <p className="text-xs text-slate-400 mt-1">Answer the following questions to verify your understanding of database intermediary routing.</p>
+              </div>
+
+              <QuizPart onPass={() => goToStep("game")} />
+            </motion.div>
+          )}
+
+          {/* ── STEP 4: GAME ── */}
+          {step === "game" && (
+            <motion.div key="game" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-5 max-w-2xl">
+              <div>
+                <p className="font-mono text-[8px] text-purple-400 uppercase tracking-widest">Section 4: Active Challenge</p>
+                <h2 className="text-xl font-bold text-white mt-0.5">Identify Centralized Checkpoints</h2>
+                <p className="text-xs text-slate-400 mt-1">Audit the transaction scenarios below, trace the pathway hops, and isolate the count of intermediaries.</p>
+              </div>
+
+              <div className="bg-slate-900/60 border border-white/10 rounded-xl p-4 space-y-4">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="font-mono text-[10px] text-cyan-400">Scenario {currentScenario + 1} of 5</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-[8px]">XP: +3</span>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-white">{scenario.title}</h4>
+                  <div className="flex flex-wrap items-center gap-1 text-[9px] font-mono bg-black/40 border border-white/5 p-2 rounded-lg">
+                    {scenario.flow.map((node, i) => (
+                      <div key={i} className="flex items-center gap-1">
+                        <span className={`px-1.5 py-0.5 rounded ${i === 0 || i === scenario.flow.length - 1 ? "bg-cyan-500/15 border border-cyan-400/25 text-cyan-300" : "bg-rose-500/15 border border-rose-400/25 text-rose-300"}`}>{node}</span>
+                        {i < scenario.flow.length - 1 && <span className="text-slate-500">➔</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <p className="text-xs font-semibold text-slate-200">{scenario.question}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {scenario.options.map((opt, i) => {
+                      const sel = selected === i;
+                      const corr = i === scenario.correct;
+                      let btnCls = "border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/8 cursor-pointer";
+                      if (selected !== null) {
+                        if (corr) btnCls = "border-emerald-400/50 bg-emerald-500/10 text-emerald-300 cursor-default";
+                        else if (sel) btnCls = "border-rose-400/50 bg-rose-500/10 text-rose-300 cursor-default";
+                        else btnCls = "opacity-40 border-white/5 bg-transparent cursor-default";
+                      }
+                      return (
+                        <button key={i} onClick={() => handleSelect(i)} className={`py-2 rounded-lg border text-xs font-mono text-center transition-all ${btnCls}`}>
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {showExplanation && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`p-3 rounded-lg border text-[11px] leading-relaxed ${isCorrect ? "bg-emerald-500/10 border-emerald-400/20 text-emerald-200" : "bg-rose-500/10 border-rose-500/20 text-rose-200"}`}>
+                    <span className="font-bold">{isCorrect ? "✓ Correct: " : "✗ Incorrect: "}</span>
+                    {scenario.explanation}
+                  </motion.div>
+                )}
+              </div>
+
+              {selected !== null && (
+                <button onClick={handleNextScenario} className="w-full py-2.5 bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl hover:bg-cyan-300 transition flex items-center justify-center gap-1">
+                  {currentScenario < SCENARIOS.length - 1 ? "Next Scenario" : "Submit Scorecard"} <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {/* ── STEP 5: COMPLETE ── */}
+          {step === "complete" && (
+            <motion.div key="complete" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[360px] text-center space-y-6">
+              <div className="flex gap-2">
+                {[0, 1, 2].map((i) => (
+                  <motion.div key={i} initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.3 + i * 0.15, type: "spring", stiffness: 200 }}>
+                    <Star className="w-8 h-8 text-amber-400 fill-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]" />
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-cyan-500/15 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_40px_rgba(34,211,238,0.25)]">
+                <Trophy className="w-10 h-10 text-cyan-400" />
+              </motion.div>
+
+              <div>
+                <h3 className="font-rushblade text-2xl text-white">Task 1.1 Complete!</h3>
+                <p className="text-slate-400 mt-2 text-xs max-w-sm mx-auto leading-relaxed">
+                  You've successfully traced payment clearing routes, audited intermediary hops, and isolated central custody checkpoints.
+                </p>
+              </div>
+
+              <div className="flex gap-3 w-full max-w-xs">
+                <div className="flex-1 rounded-xl border border-cyan-400/30 bg-cyan-400/8 p-3 text-center">
+                  <p className="text-[8px] font-mono text-cyan-400 uppercase tracking-wider">XP Earned</p>
+                  <p className="font-rushblade text-xl text-cyan-300">+{scoreTotal} XP</p>
+                </div>
+                <div className="flex-1 rounded-xl border border-amber-400/30 bg-amber-400/8 p-3 text-center">
+                  <p className="text-[8px] font-mono text-amber-400 uppercase tracking-wider">Badge</p>
+                  <p className="text-xl">🗺️</p>
+                  <p className="text-[8px] text-amber-300 font-mono mt-0.5">Map Cadet</p>
+                </div>
+              </div>
+
+              <button onClick={() => { saveTaskScore("task1_1", scoreTotal, 15, scoreTotal >= 9); onComplete(); }}
+                className="flex items-center gap-2 px-8 py-3 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-[0_0_24px_rgba(34,211,238,0.3)] hover:scale-[1.02] active:scale-[0.98]">
+                Proceed to Task 1.2 <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </main>
+    </div>
   );
 }
+
+const THEORY_CARDS = [
+  {
+    tag: "CENTRAL CHANNELS",
+    title: "Database Isolation",
+    text: "Individual financial authorities keep proprietary databases that do not sync automatically. Hence, clearing networks are required to authenticate debit claims.",
+    border: "#ef4444",
+    color: "#ef4444",
+    bg: "rgba(239,68,68,0.1)",
+  },
+  {
+    tag: "OVERHEAD COSTS",
+    title: "The Clearance toll",
+    text: "Each validation broker in the transaction trail charges a fee and slows down settlement speeds, adding ledger reconciliation costs.",
+    border: "#f59e0b",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.1)",
+  },
+  {
+    tag: "THE LEDGER SHIFT",
+    title: "Decentralized Settlement",
+    text: "Decentralized consensus replaces isolated accounts with a single cryptographically-linked ledger copy shared across all network validator nodes.",
+    border: "#10b981",
+    color: "#10b981",
+    bg: "rgba(16,185,129,0.1)",
+  },
+];
+
+const GLOSSARY_TERMS = [
+  { term: "Intermediary Hop", color: "#ef4444" },
+  { term: "Isolated Ledger", color: "#f59e0b" },
+  { term: "Clearing Network", color: "#8b5cf6" },
+  { term: "Direct Transaction", color: "#10b981" },
+  { term: "Consensus Verification", color: "#22d3ee" },
+];

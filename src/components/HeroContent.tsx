@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Compass, Play } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { getUserState, getUserLevel, type UserState } from "@/lib/user-store";
 
 export default function HeroContent() {
   return (
@@ -32,23 +35,32 @@ export default function HeroContent() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <button className="group inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary via-primary-glow to-secondary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_40px_-8px_var(--color-primary)] transition hover:shadow-[0_0_60px_-6px_var(--color-secondary)]">
+            <Link
+              to="/planets/mercury"
+              className="group inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary via-primary-glow to-secondary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_40px_-8px_var(--color-primary)] transition hover:shadow-[0_0_60px_-6px_var(--color-secondary)] cursor-pointer"
+            >
               <Play className="h-4 w-4 fill-current" />
               Begin Journey
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-medium text-foreground backdrop-blur transition hover:bg-white/10">
+            </Link>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-medium text-foreground backdrop-blur transition hover:bg-white/10 cursor-pointer"
+            >
               Continue Learning
-            </button>
-            <button className="inline-flex items-center gap-2 px-2 py-3 text-sm font-medium text-muted-foreground transition hover:text-foreground">
+            </Link>
+            <Link
+              to="/docs"
+              className="inline-flex items-center gap-2 px-2 py-3 text-sm font-medium text-muted-foreground transition hover:text-foreground cursor-pointer"
+            >
               <Compass className="h-4 w-4" />
               Explore curriculum
-            </button>
+            </Link>
           </div>
 
           <div className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/8 pt-6">
-            <Stat label="Planets" value="9" hint="learning modules" />
-            <Stat label="Simulations" value="42" hint="hands-on labs" />
+            <Stat label="Planets" value="8" hint="learning modules" />
+            <Stat label="Simulations" value="24" hint="hands-on labs" />
             <Stat label="Learners" value="18k+" hint="orbiting now" />
           </div>
         </motion.div>
@@ -95,6 +107,21 @@ function Stat({ label, value, hint }: { label: string; value: string; hint: stri
 }
 
 function DashboardCard() {
+  const [userState, setUserState] = useState<UserState | null>(null);
+
+  useEffect(() => {
+    setUserState(getUserState());
+  }, []);
+
+  if (!userState) {
+    return (
+      <div className="glass-strong relative overflow-hidden rounded-3xl p-5 sm:p-6 h-[340px] animate-pulse bg-white/5" />
+    );
+  }
+
+  const level = getUserLevel(userState.xp);
+  const completionPct = Math.round((userState.completedPlanets.length / 8) * 100);
+
   return (
     <div className="glass-strong relative overflow-hidden rounded-3xl p-5 sm:p-6">
       {/* subtle top gradient */}
@@ -103,14 +130,14 @@ function DashboardCard() {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Commander
+            {level}
           </div>
-          <div className="mt-1 font-display text-lg font-semibold">Nova · Level 07</div>
+          <div className="mt-1 font-display text-lg font-semibold">Explorer · Level 01</div>
         </div>
         <div className="relative">
           <div className="h-11 w-11 rounded-full bg-linear-to-br from-secondary to-primary p-[2px]">
             <div className="flex h-full w-full items-center justify-center rounded-full bg-surface text-sm font-semibold">
-              N
+              E
             </div>
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-surface bg-success shadow-[0_0_10px_currentColor]" />
@@ -121,25 +148,25 @@ function DashboardCard() {
       <div className="mt-6">
         <div className="flex items-baseline justify-between text-[12px]">
           <span className="text-muted-foreground">Galaxy Progress</span>
-          <span className="font-mono text-foreground">42%</span>
+          <span className="font-mono text-foreground">{completionPct}%</span>
         </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full bg-linear-to-r from-primary via-secondary to-accent"
-            style={{ width: "42%" }}
+            style={{ width: `${completionPct}%` }}
           />
         </div>
         <div className="mt-2 flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground/70">
-          <span>3 planets complete</span>
-          <span>6 remaining</span>
+          <span>{userState.completedPlanets.length} planets complete</span>
+          <span>{8 - userState.completedPlanets.length} remaining</span>
         </div>
       </div>
 
       {/* Stats grid */}
       <div className="mt-6 grid grid-cols-2 gap-2.5">
         <MiniStat label="Wallet" value="Ready" tone="success" />
-        <MiniStat label="Streak" value="12 days" tone="accent" />
-        <MiniStat label="NFTs" value="7" tone="primary" />
+        <MiniStat label="Streak" value={`${userState.streak} days`} tone="accent" />
+        <MiniStat label="XP Points" value={`${userState.xp}`} tone="primary" />
         <MiniStat label="Rank" value="#284" tone="secondary" />
       </div>
 
@@ -150,19 +177,19 @@ function DashboardCard() {
             Recommended
           </div>
           <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-accent">
-            Mars
+            Venus
           </span>
         </div>
         <div className="mt-2 font-display text-[15px] font-semibold">
-          Wallets & Transactions
+          Cryptography & Keys
         </div>
         <div className="mt-0.5 text-xs text-muted-foreground">
-          Simulate signing your first transaction — no risk, no gas fees.
+          See the SHA-256 avalanche effect live on Venus — no setup required.
         </div>
-        <button className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/8 py-2 text-xs font-semibold text-foreground transition hover:bg-white/12">
+        <Link to="/planets/venus" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/8 py-2 text-xs font-semibold text-foreground transition hover:bg-white/12 cursor-pointer">
           Resume mission
           <ArrowRight className="h-3.5 w-3.5" />
-        </button>
+        </Link>
       </div>
     </div>
   );

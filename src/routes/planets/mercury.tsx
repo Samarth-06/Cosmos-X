@@ -1,18 +1,30 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Lock, CheckCircle2, RotateCcw, Play, Compass, Star, Rocket, Info } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  CheckCircle2,
+  RotateCcw,
+  Rocket,
+  Bot,
+  RefreshCw,
+  ArrowLeft,
+  ArrowRight,
+  Play,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { Canvas, useLoader, useFrame } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import * as THREE from "three";
 
 import mercuryTex from "@/assets/planets/mercury.jpg";
-import RocketAssembly from "@/components/module/RocketAssembly";
+import MercuryChapterOne from "@/components/module/MercuryChapterOne";
 import Task1_1_MiddlemanMapper from "@/components/module/Task1_1_MiddlemanMapper";
 import Task1_2_CorruptedServer from "@/components/module/Task1_2_CorruptedServer";
 import Task1_3_TradeDilemma from "@/components/module/Task1_3_TradeDilemma";
-import Task1_4_ComparisonEngine from "@/components/module/Task1_4_ComparisonEngine";
-import Task1_5_CardSorter from "@/components/module/Task1_5_CardSorter";
 import GenericSandboxRunner from "@/components/module/GenericSandboxRunner";
 import FinalEscapeRoom from "@/components/module/FinalEscapeRoom";
 import { MERCURY_CURRICULUM } from "@/lib/mercury-curriculum";
@@ -30,1064 +42,829 @@ export const Route = createFileRoute("/planets/mercury")({
   component: MercuryModule,
 });
 
-interface ModuleDetail {
-  id: number;
-  title: string;
-  topic: string;
-  stageName: string;
-  iconName: "horizon" | "sunrise" | "solar-rise" | "scorch" | "peak" | "descent" | "twilight" | "night";
-  tasks: string[];
-  description: string;
-  color: string; // Unique elegant color code
-  angle: number; // Angle in degrees around the circle
-}
+/* ─────────────────────────────────────────────
+   MODULE DATA
+───────────────────────────────────────────── */
 
-const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
-  {
-    id: 1,
-    title: "MODULE 01",
-    topic: "Why Does Blockchain Exist?",
-    stageName: "Dark Horizon",
-    iconName: "horizon",
-    angle: -90, // 12 o'clock
-    color: "#00E5FF", // Cyan
-    description: "Audit centralized command routing database to isolate systemic vulnerabilities and discover why decentralization is required.",
+const MODULES = [
+  { id: 1, num: "01", title: "Why Does Blockchain Exist?", stageName: "Dark Horizon", color: "#22d3ee",
     tasks: [
-      "Task 1.1: Centralized Systems",
-      "Task 1.2: Single Point of Failure",
-      "Task 1.3: The Trust Problem",
-    ],
-  },
-  {
-    id: 2,
-    title: "MODULE 02",
-    topic: "Transactions & Digital Ledgers",
-    stageName: "First Light",
-    iconName: "sunrise",
-    angle: -45,
-    color: "#3B82F6", // Electric Blue
-    description: "Examine transaction payloads, audit append-only digital ledgers, trace the transaction lifecycle, and act as a mempool validator.",
+      { id: "task1_1" as Module1Task, label: "Map the Middlemen" },
+      { id: "task1_2" as Module1Task, label: "Corrupted Command" },
+      { id: "task1_3" as Module1Task, label: "Trade Dilemma" },
+    ], verifyId: "task1_verify" as Module1Task },
+  { id: 2, num: "02", title: "Transactions & Digital Ledgers", stageName: "First Light", color: "#3b82f6",
     tasks: [
-      "Task 2.1: What is a Transaction?",
-      "Task 2.2: The Digital Ledger & Bookkeeping",
-      "Task 2.3: Transaction Lifecycle",
-    ],
-  },
-  {
-    id: 3,
-    title: "MODULE 03",
-    topic: "Blocks & Blockchain Structure",
-    stageName: "Solar Rise",
-    iconName: "solar-rise",
-    angle: 0, // 3 o'clock
-    color: "#8B5CF6", // Violet
-    description: "Learn block header metadata structures, audit genesis configurations, calculate TPS throughput, and reconstruct chronological blockchains.",
+      { id: "task2_1" as Module1Task, label: "Transaction Anatomy" },
+      { id: "task2_2" as Module1Task, label: "Ledger Audit" },
+      { id: "task2_3" as Module1Task, label: "Lifecycle Trace" },
+    ], verifyId: "task2_verify" as Module1Task },
+  { id: 3, num: "03", title: "Blocks & Blockchain Structure", stageName: "Solar Rise", color: "#8b5cf6",
     tasks: [
-      "Task 3.1: What is a Block? (Header and Body)",
-      "Task 3.2: The Genesis Block",
-      "Task 3.3: Capacity vs. Speed",
-    ],
-  },
-  {
-    id: 4,
-    title: "MODULE 04",
-    topic: "Hashing & Data Integrity",
-    stageName: "Scorch Zone",
-    iconName: "scorch",
-    angle: 45,
-    color: "#EC4899", // Magenta
-    description: "Learn cryptographic hash parameters, investigate the avalanche effect, compare hashing to encryption, and run checksum integrity audits.",
+      { id: "task3_1" as Module1Task, label: "Block Anatomy" },
+      { id: "task3_2" as Module1Task, label: "Genesis Block" },
+      { id: "task3_3" as Module1Task, label: "TPS vs Capacity" },
+    ], verifyId: "task3_verify" as Module1Task },
+  { id: 4, num: "04", title: "Hashing & Data Integrity", stageName: "Scorch Zone", color: "#ec4899",
     tasks: [
-      "Task 4.1: What is Hashing?",
-      "Task 4.2: The Avalanche Effect",
-      "Task 4.3: Hashing vs. Encryption",
-    ],
-  },
-  {
-    id: 5,
-    title: "MODULE 05",
-    topic: "How Blocks Are Connected",
-    stageName: "Solar Peak",
-    iconName: "peak",
-    angle: 90, // 6 o'clock
-    color: "#F59E0B", // Amber
-    description: "Audit parent hash back-links, trigger chain reaction domino effects, hash block headers, and repair broken transaction ledger links.",
+      { id: "task4_1" as Module1Task, label: "Hash Basics" },
+      { id: "task4_2" as Module1Task, label: "Avalanche Effect" },
+      { id: "task4_3" as Module1Task, label: "Hash vs Encrypt" },
+    ], verifyId: "task4_verify" as Module1Task },
+  { id: 5, num: "05", title: "How Blocks Are Connected", stageName: "Solar Peak", color: "#f59e0b",
     tasks: [
-      "Task 5.1: Cryptographic Links",
-      "Task 5.2: The Domino Effect",
-      "Task 5.3: Hashing a Block Header",
-    ],
-  },
-  {
-    id: 6,
-    title: "MODULE 06",
-    topic: "Decentralization & Distributed Networks",
-    stageName: "Solar Descent",
-    iconName: "descent",
-    angle: 135,
-    color: "#10B981", // Emerald
-    description: "Map network topologies, audit node configuration Sync parameters, simulate Gossip transmission routing, and calculate Byzantine Fault tolerance.",
+      { id: "task5_1" as Module1Task, label: "Cryptographic Links" },
+      { id: "task5_2" as Module1Task, label: "Domino Effect" },
+      { id: "task5_3" as Module1Task, label: "Hashing a Header" },
+    ], verifyId: "task5_verify" as Module1Task },
+  { id: 6, num: "06", title: "Decentralization & Networks", stageName: "Solar Descent", color: "#10b981",
     tasks: [
-      "Task 6.1: Topologies",
-      "Task 6.2: Node Config",
-      "Task 6.3: Gossip Protocols",
-    ],
-  },
-  {
-    id: 7,
-    title: "MODULE 07",
-    topic: "Consensus & Transaction Validation",
-    stageName: "Twilight Zone",
-    iconName: "twilight",
-    angle: 180, // 9 o'clock
-    color: "#F97316", // Orange
-    description: "Solve Byzantine Generals puzzles, compare PoW vs. PoS consensus systems, identify federated quorum cores, and order double-spending transactions.",
+      { id: "task6_1" as Module1Task, label: "Topologies" },
+      { id: "task6_2" as Module1Task, label: "Node Config" },
+      { id: "task6_3" as Module1Task, label: "Gossip Protocol" },
+    ], verifyId: "task6_verify" as Module1Task },
+  { id: 7, num: "07", title: "Consensus & Validation", stageName: "Twilight Zone", color: "#f97316",
     tasks: [
-      "Task 7.1: Consensus Problem",
-      "Task 7.2: PoW vs. PoS",
-      "Task 7.3: Federated Consensus",
-    ],
-  },
-  {
-    id: 8,
-    title: "MODULE 08",
-    topic: "Immutability, Transparency & Blockchain Use Cases",
-    stageName: "Eternal Night",
-    iconName: "night",
-    angle: -135,
-    color: "#6366F1", // Indigo
-    description: "Verify shipping logs using traceability, calculate throughput costs comparing DB to BC, match industry use cases, and sort database architecture models.",
+      { id: "task7_1" as Module1Task, label: "Byzantine Problem" },
+      { id: "task7_2" as Module1Task, label: "PoW vs PoS" },
+      { id: "task7_3" as Module1Task, label: "Federated Consensus" },
+    ], verifyId: "task7_verify" as Module1Task },
+  { id: 8, num: "08", title: "Immutability & Use Cases", stageName: "Eternal Night", color: "#6366f1",
     tasks: [
-      "Task 8.1: Immutability & Traceability",
-      "Task 8.2: Hashing Drawbacks",
-      "Task 8.3: Real-World Use Cases",
-    ],
-  },
+      { id: "task8_1" as Module1Task, label: "Traceability" },
+      { id: "task8_2" as Module1Task, label: "Drawbacks" },
+      { id: "task8_3" as Module1Task, label: "Real-World Cases" },
+    ], verifyId: "task8_verify" as Module1Task },
 ];
 
-const getLabelStyles = (angle: number, isSelected: boolean) => {
-  if (angle === -90) {
-    return {
-      className: "absolute bottom-full left-1/2 flex flex-col items-center text-center pb-2 w-44",
-      animate: { y: isSelected ? -40 : 0, x: "-50%" }
-    };
-  }
-  if (angle === 90) {
-    return {
-      className: "absolute top-full left-1/2 flex flex-col items-center text-center pt-2 w-44",
-      animate: { y: isSelected ? 40 : 0, x: "-50%" }
-    };
-  }
-  if (angle === -45 || angle === 0 || angle === 45) {
-    return {
-      className: "absolute left-full top-1/2 flex flex-col items-start text-left pl-3.5 w-44",
-      animate: { x: isSelected ? 40 : 0, y: "-50%" }
-    };
-  }
-  return {
-    className: "absolute right-full top-1/2 flex flex-col items-end text-right pr-3.5 w-44",
-    animate: { x: isSelected ? -40 : 0, y: "-50%" }
-  };
+const MODULE_TITLES: Record<number, string> = {
+  1: "Why Does Blockchain Exist?", 2: "Transactions & Digital Ledgers",
+  3: "Blocks & Blockchain Structure", 4: "Hashing & Data Integrity",
+  5: "How Blocks Are Connected", 6: "Decentralization & Networks",
+  7: "Consensus & Transaction Validation", 8: "Immutability & Use Cases",
 };
 
-const getArrowAlignment = (angle: number) => {
-  if (angle === -90 || angle === 90) return "justify-center";
-  if (angle === -45 || angle === 0 || angle === 45) return "justify-start pl-1.5";
-  return "justify-end pr-1.5";
-};
+/* ─────────────────────────────────────────────
+   3D MERCURY COMPONENTS
+───────────────────────────────────────────── */
 
-function RotatingMercury() {
+function BigMercury() {
   const tex = useLoader(TextureLoader, mercuryTex);
   const meshRef = useRef<THREE.Mesh>(null);
-
   useFrame((_, dt) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += dt * 0.12;
-    }
+    if (meshRef.current) meshRef.current.rotation.y += dt * 0.08;
   });
-
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[2.5, 64, 64]} />
-      <meshStandardMaterial
-        map={tex}
-        roughness={0.9}
-        metalness={0.15}
-      />
+    <mesh ref={meshRef} position={[0, 0, 0]}>
+      <sphereGeometry args={[2.8, 96, 96]} />
+      <meshStandardMaterial map={tex} roughness={0.85} metalness={0.15} />
     </mesh>
   );
 }
 
+function SmallMercury() {
+  const tex = useLoader(TextureLoader, mercuryTex);
+  const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (meshRef.current) meshRef.current.rotation.y += dt * 0.18;
+  });
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[1.6, 64, 64]} />
+      <meshStandardMaterial map={tex} roughness={0.85} metalness={0.15} />
+    </mesh>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   URL HELPER
+───────────────────────────────────────────── */
+
+function getUrlForTask(task: Module1Task): string {
+  if (task === "story" || task === "task1_1") return "cosmosx://mercury/ch1/task-1.1-map-the-middlemen";
+  if (task === "task1_2") return "cosmosx://mercury/ch1/task-1.2-corrupted-command";
+  if (task === "task1_3") return "cosmosx://mercury/ch1/task-1.3-trade-dilemma";
+  const match = task.match(/^task(\d+)_(\d+)$/);
+  if (match) return `cosmosx://mercury/ch${match[1]}/task-${match[1]}.${match[2]}`;
+  const vm = task.match(/^task(\d+)_verify$/);
+  if (vm) return `cosmosx://mercury/ch${vm[1]}/module-${vm[1]}-verification`;
+  if (task === "final_challenge") return "cosmosx://mercury/final/escape-room";
+  if (task === "completed") return "cosmosx://mercury/complete/graduation";
+  return "cosmosx://mercury/sandbox";
+}
+
+/* ─────────────────────────────────────────────
+   NOVA HINTS
+───────────────────────────────────────────── */
+
+function getNovaHint(task: Module1Task): string {
+  if (task === "task1_1") return "Map all the middlemen in the UPI transaction flow. Look for every hop between sender and receiver.";
+  if (task === "task1_2") return "A server is corrupted. Identify which records were tampered with and why it matters.";
+  if (task === "task1_3") return "Two traders need to swap goods without trusting each other. Find the trustless mechanism.";
+  if (task.endsWith("_verify")) return "Review your task scores. You need to pass all 3 tasks to unlock the next module.";
+  if (task === "final_challenge") return "All 8 modules complete. Execute the final timed escape room to graduate from Mercury.";
+  if (task === "completed") return "Mercury mastered! You've earned the First Block badge. Launch to Venus next.";
+  return "Complete each task in sequence. Read the theory panel first, then attempt the challenge.";
+}
+
+/* ─────────────────────────────────────────────
+   LANDING PAGE
+───────────────────────────────────────────── */
+
+function MercuryLandingPage({
+  onEnterModule,
+  completedModuleIds,
+  currentActiveModuleId,
+}: {
+  onEnterModule: (modId: number) => void;
+  completedModuleIds: number[];
+  currentActiveModuleId: number;
+}) {
+  const [hoveredMod, setHoveredMod] = useState<number | null>(null);
+
+  return (
+    <div className="relative h-screen bg-[#030711] overflow-hidden">
+      {/* Starfield */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,white_0.7px,transparent_0.7px)] bg-size-[28px_28px] opacity-[0.07]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_15%_50%,rgba(34,211,238,0.07)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_85%_50%,rgba(99,102,241,0.05)_0%,transparent_60%)]" />
+      </div>
+
+      {/* Back link */}
+      <div className="absolute top-6 left-6 z-20">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition font-mono text-xs group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          Solar System
+        </Link>
+      </div>
+
+      {/* Top label */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+        <span className="font-mono text-[10px] text-cyan-400/80 uppercase tracking-[0.3em]">Planet 01 · Mercury</span>
+      </div>
+
+      {/* Main layout: left planet, right modules */}
+      <div className="absolute inset-0 flex items-center">
+
+        {/* ── LEFT: 3D Planet + title ── */}
+        <div className="w-[52%] h-full flex flex-col items-center justify-center relative">
+          {/* Atmospheric glow rings */}
+          <div className="absolute w-[380px] h-[380px] rounded-full border border-cyan-400/8 animate-[spin_60s_linear_infinite]" />
+          <div className="absolute w-[460px] h-[460px] rounded-full border border-cyan-400/5 animate-[spin_90s_linear_infinite_reverse]" />
+          <div className="absolute w-[320px] h-[320px] rounded-full"
+            style={{ background: "radial-gradient(ellipse at center, rgba(34,211,238,0.08) 0%, transparent 70%)" }} />
+
+          {/* 3D Canvas */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+            className="w-[280px] h-[280px] relative"
+          >
+            <Canvas camera={{ position: [0, 0, 6.5] }}>
+              <ambientLight intensity={0.25} />
+              <pointLight position={[12, 8, 10]} intensity={4} color="#fff5e0" />
+              <pointLight position={[-8, -4, -6]} intensity={0.4} color="#22d3ee" />
+              <Suspense fallback={null}>
+                <BigMercury />
+              </Suspense>
+            </Canvas>
+
+            {/* Orbit ring overlay */}
+            <div className="absolute inset-0 rounded-full border border-cyan-400/10 pointer-events-none" style={{ transform: "scale(1.15) rotateX(75deg)" }} />
+          </motion.div>
+
+          {/* Title */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+            className="text-center mt-6 space-y-2"
+          >
+            <h1 className="font-rushblade text-5xl text-white tracking-wider">MERCURY</h1>
+            <p className="font-mono text-xs text-slate-400 uppercase tracking-[0.3em]">Blockchain Foundations</p>
+            <div className="flex items-center justify-center gap-4 mt-3">
+              <span className="px-3 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/8 font-mono text-[10px] text-cyan-300">8 Modules</span>
+              <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 font-mono text-[10px] text-slate-400">Beginner</span>
+              <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 font-mono text-[10px] text-slate-400">~6 hrs</span>
+            </div>
+          </motion.div>
+
+          {/* Progress bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-6 w-64"
+          >
+            <div className="flex justify-between text-[9px] font-mono text-slate-500 mb-1.5">
+              <span>{completedModuleIds.length}/8 modules complete</span>
+              <span>{Math.round((completedModuleIds.length / 8) * 100)}%</span>
+            </div>
+            <div className="h-1 bg-white/5 rounded-full border border-white/5 overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.round((completedModuleIds.length / 8) * 100)}%` }}
+                transition={{ delay: 0.9, duration: 0.8, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-full"
+                style={{ boxShadow: "0 0 8px rgba(34,211,238,0.5)" }}
+              />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── RIGHT: Module Grid ── */}
+        <div className="w-[48%] h-full flex flex-col justify-center pr-12 overflow-y-auto py-20">
+          <motion.p
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="font-mono text-[9px] text-slate-500 uppercase tracking-[0.3em] mb-4"
+          >
+            Learning Modules
+          </motion.p>
+
+          <div className="space-y-2">
+            {MODULES.map((mod, i) => {
+              const done = completedModuleIds.includes(mod.id);
+              const unlocked = mod.id <= currentActiveModuleId;
+              const isActive = mod.id === currentActiveModuleId;
+              const isHovered = hoveredMod === mod.id;
+
+              return (
+                <motion.button
+                  key={mod.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.05, ease: [0.19, 1, 0.22, 1] }}
+                  onClick={() => unlocked && onEnterModule(mod.id)}
+                  onMouseEnter={() => setHoveredMod(mod.id)}
+                  onMouseLeave={() => setHoveredMod(null)}
+                  disabled={!unlocked}
+                  className={`w-full text-left rounded-2xl border transition-all duration-200 group ${
+                    !unlocked ? "opacity-35 cursor-not-allowed border-white/5 bg-transparent" :
+                    done ? "border-emerald-400/25 bg-emerald-400/5 hover:bg-emerald-400/8 hover:border-emerald-400/40" :
+                    isActive ? "border-white/20 bg-white/6 hover:bg-white/10 cursor-pointer" :
+                    "border-white/8 bg-white/3 hover:bg-white/7 hover:border-white/15 cursor-pointer"
+                  }`}
+                  style={isHovered && unlocked ? {
+                    borderColor: `${mod.color}40`,
+                    backgroundColor: `${mod.color}08`,
+                    boxShadow: `0 0 24px ${mod.color}12`,
+                  } : {}}
+                >
+                  <div className="flex items-center gap-3.5 px-4 py-3">
+                    {/* Module number badge */}
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center font-mono text-xs font-bold shrink-0 border transition-all"
+                      style={{
+                        borderColor: done ? "rgba(52,211,153,0.4)" : unlocked ? `${mod.color}40` : "rgba(255,255,255,0.1)",
+                        backgroundColor: done ? "rgba(52,211,153,0.12)" : unlocked ? `${mod.color}12` : "rgba(255,255,255,0.03)",
+                        color: done ? "#34d399" : unlocked ? mod.color : "#475569",
+                      }}
+                    >
+                      {done ? <CheckCircle2 className="w-4 h-4" /> : !unlocked ? <Lock className="w-3.5 h-3.5" /> : mod.num}
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono text-[9px] uppercase tracking-wider" style={{ color: unlocked ? mod.color : "#374151" }}>
+                          {mod.stageName}
+                        </p>
+                        {isActive && !done && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/30 text-[8px] font-mono text-amber-400 uppercase tracking-wider animate-pulse">
+                            Active
+                          </span>
+                        )}
+                        {done && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-[8px] font-mono text-emerald-400 uppercase tracking-wider">
+                            Done
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[12px] font-medium mt-0.5 truncate ${unlocked ? "text-white" : "text-slate-600"}`}>
+                        {mod.title}
+                      </p>
+                      <p className="text-[10px] text-slate-600 mt-0.5 font-mono">3 tasks</p>
+                    </div>
+
+                    {/* Arrow */}
+                    <div className={`shrink-0 transition-all ${unlocked ? "opacity-60 group-hover:opacity-100" : "opacity-20"}`}>
+                      <ChevronRight
+                        className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                        style={{ color: unlocked ? mod.color : "#374151" }}
+                      />
+                    </div>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   WORKSPACE — sidebar + virtual browser
+───────────────────────────────────────────── */
+
+function MercuryWorkspace({
+  task,
+  onTaskChange,
+  onBack,
+  completedModuleIds,
+  currentActiveModuleId,
+  activeTaskInfo,
+  handleLaunchRocket,
+}: {
+  task: Module1Task;
+  onTaskChange: (t: Module1Task) => void;
+  onBack: () => void;
+  completedModuleIds: number[];
+  currentActiveModuleId: number;
+  activeTaskInfo: { taskDef: any; color: string } | null;
+  handleLaunchRocket: () => void;
+}) {
+  const [expandedModule, setExpandedModule] = useState<number>(() => {
+    const match = task.match(/^task(\d+)_/);
+    return match ? parseInt(match[1]) : 1;
+  });
+  const [urlAnimating, setUrlAnimating] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const currentUrl = getUrlForTask(task);
+
+  // Auto-expand the module the task belongs to
+  useEffect(() => {
+    const match = task.match(/^task(\d+)_/);
+    if (match) setExpandedModule(parseInt(match[1]));
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setUrlAnimating(true);
+    const t = setTimeout(() => setUrlAnimating(false), 700);
+    return () => clearTimeout(t);
+  }, [task]);
+
+  const isTaskDone = (taskId: Module1Task) => {
+    const current = MODULE1_TASKS.indexOf(task);
+    const target = MODULE1_TASKS.indexOf(taskId);
+    return current > target;
+  };
+  const isModuleDone = (id: number) => completedModuleIds.includes(id);
+  const isModuleUnlocked = (id: number) => id <= currentActiveModuleId;
+
+  const activeModDef = MODULES.find((m) => {
+    const match = task.match(/^task(\d+)_/);
+    return match ? m.id === parseInt(match[1]) : m.id === 1;
+  });
+  const accentColor = activeModDef?.color ?? "#22d3ee";
+
+  return (
+    <div className="h-screen bg-[#030711] text-white flex flex-col overflow-hidden">
+      {/* Starfield */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,white_0.7px,transparent_0.7px)] bg-size-[28px_28px] opacity-[0.06]" />
+      </div>
+
+      {/* ── WORKSPACE HEADER ── */}
+      <header className="relative z-20 shrink-0 flex items-center gap-4 px-5 py-3 bg-[#08101f]/90 border-b border-white/8 backdrop-blur-xl">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-slate-400 hover:text-white transition font-mono text-[10px] group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          MERCURY
+        </button>
+
+        <div className="w-px h-4 bg-white/10" />
+
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: accentColor }}>
+            {task.match(/^task(\d+)_(\d+)$/) ? `Module ${task.match(/^task(\d+)_(\d+)$/)![1].padStart(2,"0")} · Task ${task.match(/^task(\d+)_(\d+)$/)![2]}` :
+             task.match(/^task(\d+)_verify$/) ? `Module ${task.match(/^task(\d+)_verify$/)![1].padStart(2,"0")} · Verification` :
+             task === "final_challenge" ? "Final Mission · Escape Room" :
+             task === "completed" ? "Mercury Complete" : "Sandbox"}
+          </span>
+        </div>
+
+        {/* Module progress ticks */}
+        <div className="ml-auto hidden md:flex items-center gap-1">
+          {MODULES.map((mod) => {
+            const done = isModuleDone(mod.id);
+            const active = mod.id === currentActiveModuleId;
+            return (
+              <div key={mod.id} className="w-4 h-1.5 rounded-sm border transition-all duration-500"
+                style={{
+                  backgroundColor: done ? "#10b981" : active ? `${mod.color}30` : "transparent",
+                  borderColor: done ? "#10b981" : active ? mod.color : "rgba(255,255,255,0.1)",
+                  boxShadow: done ? "0 0 5px rgba(16,185,129,0.6)" : active ? `0 0 4px ${mod.color}70` : "none",
+                }}
+                title={`Module ${mod.num}`}
+              />
+            );
+          })}
+        </div>
+
+        <button onClick={() => { resetMercuryProgress(); onBack(); }}
+          className="flex items-center gap-1.5 text-[9px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/8 hover:bg-rose-500/15 px-2.5 py-1.5 rounded-lg border border-rose-500/20 hover:border-rose-500/40 transition shrink-0">
+          <RotateCcw className="w-3 h-3" />
+          <span className="hidden sm:block">RESET</span>
+        </button>
+      </header>
+
+      {/* ── BODY: SIDEBAR + BROWSER ── */}
+      <div className="flex flex-1 min-h-0 relative z-10">
+
+        {/* ── LEFT MODULE SIDEBAR ── */}
+        <aside className="w-60 shrink-0 border-r border-white/8 bg-[#060d1a]/80 backdrop-blur-md flex flex-col overflow-hidden">
+
+          {/* Planet mini header */}
+          <div className="px-3 pt-3 pb-3 border-b border-white/8 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl overflow-hidden border shrink-0" style={{ borderColor: `${accentColor}30`, boxShadow: `0 0 12px ${accentColor}25` }}>
+                <Canvas camera={{ position: [0, 0, 4] }}>
+                  <ambientLight intensity={0.3} />
+                  <pointLight position={[8, 8, 8]} intensity={3} />
+                  <Suspense fallback={null}><SmallMercury /></Suspense>
+                </Canvas>
+              </div>
+              <div className="min-w-0">
+                <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">Planet 01</p>
+                <h2 className="font-rushblade text-xs text-white">MERCURY</h2>
+              </div>
+            </div>
+            <div className="mt-2">
+              <div className="flex justify-between text-[8px] font-mono text-slate-600 mb-1">
+                <span>{completedModuleIds.length}/8 done</span>
+                <span>{Math.round((completedModuleIds.length / 8) * 100)}%</span>
+              </div>
+              <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${Math.round((completedModuleIds.length / 8) * 100)}%`, background: `linear-gradient(90deg, ${accentColor}70, ${accentColor})` }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Module + task list */}
+          <nav className="flex-1 overflow-y-auto py-2 space-y-0.5 px-2">
+            {MODULES.map((mod) => {
+              const done = isModuleDone(mod.id);
+              const unlocked = isModuleUnlocked(mod.id);
+              const isExpanded = expandedModule === mod.id;
+              const currentTaskInMod = task.startsWith(`task${mod.id}_`);
+
+              return (
+                <div key={mod.id}>
+                  <button
+                    onClick={() => unlocked && setExpandedModule(isExpanded ? 0 : mod.id)}
+                    disabled={!unlocked}
+                    className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left transition-all ${
+                      currentTaskInMod ? "bg-white/8 border border-white/10" :
+                      unlocked ? "hover:bg-white/5" : "opacity-35 cursor-not-allowed"
+                    }`}
+                  >
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-[9px] font-mono font-bold border transition-all"
+                      style={{
+                        borderColor: done ? "rgba(52,211,153,0.4)" : currentTaskInMod ? `${mod.color}50` : unlocked ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)",
+                        color: done ? "#34d399" : currentTaskInMod ? mod.color : unlocked ? "#94a3b8" : "#374151",
+                        backgroundColor: done ? "rgba(52,211,153,0.1)" : currentTaskInMod ? `${mod.color}15` : "transparent",
+                      }}
+                    >
+                      {done ? "✓" : !unlocked ? <Lock className="w-2.5 h-2.5" /> : mod.num}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[8px] font-mono uppercase tracking-wider truncate" style={{ color: unlocked ? mod.color : "#374151" }}>
+                        MODULE {mod.num}
+                      </p>
+                      <p className={`text-[10px] truncate mt-0.5 ${currentTaskInMod ? "text-white font-medium" : unlocked ? "text-slate-400" : "text-slate-700"}`}>
+                        {mod.title}
+                      </p>
+                    </div>
+                    <ChevronRight className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${unlocked ? "text-slate-500" : "text-slate-800"}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded && unlocked && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.18 }} className="overflow-hidden">
+                        <div className="pl-9 pr-2 pb-1 pt-0.5 space-y-0.5">
+                          {mod.tasks.map((t) => {
+                            const tDone = isTaskDone(t.id);
+                            const tActive = task === t.id;
+                            return (
+                              <button key={t.id} onClick={() => onTaskChange(t.id)}
+                                className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 transition-all hover:bg-white/5"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: tDone ? "#34d399" : tActive ? mod.color : "rgba(255,255,255,0.15)" }} />
+                                <span className="font-mono text-[10px] truncate"
+                                  style={{ color: tActive ? mod.color : tDone ? "#34d399" : "#64748b", fontWeight: tActive ? "700" : "400" }}>
+                                  {t.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+
+            {/* Final challenge */}
+            <button disabled={completedModuleIds.length < 8} onClick={() => onTaskChange("final_challenge")}
+              className={`w-full flex items-center gap-2 px-2.5 py-2 mt-1 rounded-xl text-left border transition-all ${
+                completedModuleIds.length >= 8 ? "border-rose-400/20 bg-rose-500/8 hover:bg-rose-500/12" : "border-transparent opacity-25 cursor-not-allowed"
+              }`}>
+              <div className="w-6 h-6 rounded-lg border border-rose-400/30 bg-rose-500/15 flex items-center justify-center text-rose-400 shrink-0">
+                <Rocket className="w-3 h-3" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[8px] font-mono text-rose-400 uppercase tracking-wider">FINAL MISSION</p>
+                <p className="text-[10px] text-slate-400 truncate">Escape Room</p>
+              </div>
+            </button>
+          </nav>
+
+          {/* NOVA */}
+          <div className="mx-2 mb-2 p-2.5 rounded-xl border border-violet-400/20 bg-violet-400/5 shrink-0">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Bot className="w-3 h-3 text-violet-300" />
+              <span className="text-[8px] font-mono text-violet-300 uppercase tracking-wider">NOVA · AI Guide</span>
+              <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <p className="text-[9px] text-slate-400 leading-relaxed">{getNovaHint(task)}</p>
+          </div>
+        </aside>
+
+        {/* ── VIRTUAL BROWSER (content only) ── */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#040916]">
+
+          {/* Browser chrome */}
+          <div className="shrink-0 bg-[#08101f]/95 border-b border-white/8 backdrop-blur-md">
+            {/* Tab strip */}
+            <div className="flex items-end gap-0 px-3 pt-2">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-t-xl border border-b-0 text-[10px] font-mono bg-[#0d1628]/90 min-w-0 max-w-xs"
+                style={{ borderColor: `${accentColor}25` }}>
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: accentColor, boxShadow: `0 0 6px ${accentColor}80` }} />
+                <span className="truncate text-white/80">{activeModDef?.title ?? "Mercury Sandbox"}</span>
+              </div>
+            </div>
+
+            {/* URL row */}
+            <div className="flex items-center gap-2.5 px-3 pb-2 pt-1">
+              {/* Traffic lights */}
+              <div className="flex gap-1.5 shrink-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+              </div>
+
+              {/* Nav buttons */}
+              <div className="flex gap-0.5 shrink-0">
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-600 hover:text-slate-400 hover:bg-white/5 transition">
+                  <ArrowLeft className="w-3 h-3" />
+                </button>
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-700 cursor-not-allowed">
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-600 hover:text-slate-400 hover:bg-white/5 transition">
+                  <RefreshCw className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* URL bar */}
+              <div className="flex-1 flex items-center gap-2 bg-[#0a0f1e]/90 border rounded-lg px-3 py-1 min-w-0 transition-all duration-500"
+                style={{ borderColor: urlAnimating ? `${accentColor}50` : "rgba(255,255,255,0.1)", boxShadow: urlAnimating ? `0 0 12px ${accentColor}18` : "none" }}>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 5px rgba(52,211,153,0.7)" }} />
+                  <span className="text-[8px] font-mono text-emerald-400/70 uppercase tracking-wider hidden sm:block">SECURE</span>
+                </div>
+                <div className="w-px h-2.5 bg-white/10 shrink-0" />
+                <motion.span key={currentUrl} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }}
+                  className="font-mono text-[10px] truncate flex-1" style={{ color: accentColor }}>
+                  {currentUrl}
+                </motion.span>
+              </div>
+
+              <div className="shrink-0 flex items-center gap-1.5 bg-slate-900/50 border border-white/8 px-2 py-1 rounded-lg">
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+                <span className="font-mono text-[8px]" style={{ color: accentColor }}>SANDBOX</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Page content */}
+          <div ref={contentRef} className="flex-1 overflow-y-auto min-h-0">
+            <AnimatePresence mode="wait">
+
+              {task === "story" && (
+                <motion.div key="story" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <MercuryChapterOne onComplete={() => onTaskChange("task1_1")} />
+                </motion.div>
+              )}
+              {task === "task1_1" && (
+                <motion.div key="t1_1" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_1_MiddlemanMapper onComplete={() => onTaskChange("task1_2")} />
+                </motion.div>
+              )}
+              {task === "task1_2" && (
+                <motion.div key="t1_2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_2_CorruptedServer onComplete={() => onTaskChange("task1_3")} />
+                </motion.div>
+              )}
+              {task === "task1_3" && (
+                <motion.div key="t1_3" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_3_TradeDilemma onComplete={() => onTaskChange("task1_verify")} />
+                </motion.div>
+              )}
+
+              {activeTaskInfo && !task.endsWith("_verify") && !["task1_1","task1_2","task1_3","final_challenge","completed"].includes(task) && (
+                <motion.div key={task} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  <GenericSandboxRunner taskDef={activeTaskInfo.taskDef} moduleColor={activeTaskInfo.color}
+                    onComplete={() => {
+                      const idx = MODULE1_TASKS.indexOf(task);
+                      onTaskChange(MODULE1_TASKS[idx + 1] || "completed");
+                    }}
+                  />
+                </motion.div>
+              )}
+
+              {([1,2,3,4,5,6,7,8] as const).map((modId) => {
+                const vk = `task${modId}_verify` as Module1Task;
+                const next = modId < 8 ? `task${modId + 1}_1` as Module1Task : "final_challenge";
+                return task === vk ? (
+                  <motion.div key={vk} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                    <ModuleVerificationScreen moduleId={modId} moduleTitle={MODULE_TITLES[modId]}
+                      onVerified={() => onTaskChange(next)}
+                      onRetry={() => onTaskChange(`task${modId}_1` as Module1Task)}
+                    />
+                  </motion.div>
+                ) : null;
+              })}
+
+              {task === "final_challenge" && (
+                <motion.div key="final" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  <FinalEscapeRoom onComplete={handleLaunchRocket} />
+                </motion.div>
+              )}
+
+              {task === "completed" && (
+                <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                  className="h-full flex flex-col items-center justify-center p-8 text-center gap-6">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
+                    className="w-24 h-24 rounded-full flex items-center justify-center border-2"
+                    style={{ backgroundColor: "rgba(251,191,36,0.12)", borderColor: "rgba(251,191,36,0.4)", boxShadow: "0 0 50px rgba(251,191,36,0.25)" }}>
+                    <Trophy className="w-10 h-10 text-amber-400" />
+                  </motion.div>
+                  <div>
+                    <h1 className="font-rushblade text-3xl text-white">MERCURY COMPLETE</h1>
+                    <p className="text-slate-400 mt-2 text-sm max-w-sm">All 8 modules mastered. First Block badge unlocked.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    {[{ l: "XP Earned", v: "+800", c: "#22d3ee" }, { l: "Badge", v: "🏅 First Block", c: "#f59e0b" }, { l: "Next", v: "Venus →", c: "#8b5cf6" }].map((s) => (
+                      <div key={s.l} className="rounded-2xl border px-5 py-3 text-center" style={{ borderColor: `${s.c}25`, backgroundColor: `${s.c}08` }}>
+                        <p className="font-mono text-[9px] uppercase tracking-wider text-slate-500 mb-1">{s.l}</p>
+                        <p className="font-rushblade text-lg" style={{ color: s.c }}>{s.v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={handleLaunchRocket}
+                      className="px-7 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-[0_0_30px_rgba(251,191,36,0.4)] hover:scale-[1.02]">
+                      Back to Solar System
+                    </button>
+                    <Link to="/planets/venus" className="px-6 py-3 bg-violet-500/20 border border-violet-400/30 text-violet-300 hover:bg-violet-500/30 font-semibold text-sm rounded-xl transition-all">
+                      Enter Venus →
+                    </Link>
+                  </div>
+                </motion.div>
+              )}
+
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   ROOT COMPONENT
+───────────────────────────────────────────── */
+
 export default function MercuryModule() {
   const router = useRouter();
+  const [view, setView] = useState<"landing" | "workspace">("landing");
   const [task, setTask] = useState<Module1Task>("story");
-  const [activeModule, setActiveModule] = useState<number | null>(null);
-  const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
-
-  const activeTaskInfo = (() => {
-    for (const mod of MERCURY_CURRICULUM) {
-      const found = mod.tasks.find((t) => t.id === task);
-      if (found) {
-        return { taskDef: found, color: mod.color };
-      }
-    }
-    return null;
-  })();
   const [isLaunching, setIsLaunching] = useState(false);
-  const [wavePhase, setWavePhase] = useState<"idle" | "charge" | "expand" | "impact">("idle");
-  const [baseRadius, setBaseRadius] = useState(210);
 
-  // Resize listener to scale orbit diameter dynamically for laptop viewports
-  useEffect(() => {
-    const handleResize = () => {
-      const h = window.innerHeight;
-      const calculatedRadius = Math.max(140, Math.min(185, (h - 220) * 0.32));
-      setBaseRadius(calculatedRadius);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const completedModuleIds = getVerifiedModules();
+  const currentActiveModuleId = completedModuleIds.length < 8 ? completedModuleIds.length + 1 : 9;
 
-  // Sync state on mount
+  // Load saved progress on mount
   useEffect(() => {
     try {
-      const currentTask = getMercuryCurrentTask();
-      setTask(currentTask);
-      // Keep all module task satellites collapsed initially so user sees the planet and modules clean
-      setSelectedModuleId(null);
+      const saved = getMercuryCurrentTask();
+      const resolved = saved || "story";
+      setTask(resolved);
+      // If they have progress, go directly to workspace
+      if (resolved !== "story" || completedModuleIds.length > 0) {
+        // Keep landing by default, but could auto-go to workspace
+      }
     } catch (err) {
-      console.error("Failed to load local storage progress", err);
+      console.error("Failed to load progress", err);
     }
   }, []);
 
-  // Periodic Circular Magnetic Energy-Wave timeline sequence loop (repeats every 6.5s)
-  useEffect(() => {
-    if (activeModule !== null) return;
-    
-    const triggerWave = () => {
-      setWavePhase("charge");
-      
-      const expandTimeout = setTimeout(() => {
-        setWavePhase("expand");
-      }, 1200);
-
-      const impactTimeout = setTimeout(() => {
-        setWavePhase("impact");
-      }, 2400); // 1.2s charge + 1.2s expand animation duration
-
-      const recoilTimeout = setTimeout(() => {
-        setWavePhase("idle");
-      }, 2600); // snap back after 200ms impact push
-
-      return { expandTimeout, impactTimeout, recoilTimeout };
-    };
-
-    // Run initially
-    const timeouts = triggerWave();
-
-    const interval = setInterval(() => {
-      timeouts.expandTimeout = setTimeout(() => setWavePhase("expand"), 1200);
-      timeouts.impactTimeout = setTimeout(() => setWavePhase("impact"), 2400);
-      timeouts.recoilTimeout = setTimeout(() => setWavePhase("idle"), 2600);
-      setWavePhase("charge");
-    }, 6500);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeouts.expandTimeout);
-      clearTimeout(timeouts.impactTimeout);
-      clearTimeout(timeouts.recoilTimeout);
-    };
-  }, [activeModule]);
-
-  const handleNextTask = (next: Module1Task) => {
-    try {
-      setTask(next);
-      setMercuryCurrentTask(next);
-      if (next === "completed") {
-        setActiveModule(null);
-        setSelectedModuleId(null);
-      } else if (next === "final_challenge") {
-        setActiveModule(9);
-        setSelectedModuleId(null);
-      }
-    } catch (err) {
-      console.error("Failed to persist task state", err);
-    }
+  const handleTaskChange = (next: Module1Task) => {
+    setTask(next);
+    setMercuryCurrentTask(next);
   };
 
-  const handleLaunchModule = (modId: number) => {
-    try {
-      setActiveModule(modId);
-      
-      // If we are launching the currently active module, keep their current task progress.
-      // Otherwise (if they are replaying a completed module), start them at task 1 of that module.
-      if (modId === currentActiveModuleId) {
-        const currentTask = getMercuryCurrentTask();
-        setTask(currentTask);
-      } else {
-        const taskKey = `task${modId}_1` as Module1Task;
-        setTask(taskKey);
-        setMercuryCurrentTask(taskKey);
-      }
-    } catch (err) {
-      console.error("Failed to launch module", err);
-    }
-  };
+  const handleEnterModule = (modId: number) => {
+    // Navigate to the current task for this module
+    const savedTask = getMercuryCurrentTask();
+    const match = savedTask.match(/^task(\d+)_/);
+    const savedModId = match ? parseInt(match[1]) : 1;
 
-  const handleReset = () => {
-    try {
-      resetMercuryProgress();
-      setTask("story");
-      setActiveModule(null);
-      setSelectedModuleId(null);
-    } catch (err) {
-      console.error("Failed to reset progress", err);
+    let targetTask: Module1Task;
+    if (savedModId === modId) {
+      // Resume their saved task in this module
+      targetTask = savedTask;
+    } else {
+      // Jump to first task of selected module
+      targetTask = modId === 1 ? "story" : `task${modId}_1` as Module1Task;
     }
+
+    setTask(targetTask);
+    setMercuryCurrentTask(targetTask);
+    setView("workspace");
   };
 
   const handleLaunchRocket = () => {
     setIsLaunching(true);
-    setTimeout(() => {
-      router.navigate({ to: "/" });
-    }, 2800);
+    setTimeout(() => router.navigate({ to: "/" }), 2800);
   };
 
-  const getCompletedModuleIds = (currentTask: Module1Task): number[] => {
-    const ids: number[] = [];
-    const idx = MODULE1_TASKS.indexOf(currentTask);
-    
-    if (idx >= 5) ids.push(1);
-    if (idx >= 9) ids.push(2);
-    if (idx >= 13) ids.push(3);
-    if (idx >= 17) ids.push(4);
-    if (idx >= 21) ids.push(5);
-    if (idx >= 25) ids.push(6);
-    if (idx >= 29) ids.push(7);
-    if (idx >= 33) ids.push(8);
-    return ids;
-  };
-
-  const completedModuleIds = getVerifiedModules();
-  const currentActiveModuleId =
-    completedModuleIds.length < 8 ? completedModuleIds.length + 1 : 9; // 9 = final escape room
-
-  const renderBubbleIcon = (type: string, isUnlocked: boolean, color: string) => {
-    const strokeColor = isUnlocked ? color : "#475569";
-    switch (type) {
-      case "horizon":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.88.66-3.6 1.76-4.97A7.95 7.95 0 0 1 12 16a7.95 7.95 0 0 1 6.24-10.97C19.34 6.4 20 8.12 20 10c0 4.41-3.59 8-8 8z" />
-          </svg>
-        );
-      case "sunrise":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <path d="M2 18h20M12 4v4M6.34 6.34l2.83 2.83M17.66 6.34l-2.83 2.83" />
-            <path d="M18 18a6 6 0 0 0-12 0" />
-          </svg>
-        );
-      case "solar-rise":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <circle cx="12" cy="12" r="5" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
-          </svg>
-        );
-      case "scorch":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
-          </svg>
-        );
-      case "peak":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <circle cx="12" cy="12" r="6" />
-            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83" />
-          </svg>
-        );
-      case "descent":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <path d="M2 16h20M12 22v-4M6.34 19.66l2.83-2.83M17.66 19.66l-2.83-2.83" />
-            <path d="M6 16a6 6 0 0 1 12 0" />
-          </svg>
-        );
-      case "twilight":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8" />
-          </svg>
-        );
-      case "night":
-        return (
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 3v1M12 20v1M3 12h1M20 12h1M19 19l-1-1M5 5L4 4" />
-          </svg>
-        );
-      default:
-        return <Star className="w-4 h-4 text-slate-500" />;
+  const activeTaskInfo = (() => {
+    for (const mod of MERCURY_CURRICULUM) {
+      const found = mod.tasks.find((t) => t.id === task);
+      if (found) return { taskDef: found, color: mod.color };
     }
-  };
+    return null;
+  })();
 
   return (
-    <main className="h-screen bg-[#040816] text-white relative flex flex-col justify-between overflow-hidden">
-      {/* Background Starfield */}
-      <div className="fixed inset-0 z-0 select-none pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,white_0.8px,transparent_0.8px)] bg-size-[24px_24px] opacity-15" />
-        <div className="absolute inset-0 bg-linear-to-tr from-cyan-950/10 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(4,8,22,0.65)_100%)]" />
-      </div>
+    <>
+      <AnimatePresence mode="wait">
+        {view === "landing" ? (
+          <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.35 }}>
+            <MercuryLandingPage
+              onEnterModule={handleEnterModule}
+              completedModuleIds={completedModuleIds}
+              currentActiveModuleId={currentActiveModuleId}
+            />
+          </motion.div>
+        ) : (
+          <motion.div key="workspace" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
+            <MercuryWorkspace
+              task={task}
+              onTaskChange={handleTaskChange}
+              onBack={() => setView("landing")}
+              completedModuleIds={completedModuleIds}
+              currentActiveModuleId={currentActiveModuleId}
+              activeTaskInfo={activeTaskInfo}
+              handleLaunchRocket={handleLaunchRocket}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Top Header */}
-      <header className="relative z-20 flex justify-between items-center border-b border-white/10 bg-slate-950/60 p-4 md:px-8 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/"
-            className="group flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition bg-slate-900/60 hover:bg-slate-900/90 px-4 py-2 rounded-full border border-white/10 hover:border-cyan-500/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(34,211,238,0.25)] relative overflow-hidden"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 transform group-hover:-translate-x-1 transition-transform duration-300" />
-            <span className="font-mono tracking-wider font-semibold text-[10px]">EVACUATE TO SOLAR ORBIT</span>
-            <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-cyan-500/50 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-          </Link>
-          <div className="hidden sm:block h-4 w-px bg-white/15" />
-          
-          <div className="text-left">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              <h1 className="font-rushblade text-base tracking-tight text-white select-none hover:text-cyan-400 transition-colors duration-300">
-                COSMOSX
-              </h1>
-            </div>
-            <p className="text-[9px] text-cyan-400/80 font-mono tracking-wider mt-0.5 select-none hover:text-cyan-400 transition-all">
-              cosmosx://planet-1/mercury/blockchain-foundations<span className="text-cyan-600/75">?lat=28.59n&amp;lon=80.68w&amp;freq=1420.4mhz</span>
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-5">
-          <div className="hidden md:flex flex-col items-end text-right font-mono text-[9px] text-muted-foreground select-none">
-            <div className="flex items-center gap-1.5 font-bold tracking-wider">
-              <span className="text-cyan-400">MERCURY PROGRESS:</span>
-              <span className="text-slate-200">{completedModuleIds.length} / 8 MODULES</span>
-            </div>
-            
-            {/* Visual HUD progress bar ticks */}
-            <div className="flex items-center gap-1 mt-1.5">
-              {Array.from({ length: 8 }).map((_, idx) => {
-                const isSegmentDone = idx < completedModuleIds.length;
-                const isSegmentActive = idx === completedModuleIds.length;
-                return (
-                  <div
-                    key={idx}
-                    className={`w-3.5 h-1.5 rounded-sm border transition-all duration-500 ${
-                      isSegmentDone
-                        ? "bg-emerald-500 border-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.6)]"
-                        : isSegmentActive
-                          ? "bg-cyan-500/30 border-cyan-400 animate-pulse shadow-[0_0_4px_rgba(6,182,212,0.3)]"
-                          : "bg-slate-950 border-white/10"
-                    }`}
-                    title={`Module ${idx + 1}: ${isSegmentDone ? "Completed" : isSegmentActive ? "Active" : "Locked"}`}
-                  />
-                );
-              })}
-            </div>
-          </div>
-          
-          <div className="hidden sm:block h-6 w-px bg-white/10" />
-
-          <button
-            onClick={handleReset}
-            className="group flex items-center gap-1 text-[9px] font-mono text-rose-400 hover:text-rose-300 transition bg-rose-500/5 hover:bg-rose-500/10 px-3 py-2 rounded-md border border-rose-500/20 hover:border-rose-500/50 relative overflow-hidden shadow-[inset_0_1px_1px_rgba(239,68,68,0.02)]"
-          >
-            <RotateCcw className="w-3 h-3 group-hover:rotate-[-60deg] transition-transform duration-300" />
-            <span className="font-semibold tracking-wider">RESET SECTOR</span>
-            <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-rose-500/50 to-transparent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-          </button>
-        </div>
-      </header>
-      {/* Main Grid Content */}
-      <div className="flex-1 px-4 lg:px-8 py-3 w-full relative z-10 flex flex-col justify-center min-h-0 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {activeModule === null ? (
-            /* 1. COMPLETED CIRCULAR MAGNETIC ORBIT EXPEDITION MAP */
-            <motion.div
-              key="dashboard"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative flex-1 min-h-0 overflow-hidden"
-            >
-              {/* Module selection circular map (Col-span 9) */}
-              <div className="lg:col-span-9 relative h-full flex items-center justify-center min-h-0">
-                
-                {/* 3D ROTATING MERCURY PLANET (Positioned exactly in the center of the left workspace area) */}
-                <div
-                  style={{ width: baseRadius * 1.5, height: baseRadius * 1.5 }}
-                  className="absolute top-1/2 left-1/2 pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2"
-                >
-                  <Canvas camera={{ position: [0, 0, 5.8] }}>
-                    <ambientLight intensity={0.25} />
-                    <pointLight position={[10, 10, 10]} intensity={3.5} />
-                    <Suspense fallback={null}>
-                      <RotatingMercury />
-                    </Suspense>
-                  </Canvas>
-                  <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,transparent_60%,rgba(4,8,22,0.85)_98%)]" />
-                  
-                  {/* Concentric buildup glow shield around planet boundary */}
-                  <div
-                    className={`absolute inset-0 rounded-full border transition-all duration-1000 ${
-                      wavePhase === "charge"
-                        ? "border-cyan-400/40 shadow-[0_0_50px_rgba(34,211,238,0.55),inset_0_0_40px_rgba(34,211,238,0.35)] scale-[1.03]"
-                        : "border-cyan-500/5 shadow-[inset_0_0_30px_rgba(6,182,212,0.1)] scale-100"
-                    }`}
-                  />
-                </div>
-
-                {/* Expanding magnetic energy wave ring */}
-                <AnimatePresence>
-                  {wavePhase === "expand" && (
-                    <motion.div
-                      className="absolute top-1/2 left-1/2 rounded-full border-2 border-cyan-400/50 pointer-events-none z-0"
-                      initial={{ width: 0, height: 0, opacity: 0.8, x: "-50%", y: "-50%", boxShadow: "0 0 10px rgba(34, 211, 238, 0.4)" }}
-                      animate={{
-                        width: baseRadius * 2,
-                        height: baseRadius * 2,
-                        opacity: [0.8, 0.9, 0.3, 0],
-                        boxShadow: [
-                          "0 0 10px rgba(34, 211, 238, 0.4)",
-                          "0 0 25px rgba(34, 211, 238, 0.6)",
-                          "0 0 10px rgba(34, 211, 238, 0.2)",
-                          "0 0 0px rgba(34, 211, 238, 0)"
-                        ]
-                      }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 1.2, ease: "easeOut" }}
-                    />
-                  )}
-                </AnimatePresence>
-
-                {/* SVG Perfect Circular Orbit Path Line - centered exactly relative to dynamic baseRadius with flash on impact */}
-                <svg
-                  style={{ width: baseRadius * 2 + 20, height: baseRadius * 2 + 20 }}
-                  className="absolute top-1/2 left-1/2 pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2"
-                  viewBox={`0 0 ${baseRadius * 2 + 20} ${baseRadius * 2 + 20}`}
-                >
-                  <circle
-                    cx={baseRadius + 10}
-                    cy={baseRadius + 10}
-                    r={baseRadius}
-                    fill="none"
-                    stroke={wavePhase === "impact" ? "rgba(34, 211, 238, 0.75)" : "rgba(34, 211, 238, 0.15)"}
-                    strokeWidth={wavePhase === "impact" ? 1.8 : 1.2}
-                    strokeDasharray="3 5"
-                    className="transition-all duration-150"
-                  />
-                  <circle
-                    cx={baseRadius + 10}
-                    cy={baseRadius + 10}
-                    r={baseRadius + 5}
-                    fill="none"
-                    stroke={wavePhase === "impact" ? "rgba(34, 211, 238, 0.25)" : "rgba(34, 211, 238, 0.03)"}
-                    strokeWidth="2"
-                    className="transition-all duration-150"
-                  />
-                </svg>
-
-                {/* Left Area Dashboard text headers */}
-                <div className="absolute top-0 left-0 z-10 select-none">
-                  <h2 className="font-rushblade text-sm lg:text-base text-white tracking-wider">ORBITAL SECTOR DEPLOYMENT</h2>
-                  <p className="text-[9px] lg:text-[10px] font-mono text-muted-foreground uppercase mt-0.5">Explore curriculum paths orbiting Mercury</p>
-                </div>
-                
-                <div className="absolute top-0 right-0 z-10 select-none">
-                  <div className="flex items-center gap-1.5 text-[9px] text-cyan-400 font-mono bg-cyan-950/40 px-2.5 py-1 rounded-full border border-cyan-500/20">
-                    <span>MAGNETIC WAVE: ACTIVE</span>
-                  </div>
-                </div>
-
-                {task === "final_challenge" && (
-                  <div className="absolute top-1/2 left-1/2 z-30 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center select-none">
-                    <button
-                      onClick={() => {
-                        setActiveModule(9);
-                      }}
-                      className="bg-red-600 hover:bg-red-500 text-white border border-red-500/30 px-6 py-3 rounded-full text-xs font-mono font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(239,68,68,0.45)] hover:scale-105 active:scale-95 animate-pulse cursor-pointer pointer-events-auto"
-                    >
-                      🚨 ENTER RESCUE MISSION ➔
-                    </button>
-                  </div>
-                )}
-
-                {/* Glassy bubbles rendered dynamically in circular orbit */}
-                <div className="absolute inset-0 z-10 pointer-events-none">
-                  {MERCURY_EXPEDITION_MODULES.map((mod) => {
-                    const isCompleted = completedModuleIds.includes(mod.id);
-                    const isActive = mod.id === currentActiveModuleId;
-                    const isUnlocked = mod.id === 1 || isCompleted || isActive;
-                    const isSelected = selectedModuleId === mod.id;
-
-                    // Trig: module position on orbit ring
-                    const rad = (mod.angle * Math.PI) / 180;
-
-                    // Wave impulse: all modules spring outward at impact phase
-                    const animatedRadius = wavePhase === "impact" ? baseRadius + 26 : baseRadius;
-
-                    const x = Math.cos(rad) * animatedRadius;
-                    const y = Math.sin(rad) * animatedRadius;
-
-                    // Task arc constants — compact satellite crown around module icon
-                    // Tasks are CHILDREN of the module wrapper, so they inherit
-                    // the parent's wave displacement automatically (no extra animation needed).
-                    const TASK_ARC_RADIUS = 48; // px from module icon center
-                    const TASK_ANGLE_STEP = 38; // degrees between tasks → ±76° total spread
-
-                    return (
-                      <div key={mod.id}>
-                        {/* Module container — orbital position + wave displacement via spring animate */}
-                        <motion.div
-                          className="absolute top-1/2 left-1/2 pointer-events-auto"
-                          animate={{ x, y }}
-                          transition={{ type: "spring", stiffness: 140, damping: 9 }}
-                          style={{
-                            translateX: "-50%",
-                            translateY: "-50%",
-                            width: "48px",
-                            height: "48px",
-                            overflow: "visible",
-                          }}
-                        >
-                          <div className="relative w-full h-full flex items-center justify-center">
-                            {/* Concentric signal ring for active module */}
-                            {isActive && (
-                              <div className="concentric-ring" style={{ color: mod.color }} />
-                            )}
-
-                            {/* Glass bubble module button */}
-                            <div className="relative group">
-                              <button
-                                onClick={() => {
-                                  if (!isUnlocked) return;
-                                  setSelectedModuleId(isSelected ? null : mod.id);
-                                }}
-                                style={{
-                                  borderColor: isUnlocked ? `${mod.color}60` : `${mod.color}30`,
-                                  color: isUnlocked ? mod.color : `${mod.color}80`,
-                                  background: isUnlocked
-                                    ? `radial-gradient(circle at 35% 35%, ${mod.color}55 0%, ${mod.color}20 40%, rgba(4,8,22,0.95) 90%)`
-                                    : `radial-gradient(circle at 35% 35%, ${mod.color}16 0%, ${mod.color}06 40%, rgba(4,8,22,0.98) 100%)`,
-                                  boxShadow: isUnlocked
-                                    ? `0 0 20px ${mod.color}25, inset 0 0 15px ${mod.color}10, 0 10px 25px rgba(0,0,0,0.5)`
-                                    : `0 0 8px ${mod.color}12`,
-                                  opacity: isUnlocked ? 1 : 0.72,
-                                }}
-                                className={`w-12 h-12 rounded-full flex items-center justify-center relative border transition-all duration-300 ${
-                                  isUnlocked
-                                    ? isCompleted
-                                      ? "glass-bubble glass-bubble-hover"
-                                      : "glass-bubble glass-bubble-hover vacuum-aberration"
-                                    : "cursor-not-allowed backdrop-blur-md"
-                                }`}
-                              >
-                                <div className="absolute top-1 left-2 w-4 h-2 bg-white/20 rounded-full rotate-[-15deg] pointer-events-none" />
-                                {isUnlocked ? (
-                                  renderBubbleIcon(mod.iconName, true, mod.color)
-                                ) : (
-                                  <div className="relative flex items-center justify-center w-full h-full">
-                                    <div className="opacity-70">
-                                      {renderBubbleIcon(mod.iconName, true, mod.color)}
-                                    </div>
-                                    <Lock
-                                      className="absolute -bottom-0.5 -right-0.5 w-3 h-3 drop-shadow"
-                                      style={{ color: mod.color }}
-                                    />
-                                  </div>
-                                )}
-                              </button>
-                            </div>
-
-                            {/* Outer-facing text labels — direction-aware */}
-                            <motion.div
-                              {...getLabelStyles(mod.angle, isSelected)}
-                              className={`${getLabelStyles(mod.angle, isSelected).className} select-none pointer-events-none z-10`}
-                              transition={{ type: "spring", stiffness: 140, damping: 9 }}
-                            >
-                              {/* Triangular active module indicator pointing downwards slightly higher */}
-                              {isActive && (
-                                <div className={`flex w-full ${getArrowAlignment(mod.angle)} mb-2`}>
-                                  <svg
-                                    width="8"
-                                    height="5"
-                                    viewBox="0 0 24 12"
-                                    fill="currentColor"
-                                    style={{ color: mod.color }}
-                                    className="animate-pulse"
-                                  >
-                                    <polygon points="12,12 0,0 24,0" />
-                                  </svg>
-                                </div>
-                              )}
-                              <span
-                                className="block font-mono text-[8px] font-bold uppercase tracking-wider"
-                                style={{ color: isUnlocked ? mod.color : `${mod.color}70` }}
-                              >
-                                {mod.title}
-                              </span>
-                              <span className={`block text-[9.5px] font-bold mt-0.5 truncate w-full ${
-                                isUnlocked ? "text-slate-200" : "text-slate-500 font-normal"
-                              }`}>
-                                {mod.topic}
-                              </span>
-                              <span className="block text-[8px] text-muted-foreground font-mono mt-0.5 opacity-60">
-                                {mod.stageName}
-                              </span>
-                            </motion.div>
-                          </div>
-
-                          {/* ── Task Satellite Crown ─────────────────────────────────────
-                              Placed OUTSIDE the inner relative div so they're only
-                              clipped by the outer motion.div which has overflow:visible.
-                              Positions are (x, y) offsets from this motion.div's center.
-                              The motion.div translate(-50%,-50%) puts its top-left at
-                              (-24,-24) relative to orbital center, so capsule coords
-                              need to be relative to (24, 24) = center of the 48px box. */}
-                          <AnimatePresence>
-                            {isSelected && (
-                              <>
-                                {Array.from({ length: 3 }).map((_, taskIdx) => {
-                                  const taskNum = taskIdx + 1;
-
-                                  // Fixed arc: Task2 at 12 o'clock (-90°), Task1 at ~10 o'clock (-128°), Task3 at ~2 o'clock (-52°)
-                                  const taskAngle = -90 + (taskIdx - 1) * 38;
-                                  const taskRad = (taskAngle * Math.PI) / 180;
-
-                                  // 42px from module center = just outside the 48px neon ring edge
-                                  const SATELLITE_ARC_RADIUS = 42;
-
-                                  // Offset from motion.div center (24,24)
-                                  const tlx = 24 + SATELLITE_ARC_RADIUS * Math.cos(taskRad);
-                                  const tly = 24 + SATELLITE_ARC_RADIUS * Math.sin(taskRad);
-
-                                  const getIsTaskCompleted = (mId: number, tNum: number): boolean => {
-                                    const currentIdx = MODULE1_TASKS.indexOf(task);
-                                    if (currentIdx === -1) return false;
-                                    if (task === "completed") return true;
-                                    if (task === "final_challenge") return true;
-                                    const targetTaskKey = `task${mId}_${tNum}`;
-                                    const targetIdx = MODULE1_TASKS.indexOf(targetTaskKey as Module1Task);
-                                    return currentIdx > targetIdx;
-                                  };
-                                  const isTaskCompleted = getIsTaskCompleted(mod.id, taskNum);
-                                  const isTaskUnlocked = mod.id <= currentActiveModuleId;
-
-                                  return (
-                                    <motion.div
-                                      key={taskIdx}
-                                      initial={{ scale: 0, opacity: 0 }}
-                                      animate={{ scale: 1, opacity: 1 }}
-                                      exit={{ scale: 0, opacity: 0 }}
-                                      transition={{
-                                        type: "spring",
-                                        stiffness: 300,
-                                        damping: 15,
-                                        delay: taskIdx * 0.05,
-                                      }}
-                                      className="absolute flex items-center justify-center pointer-events-none"
-                                      style={{
-                                        left: tlx,
-                                        top: tly,
-                                        translateX: "-50%",
-                                        translateY: "-50%",
-                                        zIndex: 50,
-                                        width: "32px",
-                                        height: "32px",
-                                      }}
-                                    >
-                                      {/* Space capsule docking pod shape */}
-                                      <div className="absolute pointer-events-none flex items-center justify-center">
-                                        <svg width="28" height="18" viewBox="0 0 28 18" fill="none" className="overflow-visible">
-                                          <path
-                                            d="M 5,1 L 23,1 L 27,9 L 23,17 L 5,17 L 1,9 Z"
-                                            fill={isTaskCompleted ? "#021a10" : "#070a13"}
-                                            stroke={isTaskUnlocked ? (isTaskCompleted ? "#00FF66" : mod.color) : `${mod.color}25`}
-                                            strokeWidth="1.2"
-                                            style={{
-                                              filter: isTaskUnlocked
-                                                ? isTaskCompleted
-                                                  ? "drop-shadow(0 0 5px rgba(0,255,102,0.85))"
-                                                  : `drop-shadow(0 0 3px ${mod.color}50)`
-                                                : "none",
-                                            }}
-                                          />
-                                          <path
-                                            d="M 8,4 L 20,4 M 8,14 L 20,14"
-                                            stroke={isTaskUnlocked ? (isTaskCompleted ? "rgba(0,255,102,0.25)" : `${mod.color}20`) : `${mod.color}08`}
-                                            strokeWidth="0.8"
-                                          />
-                                          <circle cx="5.5" cy="4" r="0.5" fill={isTaskUnlocked ? (isTaskCompleted ? "#00FF66" : `${mod.color}50`) : `${mod.color}15`} />
-                                          <circle cx="22.5" cy="4" r="0.5" fill={isTaskUnlocked ? (isTaskCompleted ? "#00FF66" : `${mod.color}50`) : `${mod.color}15`} />
-                                          <circle cx="22.5" cy="14" r="0.5" fill={isTaskUnlocked ? (isTaskCompleted ? "#00FF66" : `${mod.color}50`) : `${mod.color}15`} />
-                                          <circle cx="5.5" cy="14" r="0.5" fill={isTaskUnlocked ? (isTaskCompleted ? "#00FF66" : `${mod.color}50`) : `${mod.color}15`} />
-                                        </svg>
-                                      </div>
-                                      <motion.button
-                                        whileHover={isTaskUnlocked ? { scale: 1.12 } : undefined}
-                                        whileTap={isTaskUnlocked ? { scale: 0.92 } : undefined}
-                                        style={{
-                                          width: "16px",
-                                          height: "16px",
-                                          cursor: isTaskUnlocked ? "pointer" : "not-allowed",
-                                          color: isTaskUnlocked
-                                            ? isTaskCompleted ? "#00FF66" : mod.color
-                                            : `${mod.color}30`,
-                                          textShadow: isTaskUnlocked
-                                            ? isTaskCompleted
-                                              ? "0 0 5px rgba(0,255,102,0.95)"
-                                              : `0 0 4px ${mod.color}`
-                                            : "none",
-                                          zIndex: 60,
-                                        }}
-                                        className="rounded-full flex items-center justify-center font-mono text-[9px] font-bold pointer-events-auto bg-transparent border-0 select-none"
-                                        onClick={() => {
-                                          if (!isTaskUnlocked) return;
-                                          setActiveModule(mod.id);
-                                          const taskKey = `task${mod.id}_${taskNum}` as Module1Task;
-                                          handleNextTask(taskKey);
-                                        }}
-                                        title={isTaskUnlocked ? `Task ${mod.id}.${taskNum}` : "Locked"}
-                                      >
-                                        {taskNum}
-                                      </motion.button>
-                                    </motion.div>
-                                  );
-                                })}
-                              </>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-
-
-                {/* Command text footer inside left sector */}
-                <div className="absolute bottom-0 left-0 w-full text-[10px] text-muted-foreground font-mono flex justify-between items-center z-10 select-none">
-                  <span>EXPEDITION MONITOR: Audit nodes to configure launch platform systems.</span>
-                  <span>COSMOSX SIGNAL NODE v1.02</span>
-                </div>
-              </div>
-
-              {/* WWII V-2 Rocket Card (Col-span 3) */}
-              <div className="lg:col-span-3 h-full min-h-0 overflow-hidden pr-1">
-                <RocketAssembly completedModules={completedModuleIds} />
-              </div>
-            </motion.div>
-          ) : (
-            /* 2. ACTIVE OPERATION SCREEN WORKSPACE */
-            <motion.div
-              key="workspace"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="flex flex-col relative flex-1 min-h-0 overflow-hidden gap-4"
-            >
-              <div className="w-full space-y-0 h-full flex flex-col min-h-0">
-                <div className="flex justify-between items-center border-b border-white/10 bg-slate-950/60 p-3 rounded-xl backdrop-blur-md shrink-0">
-                  <button
-                    onClick={() => {
-                      setActiveModule(null);
-                      setSelectedModuleId(null);
-                    }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-white transition"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back to Expedition Path
-                  </button>
-                  <span className="font-mono text-[9px] text-cyan-400 font-bold uppercase tracking-widest">
-                    ACTIVE TELEMETRY COMMS SANDBOX
-                  </span>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {task === "story" && (
-                    <motion.div
-                      key="story"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-slate-950/60 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-2xl space-y-5"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-400 shrink-0">
-                          <Compass className="w-6 h-6 animate-spin" style={{ animationDuration: "10s" }} />
-                        </div>
-                        <div>
-                          <h3 className="font-rushblade text-white text-sm tracking-wider">
-                            MODULE 01 — WHY DOES BLOCKCHAIN EXIST?
-                          </h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Concept: The Problem of Trust · Rocket Component: Launch Platform
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
-                        <p>
-                          Welcome to Mercury — the closest planet to the Sun and the first stop on your journey through the cosmos.
-                          Before you can build a rocket to leave this scorched world, you need to understand the fundamental problem
-                          that gave birth to blockchain: <span className="text-cyan-400 font-semibold">the problem of trust.</span>
-                        </p>
-                        <p>
-                          Mercury's central command center has been corrupted. Its single database — the backbone of all fuel supply
-                          routing — has been tampered with. Your mission is to understand what went wrong, and discover why a
-                          distributed system would have prevented it.
-                        </p>
-                        <p className="text-slate-400">
-                          By the end of this module you'll be able to answer one critical question:
-                          <span className="text-white font-semibold"> "Why can't we simply use MySQL/PostgreSQL for everything?"</span>
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-900/60 border border-white/5 rounded-xl p-3">
-                        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">3 Tasks · Estimated 15–20 min</p>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {["Map the Middlemen", "Corrupted Command", "Trade Dilemma"].map((t, i) => (
-                            <div key={i} className="bg-slate-950/60 border border-white/5 rounded-lg p-2 text-center">
-                              <div className="text-[11px] font-mono text-cyan-400 font-bold">1.{i + 1}</div>
-                              <div className="text-[9px] font-mono text-slate-500 mt-0.5 leading-tight">{t}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2 text-[10px] text-amber-400 font-mono">
-                        <Info className="w-4 h-4 shrink-0" />
-                        <span>
-                          MISSION OBJECTIVE: Complete all 3 tasks to assemble the Launch Platform — the first component of your escape rocket.
-                        </span>
-                      </div>
-
-                      <div className="flex justify-end pt-2">
-                        <button
-                          onClick={() => handleNextTask("task1_1")}
-                          className="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold px-5 py-2.5 rounded-full text-xs font-rushblade shadow-lg hover:shadow-cyan-500/15 transition"
-                        >
-                          Begin Task 1.1 ➔
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {task === "task1_1" && (
-                    <motion.div key="task1_1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_1_MiddlemanMapper onComplete={() => handleNextTask("task1_2")} />
-                    </motion.div>
-                  )}
-
-                  {task === "task1_2" && (
-                    <motion.div key="task1_2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_2_CorruptedServer onComplete={() => handleNextTask("task1_3")} />
-                    </motion.div>
-                  )}
-
-                  {task === "task1_3" && (
-                    <motion.div key="task1_3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_3_TradeDilemma onComplete={() => handleNextTask("task1_verify")} />
-                    </motion.div>
-                  )}
-
-                  {/* Module Verify gates — one for each module */}
-                  {([1,2,3,4,5,6,7,8] as const).map((modId) => {
-                    const verifyKey = `task${modId}_verify` as Module1Task;
-                    const nextStart = modId < 8 ? `task${modId + 1}_1` as Module1Task : "final_challenge";
-                    const MODULE_TITLES: Record<number, string> = {
-                      1: "Why Does Blockchain Exist?",
-                      2: "Transactions & Digital Ledgers",
-                      3: "Blocks & Data Structures",
-                      4: "Mining & Proof of Work",
-                      5: "Nodes & Peer-to-Peer Networks",
-                      6: "Consensus Mechanisms",
-                      7: "Smart Contracts",
-                      8: "DeFi & Real-World Applications",
-                    };
-                    return task === verifyKey ? (
-                      <motion.div key={verifyKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col">
-                        <ModuleVerificationScreen
-                          moduleId={modId}
-                          moduleTitle={MODULE_TITLES[modId]}
-                          onVerified={() => handleNextTask(nextStart)}
-                          onRetry={() => {
-                            // Go back to first task of this module
-                            handleNextTask(`task${modId}_1` as Module1Task);
-                          }}
-                        />
-                      </motion.div>
-                    ) : null;
-                  })}
-
-                  {activeTaskInfo && !task.endsWith("_verify") && (
-                    <motion.div key={task} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
-                      <GenericSandboxRunner
-                        taskDef={activeTaskInfo.taskDef}
-                        moduleColor={activeTaskInfo.color}
-                        onComplete={() => {
-                          const currentIdx = MODULE1_TASKS.indexOf(task);
-                          const nextTask = MODULE1_TASKS[currentIdx + 1] || "completed";
-                          handleNextTask(nextTask);
-                        }}
-                      />
-                    </motion.div>
-                  )}
-
-                  {task === "final_challenge" && (
-                    <motion.div key="final_challenge" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
-                      <FinalEscapeRoom onComplete={handleLaunchRocket} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Interactive Launch Overlay */}
+      {/* Launch overlay */}
       {isLaunching && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 overflow-hidden">
           <motion.div
-            initial={{ y: 0 }}
-            animate={{ y: [-2, 2, -1, 1, -2, 2, 0] }}
-            transition={{ repeat: Infinity, duration: 0.1 }}
+            animate={{ y: [-3, 3, -2, 2, -3, 3, 0] }}
+            transition={{ repeat: Infinity, duration: 0.12 }}
             className="flex flex-col items-center gap-6"
           >
-            <Rocket className="w-16 h-16 text-cyan-400 -rotate-45 animate-[bounce_0.2s_infinite]" />
-            <h1 className="font-rushblade text-lg font-bold tracking-widest text-white uppercase animate-pulse flex items-center gap-2">
-              IGNITING V-2 PROPELLANT CHAMBER...
-            </h1>
-            <p className="font-mono text-[9px] text-muted-foreground animate-pulse">
-              LEAVING MERCURY SECTOR // TRANSITING TO VENUS ORBITAL GRID
-            </p>
+            <Rocket className="w-14 h-14 text-cyan-400 -rotate-45 animate-bounce" />
+            <h2 className="font-rushblade text-lg tracking-widest text-white uppercase animate-pulse">
+              EVACUATING MERCURY SECTOR...
+            </h2>
+            <p className="font-mono text-[9px] text-slate-500 animate-pulse">TRANSIT → SOLAR ORBIT</p>
           </motion.div>
-          
-          <div className="absolute bottom-0 w-full h-[50vh] bg-linear-to-t from-orange-500/10 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-[40vh] bg-gradient-to-t from-orange-500/8 via-transparent to-transparent pointer-events-none" />
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-slate-950/60 py-2.5 text-center">
-        <p className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
-          COSMOSX CLASSIFIED OPERATIONS UNIT · PLANET 01 (MERCURY)
-        </p>
-      </footer>
-    </main>
+    </>
   );
 }

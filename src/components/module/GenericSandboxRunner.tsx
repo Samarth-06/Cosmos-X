@@ -143,27 +143,33 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
       {/* TASK HEADER */}
       <div
-        className="flex items-center gap-3 px-4 py-2 border-b border-white/10 bg-slate-950/80 shrink-0 select-none"
+        className="flex items-center gap-3 px-4 py-2.5 border-b border-white/10 bg-slate-950/90 shrink-0 select-none relative overflow-hidden"
         style={{ borderLeftColor: moduleColor, borderLeftWidth: "3px" }}
       >
-        <div className="p-2 border rounded-lg shrink-0" style={{ backgroundColor: `${moduleColor}15`, borderColor: `${moduleColor}30`, color: moduleColor }}>
+        {/* Glow wash behind header */}
+        <div className="absolute left-0 top-0 bottom-0 w-28 pointer-events-none" style={{ background: `linear-gradient(90deg, ${moduleColor}10, transparent)` }} />
+        <div className="p-2 border rounded-lg shrink-0 relative z-10" style={{ backgroundColor: `${moduleColor}15`, borderColor: `${moduleColor}35`, color: moduleColor }}>
           <Terminal className="w-4 h-4" />
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-rushblade text-white text-xs tracking-wider uppercase truncate">{taskDef.title}</h3>
+        <div className="flex-1 min-w-0 relative z-10">
+          <h3 className="font-rushblade text-white text-xs tracking-wider uppercase truncate" style={{ textShadow: `0 0 12px ${moduleColor}40` }}>{taskDef.title}</h3>
           <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-mono">Concept: {taskDef.concept}</p>
         </div>
-        <span className="text-[9px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border shrink-0" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}10` }}>
-          Active Lab
-        </span>
+        <div className="flex items-center gap-2 shrink-0 relative z-10">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: moduleColor }} />
+          <span className="text-[9px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}10` }}>
+            Active Lab
+          </span>
+        </div>
       </div>
 
       {/* 3-PANEL LAYOUT */}
       <div className="flex-1 min-h-0 grid grid-cols-[34%_33%_33%] divide-x divide-white/5 overflow-hidden">
 
         {/* LEFT — THEORY */}
-        <div className="flex flex-col h-full overflow-hidden bg-slate-950/40">
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0" style={{ backgroundColor: `${moduleColor}08` }}>
+        <div className="flex flex-col h-full overflow-hidden panel-theory">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 relative" style={{ backgroundColor: `${moduleColor}08` }}>
+            <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ backgroundColor: moduleColor, boxShadow: `0 0 6px ${moduleColor}` }} />
             <BookOpen className="w-3.5 h-3.5 shrink-0" style={{ color: moduleColor }} />
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">Theory</span>
           </div>
@@ -191,8 +197,9 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
         </div>
 
         {/* CENTER — CHALLENGE */}
-        <div className="flex flex-col h-full overflow-hidden bg-slate-950/60">
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30">
+        <div className="flex flex-col h-full overflow-hidden panel-challenge">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-amber-500" style={{ boxShadow: '0 0 6px #f59e0b' }} />
             <FlaskConical className="w-3.5 h-3.5 shrink-0 text-amber-400" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">{taskDef.practical.title}</span>
           </div>
@@ -211,12 +218,14 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
         </div>
 
         {/* RIGHT — HANDS-ON LAB */}
-        <div className="flex flex-col h-full overflow-hidden bg-[#020608]/80">
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30">
+        <div className="flex flex-col h-full overflow-hidden panel-lab scan-line-overlay">
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-emerald-500" style={{ boxShadow: '0 0 6px #10b981' }} />
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">Hands-on Lab</span>
+            <div className="ml-auto text-[8px] font-mono text-emerald-500 opacity-60 animate-pulse">LIVE</div>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3 scrollbar-thin data-stream-bg relative z-10">
             {/* Widget */}
             <div className="border border-white/10 bg-slate-950/60 rounded-xl p-3 min-h-[100px] flex flex-col justify-center">
               {taskDef.practical.type === "inspector" && (
@@ -225,10 +234,17 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
                 </div>
               )}
               {taskDef.practical.type === "terminal-audit" && (
-                <div className="flex flex-col bg-black/90 border border-white/15 rounded-lg font-mono text-[10px] h-[190px] overflow-hidden">
-                  <div className="bg-slate-900/80 px-3 py-1.5 border-b border-white/10 flex items-center justify-between text-[9px] text-slate-400 select-none">
-                    <span>COSMOSX TERMINAL</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="flex flex-col bg-black/95 border border-white/10 rounded-lg font-mono text-[10px] h-[190px] overflow-hidden data-stream-bg">
+                  <div className="bg-slate-900/90 px-3 py-1.5 border-b border-white/10 flex items-center justify-between text-[9px] select-none">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        <span className="w-2 h-2 rounded-full bg-red-500/70" />
+                        <span className="w-2 h-2 rounded-full bg-yellow-500/70" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500/70" />
+                      </div>
+                      <span className="text-slate-400">COSMOSX TERMINAL</span>
+                    </div>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
                   <div className="flex-1 p-2 overflow-y-auto space-y-0.5 text-slate-300 scrollbar-thin select-text">
                     {termLogs.map((log, idx) => <div key={idx} className="whitespace-pre-wrap leading-relaxed text-[9.5px]">{log}</div>)}
@@ -352,8 +368,17 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
 
             {/* Submit */}
             {!success && (
-              <button onClick={handleVerify} style={{ backgroundColor: `${moduleColor}20`, borderColor: `${moduleColor}50` }} className="w-full border text-white font-bold py-2 rounded-full text-[10px] font-rushblade tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md hover:opacity-80">
-                Submit &amp; Verify
+              <button
+                onClick={handleVerify}
+                className="btn-submit-glow w-full border text-white font-bold py-2.5 rounded-full text-[10px] font-rushblade tracking-wider flex items-center justify-center gap-1.5 shadow-md"
+                style={{
+                  backgroundColor: `${moduleColor}20`,
+                  borderColor: `${moduleColor}50`,
+                  color: moduleColor,
+                  boxShadow: `0 0 15px ${moduleColor}15`,
+                }}
+              >
+                <span>⚡</span> Submit & Verify
               </button>
             )}
 
@@ -393,14 +418,21 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
             {/* Success */}
             <AnimatePresence>
               {success && (
-                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 space-y-3">
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
-                    <Check className="w-4 h-4" /><span>Verification Successful</span>
+                <motion.div
+                  initial={{ opacity: 0, y: 5, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3.5 space-y-3 success-pulse"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
+                      <Check className="w-4 h-4" /><span>Verification Successful</span>
+                    </div>
+                    <div className="ml-auto text-[9px] font-mono text-emerald-400/60">+10 XP</div>
                   </div>
                   <p className="text-[11px] text-slate-300 leading-relaxed font-sans">{taskDef.practical.debriefText}</p>
                   <button
                     onClick={() => { saveTaskScore(taskDef.id, 10, 10, true); onComplete(); }}
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-full text-[10px] font-rushblade tracking-wider flex items-center justify-center gap-1.5 transition shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                    className="btn-submit-glow w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-full text-[10px] font-rushblade tracking-wider flex items-center justify-center gap-1.5 transition shadow-[0_0_20px_rgba(16,185,129,0.35)]"
                   >
                     Proceed to Next Task <ArrowRight className="w-3.5 h-3.5" />
                   </button>

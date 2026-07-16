@@ -54,9 +54,9 @@ export default function TaskWorkspaceLayout({
       </div>
 
       {/* 3-PANEL LAYOUT */}
-      <div className="flex-1 min-h-0 grid grid-cols-[34%_33%_33%] divide-x divide-white/5 overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-[34%_33%_33%] divide-y lg:divide-y-0 lg:divide-x divide-white/5 overflow-y-auto lg:overflow-hidden">
         {/* LEFT — THEORY */}
-        <div className="flex flex-col h-full overflow-hidden bg-slate-950/40">
+        <div className="flex flex-col min-h-[350px] lg:min-h-0 h-full overflow-hidden bg-slate-950/40">
           <div
             className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0"
             style={{ backgroundColor: `${moduleColor}08` }}
@@ -66,33 +66,33 @@ export default function TaskWorkspaceLayout({
               {theoryTitle}
             </span>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+          <div className="flex-1 min-w-0 p-4 lg:p-5 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 wrap-break-word">
             {theoryContent}
           </div>
         </div>
 
         {/* CENTER — CHALLENGE */}
-        <div className="flex flex-col h-full overflow-hidden bg-slate-950/60">
+        <div className="flex flex-col min-h-[400px] lg:min-h-0 h-full overflow-hidden bg-slate-950/60">
           <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30">
             <FlaskConical className="w-3.5 h-3.5 shrink-0 text-amber-400" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">
               {challengeTitle}
             </span>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+          <div className="flex-1 min-w-0 p-4 lg:p-5 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 wrap-break-word">
             {challengeContent}
           </div>
         </div>
 
         {/* RIGHT — HANDS-ON LAB */}
-        <div className="flex flex-col h-full overflow-hidden bg-[#020608]/80">
+        <div className="flex flex-col min-h-[450px] lg:min-h-0 h-full overflow-hidden bg-[#020608]/80">
           <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 shrink-0 bg-slate-900/30">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">
               {labTitle}
             </span>
           </div>
-          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3 scrollbar-thin">
+          <div className="flex-1 min-w-0 p-4 lg:p-5 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 wrap-break-word">
             {labContent}
           </div>
         </div>

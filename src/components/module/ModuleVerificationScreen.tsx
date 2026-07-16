@@ -88,16 +88,6 @@ export default function ModuleVerificationScreen({ moduleId, moduleTitle, onVeri
             </p>
           </div>
 
-          {/* Minimum Criteria Banner */}
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <div className="text-[10px] font-mono text-amber-300 space-y-0.5">
-              <div className="font-bold text-amber-400 text-[11px]">MINIMUM PASSING CRITERIA</div>
-              <div>Each task must meet its individual score threshold. All tasks must be completed before submitting.</div>
-              <div className="text-amber-500">⚡ Failing the verification means you will NOT receive the rocket part — retry the failed tasks first.</div>
-            </div>
-          </div>
-
           {/* Task Score Cards */}
           {status && (
             <div className="space-y-1.5">
@@ -112,8 +102,6 @@ export default function ModuleVerificationScreen({ moduleId, moduleTitle, onVeri
                     className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
                       taskPassed
                         ? "bg-emerald-500/5 border-emerald-500/20"
-                        : attempted
-                        ? "bg-red-500/5 border-red-500/20"
                         : "bg-slate-900/60 border-white/5"
                     }`}
                   >
@@ -121,8 +109,6 @@ export default function ModuleVerificationScreen({ moduleId, moduleTitle, onVeri
                       className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-mono font-bold border ${
                         taskPassed
                           ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                          : attempted
-                          ? "border-red-500/40 bg-red-500/10 text-red-400"
                           : "border-white/10 bg-slate-900 text-slate-500"
                       }`}
                     >
@@ -132,28 +118,26 @@ export default function ModuleVerificationScreen({ moduleId, moduleTitle, onVeri
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-mono text-slate-200 truncate">{d.title}</span>
-                        <span className={`text-[10px] font-mono font-bold shrink-0 ml-2 ${taskPassed ? "text-emerald-400" : attempted ? "text-red-400" : "text-slate-500"}`}>
+                        <span className={`text-[10px] font-mono font-bold shrink-0 ml-2 ${taskPassed ? "text-emerald-400" : "text-slate-500"}`}>
                           {d.score}/{d.maxScore}
                         </span>
                       </div>
                       {/* Progress bar */}
                       <div className="mt-1 h-1 bg-slate-800 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-700 ${taskPassed ? "bg-emerald-500" : attempted ? "bg-red-500" : "bg-slate-600"}`}
+                          className={`h-full rounded-full transition-all duration-700 ${taskPassed ? "bg-emerald-500" : "bg-slate-600"}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
                       <div className="flex justify-between text-[9px] font-mono text-slate-500 mt-0.5">
-                        <span>Min required: {d.minRequired}</span>
-                        <span>{taskPassed ? "✓ PASS" : attempted ? "✗ FAIL" : "— PENDING"}</span>
+                        <span>Check status</span>
+                        <span>{taskPassed ? "✓ COMPLETED" : "— PENDING"}</span>
                       </div>
                     </div>
 
                     <div className="shrink-0">
                       {taskPassed ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : attempted ? (
-                        <XCircle className="w-4 h-4 text-red-400" />
                       ) : (
                         <Lock className="w-4 h-4 text-slate-600" />
                       )}
@@ -170,17 +154,16 @@ export default function ModuleVerificationScreen({ moduleId, moduleTitle, onVeri
               <BarChart3 className="w-5 h-5 text-slate-400 shrink-0" />
               <div className="flex-1">
                 <div className="flex justify-between text-[10px] font-mono">
-                  <span className="text-slate-400">Overall Score</span>
-                  <span className="font-bold" style={{ color: passRate >= 60 ? "#10b981" : "#ef4444" }}>
+                  <span className="text-slate-400">Expedition Progress</span>
+                  <span className="font-bold text-[#10b981]">
                     {totalScore} / {totalMax} XP ({passRate}%)
                   </span>
                 </div>
                 <div className="mt-1.5 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-1000"
+                    className="h-full rounded-full transition-all duration-1000 bg-linear-to-r from-emerald-500 to-cyan-500"
                     style={{
                       width: `${passRate}%`,
-                      background: passRate >= 60 ? "linear-gradient(to right, #10b981, #34d399)" : "linear-gradient(to right, #ef4444, #f87171)",
                     }}
                   />
                 </div>

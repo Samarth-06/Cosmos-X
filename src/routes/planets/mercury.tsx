@@ -25,6 +25,8 @@ import {
   getVerifiedModules,
 } from "@/lib/module1-store";
 import ModuleVerificationScreen from "@/components/module/ModuleVerificationScreen";
+import ModuleIntroCard from "@/components/module/ModuleIntroCard";
+import PlanetTransition from "@/components/module/PlanetTransition";
 
 export const Route = createFileRoute("/planets/mercury")({
   component: MercuryModule,
@@ -71,6 +73,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 2.1: What is a Transaction?",
       "Task 2.2: The Digital Ledger & Bookkeeping",
       "Task 2.3: Transaction Lifecycle",
+      "Task 2.4: Mempool Gatekeeper",
+      "Task 2.5: Ledger Recovery",
     ],
   },
   {
@@ -86,6 +90,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 3.1: What is a Block? (Header and Body)",
       "Task 3.2: The Genesis Block",
       "Task 3.3: Capacity vs. Speed",
+      "Task 3.4: Rebuild the Chain",
+      "Task 3.5: Repair the Space Log",
     ],
   },
   {
@@ -101,6 +107,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 4.1: What is Hashing?",
       "Task 4.2: The Avalanche Effect",
       "Task 4.3: Hashing vs. Encryption",
+      "Task 4.4: Detect a Tampered Signal",
+      "Task 4.5: SHA-256 Calibration",
     ],
   },
   {
@@ -116,6 +124,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 5.1: Cryptographic Links",
       "Task 5.2: The Domino Effect",
       "Task 5.3: Hashing a Block Header",
+      "Task 5.4: Chain Integrity",
+      "Task 5.5: Repair the Ledger",
     ],
   },
   {
@@ -131,6 +141,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 6.1: Topologies",
       "Task 6.2: Node Config",
       "Task 6.3: Gossip Protocols",
+      "Task 6.4: Fault Tolerance",
+      "Task 6.5: Network Recovery",
     ],
   },
   {
@@ -146,6 +158,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 7.1: Consensus Problem",
       "Task 7.2: PoW vs. PoS",
       "Task 7.3: Federated Consensus",
+      "Task 7.4: Double-Spend Resolution",
+      "Task 7.5: Council Decision",
     ],
   },
   {
@@ -161,6 +175,8 @@ const MERCURY_EXPEDITION_MODULES: ModuleDetail[] = [
       "Task 8.1: Immutability & Traceability",
       "Task 8.2: Hashing Drawbacks",
       "Task 8.3: Real-World Use Cases",
+      "Task 8.4: Database Decision Matrix",
+      "Task 8.5: Technology Selection",
     ],
   },
 ];
@@ -223,6 +239,12 @@ export default function MercuryModule() {
   const [task, setTask] = useState<Module1Task>("story");
   const [activeModule, setActiveModule] = useState<number | null>(null);
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
+  const [acknowledgedIntros, setAcknowledgedIntros] = useState<Record<number, boolean>>({});
+
+  const match = task.match(/^task(\d)_1$/);
+  const introModuleId = match ? parseInt(match[1]) : null;
+  const showIntro = introModuleId !== null && introModuleId >= 2 && introModuleId <= 8 && !acknowledgedIntros[introModuleId];
+  const currentModuleDef = showIntro ? MERCURY_CURRICULUM.find(m => m.id === introModuleId) : null;
 
   const activeTaskInfo = (() => {
     for (const mod of MERCURY_CURRICULUM) {
@@ -252,6 +274,25 @@ export default function MercuryModule() {
   // Sync state on mount
   useEffect(() => {
     try {
+      if (import.meta.env.DEV) {
+        // Auto-unlock/complete all modules in development mode
+        const current = localStorage.getItem("cosmos-x-mercury-step");
+        if (current !== "final_challenge") {
+          localStorage.setItem("cosmos-x-mercury-step", "final_challenge");
+          localStorage.setItem("cosmos-x-verified-modules", JSON.stringify([1,2,3,4,5,6,7,8]));
+          const scores: Record<string, { score: number; maxScore: number; passed: boolean }> = {
+            "task1_1": { score: 15, maxScore: 15, passed: true },
+            "task1_2": { score: 10, maxScore: 10, passed: true },
+            "task1_3": { score: 10, maxScore: 10, passed: true }
+          };
+          for (let m = 2; m <= 8; m++) {
+            for (let t = 1; t <= 5; t++) {
+              scores[`task${m}_${t}`] = { score: 10, maxScore: 10, passed: true };
+            }
+          }
+          localStorage.setItem("cosmos-x-task-scores", JSON.stringify(scores));
+        }
+      }
       const currentTask = getMercuryCurrentTask();
       setTask(currentTask);
       // Keep all module task satellites collapsed initially so user sees the planet and modules clean
@@ -342,6 +383,7 @@ export default function MercuryModule() {
       setTask("story");
       setActiveModule(null);
       setSelectedModuleId(null);
+      setAcknowledgedIntros({});
     } catch (err) {
       console.error("Failed to reset progress", err);
     }
@@ -349,9 +391,6 @@ export default function MercuryModule() {
 
   const handleLaunchRocket = () => {
     setIsLaunching(true);
-    setTimeout(() => {
-      router.navigate({ to: "/" });
-    }, 2800);
   };
 
   const getCompletedModuleIds = (currentTask: Module1Task): number[] => {
@@ -608,24 +647,52 @@ export default function MercuryModule() {
                   <p className="text-[9px] lg:text-[10px] font-mono text-muted-foreground uppercase mt-0.5">Explore curriculum paths orbiting Mercury</p>
                 </div>
                 
-                <div className="absolute top-0 right-0 z-10 select-none">
-                  <div className="flex items-center gap-1.5 text-[9px] text-cyan-400 font-mono bg-cyan-950/40 px-2.5 py-1 rounded-full border border-cyan-500/20">
+                <div className="absolute top-0 right-0 z-30 select-none flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-1.5 text-[9px] text-cyan-400 font-mono bg-cyan-950/40 px-2.5 py-1 rounded-full border border-cyan-500/20 shadow-[0_0_8px_rgba(34,211,238,0.1)]">
+                    <span className="w-1 h-1 rounded-full bg-cyan-400 animate-pulse" />
                     <span>MAGNETIC WAVE: ACTIVE</span>
                   </div>
-                </div>
 
-                {task === "final_challenge" && (
-                  <div className="absolute top-1/2 left-1/2 z-30 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center select-none">
-                    <button
+                  {completedModuleIds.length < 8 ? (
+                    <div className="group relative">
+                      <button
+                        disabled
+                        className="text-slate-500 bg-slate-900/50 border border-slate-700/40 px-4 py-2.5 rounded-xl text-[10.5px] font-mono font-bold tracking-widest uppercase cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        RESCUE MISSION
+                      </button>
+                      <div className="absolute top-full right-0 mt-2 whitespace-nowrap bg-slate-950 border border-white/10 text-slate-300 text-[9px] font-mono px-3 py-1.5 rounded shadow-xl opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                        Locked — complete all 8 modules to unlock
+                      </div>
+                    </div>
+                  ) : (
+                    <motion.button
                       onClick={() => {
                         setActiveModule(9);
+                        handleNextTask("final_challenge");
                       }}
-                      className="bg-red-600 hover:bg-red-500 text-white border border-red-500/30 px-6 py-3 rounded-full text-xs font-mono font-bold tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(239,68,68,0.45)] hover:scale-105 active:scale-95 animate-pulse cursor-pointer pointer-events-auto"
+                      animate={{
+                        boxShadow: [
+                          "0 0 10px rgba(127,0,0,0.5)",
+                          "0 0 25px rgba(185,28,28,0.85)",
+                          "0 0 10px rgba(127,0,0,0.5)"
+                        ],
+                        scale: [1, 1.04, 1]
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="bg-linear-to-r from-red-700 to-rose-600 text-white border border-red-500 px-4 py-2.5 rounded-xl text-[10.5px] font-mono font-bold tracking-widest uppercase cursor-pointer pointer-events-auto flex items-center gap-2 relative overflow-hidden"
                     >
-                      🚨 ENTER RESCUE MISSION ➔
-                    </button>
-                  </div>
-                )}
+                      <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0.08)_75%,transparent_75%,transparent)] bg-size-[15px_15px] animate-pulse" />
+                      <Rocket className="w-3.5 h-3.5 relative z-10 animate-bounce" />
+                      <span className="relative z-10">ENTER RESCUE MISSION ➔</span>
+                    </motion.button>
+                  )}
+                </div>
 
                 {/* Glassy bubbles rendered dynamically in circular orbit */}
                 <div className="absolute inset-0 z-10 pointer-events-none">
@@ -1034,7 +1101,23 @@ export default function MercuryModule() {
                     ) : null;
                   })}
 
-                  {activeTaskInfo && !task.endsWith("_verify") && (
+                                  {showIntro && currentModuleDef && (
+                    <motion.div key={`intro-${introModuleId}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
+                      <ModuleIntroCard
+                        moduleId={introModuleId!}
+                        moduleTitle={currentModuleDef.title}
+                        moduleTheory={currentModuleDef.moduleTheory}
+                        rocketComponent={currentModuleDef.rocketComponent}
+                        tasks={currentModuleDef.tasks}
+                        moduleColor={currentModuleDef.color}
+                        onStart={() => {
+                          setAcknowledgedIntros(prev => ({ ...prev, [introModuleId!]: true }));
+                        }}
+                      />
+                    </motion.div>
+                  )}
+
+                  {!showIntro && activeTaskInfo && !task.endsWith("_verify") && (
                     <motion.div key={task} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
                       <GenericSandboxRunner
                         taskDef={activeTaskInfo.taskDef}
@@ -1062,24 +1145,7 @@ export default function MercuryModule() {
 
       {/* Interactive Launch Overlay */}
       {isLaunching && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 overflow-hidden">
-          <motion.div
-            initial={{ y: 0 }}
-            animate={{ y: [-2, 2, -1, 1, -2, 2, 0] }}
-            transition={{ repeat: Infinity, duration: 0.1 }}
-            className="flex flex-col items-center gap-6"
-          >
-            <Rocket className="w-16 h-16 text-cyan-400 -rotate-45 animate-[bounce_0.2s_infinite]" />
-            <h1 className="font-rushblade text-lg font-bold tracking-widest text-white uppercase animate-pulse flex items-center gap-2">
-              IGNITING V-2 PROPELLANT CHAMBER...
-            </h1>
-            <p className="font-mono text-[9px] text-muted-foreground animate-pulse">
-              LEAVING MERCURY SECTOR // TRANSITING TO VENUS ORBITAL GRID
-            </p>
-          </motion.div>
-          
-          <div className="absolute bottom-0 w-full h-[50vh] bg-linear-to-t from-orange-500/10 via-transparent to-transparent pointer-events-none" />
-        </div>
+        <PlanetTransition targetPlanet="Venus" onComplete={() => router.navigate({ to: "/" })} />
       )}
 
       {/* Footer */}

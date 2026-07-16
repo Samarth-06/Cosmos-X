@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlanetsMercuryRouteImport } from './routes/planets/mercury'
+import { Route as PlanetsPlanetRouteImport } from './routes/planets/$planet'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const PlanetsMercuryRoute = PlanetsMercuryRouteImport.update({
   path: '/planets/mercury',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlanetsPlanetRoute = PlanetsPlanetRouteImport.update({
+  id: '/planets/$planet',
+  path: '/planets/$planet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/planets/$planet': typeof PlanetsPlanetRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/planets/$planet': typeof PlanetsPlanetRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/planets/$planet': typeof PlanetsPlanetRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/planets/mercury'
+  fullPaths: '/' | '/planets/$planet' | '/planets/mercury'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/planets/mercury'
-  id: '__root__' | '/' | '/planets/mercury'
+  to: '/' | '/planets/$planet' | '/planets/mercury'
+  id: '__root__' | '/' | '/planets/$planet' | '/planets/mercury'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PlanetsPlanetRoute: typeof PlanetsPlanetRoute
   PlanetsMercuryRoute: typeof PlanetsMercuryRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanetsMercuryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planets/$planet': {
+      id: '/planets/$planet'
+      path: '/planets/$planet'
+      fullPath: '/planets/$planet'
+      preLoaderRoute: typeof PlanetsPlanetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PlanetsPlanetRoute: PlanetsPlanetRoute,
   PlanetsMercuryRoute: PlanetsMercuryRoute,
 }
 export const routeTree = rootRouteImport

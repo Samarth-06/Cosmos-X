@@ -1,13 +1,31 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Lock, CheckCircle2, RotateCcw, Play, Compass, Star, Rocket, Info } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  CheckCircle2,
+  RotateCcw,
+  Play,
+  Compass,
+  Star,
+  Rocket,
+  Info,
+  Bot,
+  RefreshCw,
+  ArrowLeft,
+  ArrowRight,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { Canvas, useLoader, useFrame } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import * as THREE from "three";
 
 import mercuryTex from "@/assets/planets/mercury.jpg";
 import RocketAssembly from "@/components/module/RocketAssembly";
+import MercuryChapterOne from "@/components/module/MercuryChapterOne";
 import Task1_1_MiddlemanMapper from "@/components/module/Task1_1_MiddlemanMapper";
 import Task1_2_CorruptedServer from "@/components/module/Task1_2_CorruptedServer";
 import Task1_3_TradeDilemma from "@/components/module/Task1_3_TradeDilemma";
@@ -231,6 +249,588 @@ function RotatingMercury() {
         metalness={0.15}
       />
     </mesh>
+  );
+}
+
+function SmallMercury() {
+  const tex = useLoader(TextureLoader, mercuryTex);
+  const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((_, dt) => {
+    if (meshRef.current) meshRef.current.rotation.y += dt * 0.18;
+  });
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[1.6, 64, 64]} />
+      <meshStandardMaterial map={tex} roughness={0.85} metalness={0.15} />
+    </mesh>
+  );
+}
+
+function getUrlForTask(task: Module1Task): string {
+  if (task === "story" || task === "task1_1") return "cosmosx://mercury/ch1/task-1.1-map-the-middlemen";
+  if (task === "task1_2") return "cosmosx://mercury/ch1/task-1.2-corrupted-command";
+  if (task === "task1_3") return "cosmosx://mercury/ch1/task-1.3-trade-dilemma";
+  const match = task.match(/^task(\d+)_(\d+)$/);
+  if (match) return `cosmosx://mercury/ch${match[1]}/task-${match[1]}.${match[2]}`;
+  const vm = task.match(/^task(\d+)_verify$/);
+  if (vm) return `cosmosx://mercury/ch${vm[1]}/module-${vm[1]}-verification`;
+  if (task === "final_challenge") return "cosmosx://mercury/final/escape-room";
+  if (task === "completed") return "cosmosx://mercury/complete/graduation";
+  return "cosmosx://mercury/sandbox";
+}
+
+function getNovaHint(task: Module1Task): string {
+  if (task === "task1_1") return "Map all the middlemen in the UPI transaction flow. Look for every hop between sender and receiver.";
+  if (task === "task1_2") return "A server is corrupted. Identify which records were tampered with and why it matters.";
+  if (task === "task1_3") return "Two traders need to swap goods without trusting each other. Find the trustless mechanism.";
+  if (task.endsWith("_verify")) return "Review your task scores. You need to pass all 3 tasks to unlock the next module.";
+  if (task === "final_challenge") return "All 8 modules complete. Execute the final timed escape room to graduate from Mercury.";
+  if (task === "completed") return "Mercury mastered! You've earned the First Block badge. Launch to Venus next.";
+  return "Complete each task in sequence. Read the theory panel first, then attempt the challenge.";
+}
+function renderModuleIcon(type: string, isUnlocked: boolean, color: string, className = "w-5 h-5") {
+  const strokeColor = isUnlocked ? color : "#475569";
+  switch (type) {
+    case "horizon":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.88.66-3.6 1.76-4.97A7.95 7.95 0 0 1 12 16a7.95 7.95 0 0 1 6.24-10.97C19.34 6.4 20 8.12 20 10c0 4.41-3.59 8-8 8z" />
+        </svg>
+      );
+    case "sunrise":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <path d="M2 18h20M12 4v4M6.34 6.34l2.83 2.83M17.66 6.34l-2.83 2.83" />
+          <path d="M18 18a6 6 0 0 0-12 0" />
+        </svg>
+      );
+    case "solar-rise":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
+        </svg>
+      );
+    case "scorch":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+        </svg>
+      );
+    case "peak":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <circle cx="12" cy="12" r="6" />
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83" />
+        </svg>
+      );
+    case "descent":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <path d="M2 16h20M12 22v-4M6.34 19.66l2.83-2.83M17.66 19.66l-2.83-2.83" />
+          <path d="M6 16a6 6 0 0 1 12 0" />
+        </svg>
+      );
+    case "twilight":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8" />
+        </svg>
+      );
+    case "night":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke={strokeColor} strokeWidth="2">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 3v1M12 20v1M3 12h1M20 12h1M19 19l-1-1M5 5L4 4" />
+        </svg>
+      );
+    default:
+      return <Star className="w-4 h-4 text-slate-500" />;
+  }
+}
+
+const MODULES = MERCURY_EXPEDITION_MODULES.map(m => ({
+  id: m.id,
+  num: String(m.id).padStart(2, "0"),
+  title: m.topic,
+  stageName: m.stageName,
+  iconName: m.iconName,
+  color: m.color,
+  verifyId: `task${m.id}_verify` as Module1Task,
+  tasks: m.id === 1 ? [
+    { id: "task1_1" as Module1Task, label: "Map the Middlemen" },
+    { id: "task1_2" as Module1Task, label: "Corrupted Command" },
+    { id: "task1_3" as Module1Task, label: "Trade Dilemma" },
+  ] : (MERCURY_CURRICULUM.find(c => c.id === m.id)?.tasks || []).map(t => ({
+    id: t.id as Module1Task,
+    label: t.title.split(" — ")[1] || t.title.split(" – ")[1] || t.title,
+  })),
+}));
+
+function MercuryWorkspace({
+  task,
+  onTaskChange,
+  onBack,
+  completedModuleIds,
+  currentActiveModuleId,
+  activeTaskInfo,
+  handleLaunchRocket,
+  showIntro,
+  introModuleId,
+  currentModuleDef,
+  setAcknowledgedIntros,
+}: {
+  task: Module1Task;
+  onTaskChange: (t: Module1Task) => void;
+  onBack: () => void;
+  completedModuleIds: number[];
+  currentActiveModuleId: number;
+  activeTaskInfo: { taskDef: any; color: string } | null;
+  handleLaunchRocket: () => void;
+  showIntro: boolean;
+  introModuleId: number | null;
+  currentModuleDef: any;
+  setAcknowledgedIntros: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+}) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const sidebarExpanded = !sidebarCollapsed || sidebarHovered;
+
+  const [expandedModule, setExpandedModule] = useState<number>(() => {
+    const match = task.match(/^task(\d+)_/);
+    return match ? parseInt(match[1]) : 1;
+  });
+  const [urlAnimating, setUrlAnimating] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const currentUrl = getUrlForTask(task);
+
+  // Auto-expand the module the task belongs to
+  useEffect(() => {
+    const match = task.match(/^task(\d+)_/);
+    if (match) setExpandedModule(parseInt(match[1]));
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setUrlAnimating(true);
+    const t = setTimeout(() => setUrlAnimating(false), 700);
+    return () => clearTimeout(t);
+  }, [task]);
+
+  const isTaskDone = (taskId: Module1Task) => {
+    const current = MODULE1_TASKS.indexOf(task);
+    const target = MODULE1_TASKS.indexOf(taskId);
+    return current > target;
+  };
+  const isModuleDone = (id: number) => completedModuleIds.includes(id);
+  const isModuleUnlocked = (id: number) => id <= currentActiveModuleId;
+
+  const activeModDef = MODULES.find((m) => {
+    const match = task.match(/^task(\d+)_/);
+    return match ? m.id === parseInt(match[1]) : m.id === 1;
+  });
+  const accentColor = activeModDef?.color ?? "#22d3ee";
+
+  return (
+    <div className="h-screen bg-[#030711] text-white flex flex-col overflow-hidden w-full relative z-10">
+      {/* Starfield */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,white_0.7px,transparent_0.7px)] bg-size-[28px_28px] opacity-[0.06]" />
+      </div>
+
+      {/* ── WORKSPACE HEADER ── */}
+      <header className="relative z-20 shrink-0 flex items-center gap-4 px-5 py-3 bg-[#08101f]/90 border-b border-white/8 backdrop-blur-xl">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-slate-400 hover:text-white transition font-mono text-[10px] group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          MERCURY
+        </button>
+
+        <div className="w-px h-4 bg-white/10" />
+
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+          <span className="font-mono text-[10px] font-bold uppercase tracking-widest" style={{ color: accentColor }}>
+            {task.match(/^task(\d+)_(\d+)$/) ? `Module ${task.match(/^task(\d+)_(\d+)$/)![1].padStart(2,"0")} · Task ${task.match(/^task(\d+)_(\d+)$/)![2]}` :
+             task.match(/^task(\d+)_verify$/) ? `Module ${task.match(/^task(\d+)_verify$/)![1].padStart(2,"0")} · Verification` :
+             task === "final_challenge" ? "Final Mission · Escape Room" :
+             task === "completed" ? "Mercury Complete" : "Sandbox"}
+          </span>
+        </div>
+
+        {/* Module progress ticks */}
+        <div className="ml-auto hidden md:flex items-center gap-1">
+          {MODULES.map((mod) => {
+            const done = isModuleDone(mod.id);
+            const active = mod.id === currentActiveModuleId;
+            return (
+              <div key={mod.id} className="w-4 h-1.5 rounded-sm border transition-all duration-500"
+                style={{
+                  backgroundColor: done ? "#10b981" : active ? `${mod.color}30` : "transparent",
+                  borderColor: done ? "#10b981" : active ? mod.color : "rgba(255,255,255,0.1)",
+                  boxShadow: done ? "0 0 5px rgba(16,185,129,0.6)" : active ? `0 0 4px ${mod.color}70` : "none",
+                }}
+                title={`Module ${mod.num}`}
+              />
+            );
+          })}
+        </div>
+
+        <button onClick={() => { resetMercuryProgress(); onBack(); }}
+          className="flex items-center gap-1.5 text-[9px] font-mono text-rose-400 hover:text-rose-300 bg-rose-500/8 hover:bg-rose-500/15 px-2.5 py-1.5 rounded-lg border border-rose-500/20 hover:border-rose-500/40 transition shrink-0">
+          <RotateCcw className="w-3 h-3" />
+          <span className="hidden sm:block">RESET</span>
+        </button>
+      </header>
+
+      {/* ── BODY: SIDEBAR + BROWSER ── */}
+      <div className="flex flex-1 min-h-0 relative z-10 w-full">
+
+        {/* ── LEFT MODULE SIDEBAR ── */}
+        <aside
+          onMouseEnter={() => setSidebarHovered(true)}
+          onMouseLeave={() => setSidebarHovered(false)}
+          className={`shrink-0 border-r border-white/8 bg-[#060d1a]/80 backdrop-blur-md flex flex-col overflow-hidden transition-all duration-300 ease-in-out relative z-30 ${
+            sidebarExpanded ? "w-60" : "w-16"
+          }`}
+        >
+          {/* Planet mini header */}
+          <div className={`pt-3 pb-3 border-b border-white/8 shrink-0 transition-all duration-300 ${sidebarExpanded ? "px-3" : "px-0 flex flex-col items-center"}`}>
+            <div className="flex items-center gap-2.5 w-full justify-center px-1">
+              <div className="w-8 h-8 rounded-xl overflow-hidden border shrink-0" style={{ borderColor: `${accentColor}30`, boxShadow: `0 0 12px ${accentColor}25` }}>
+                <Canvas camera={{ position: [0, 0, 4] }}>
+                  <ambientLight intensity={0.3} />
+                  <pointLight position={[8, 8, 8]} intensity={3} />
+                  <Suspense fallback={null}><SmallMercury /></Suspense>
+                </Canvas>
+              </div>
+              {sidebarExpanded && (
+                <>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">Planet 01</p>
+                    <h2 className="font-rushblade text-xs text-white">MERCURY</h2>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSidebarCollapsed(!sidebarCollapsed);
+                    }}
+                    className="ml-auto w-5 h-5 rounded-md flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/5 transition shrink-0"
+                    title={sidebarCollapsed ? "Pin Sidebar" : "Collapse Sidebar"}
+                  >
+                    {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+                  </button>
+                </>
+              )}
+            </div>
+            {sidebarExpanded && (
+              <div className="mt-2 w-full px-1">
+                <div className="flex justify-between text-[8px] font-mono text-slate-600 mb-1">
+                  <span>{completedModuleIds.length}/8 done</span>
+                  <span>{Math.round((completedModuleIds.length / 8) * 100)}%</span>
+                </div>
+                <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${Math.round((completedModuleIds.length / 8) * 100)}%`, background: `linear-gradient(90deg, ${accentColor}70, ${accentColor})` }} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Module + task list */}
+          <nav className="flex-1 overflow-y-auto scrollbar-none py-2 space-y-1.5 px-2">
+            {MODULES.map((mod) => {
+              const done = isModuleDone(mod.id);
+              const unlocked = isModuleUnlocked(mod.id);
+              const isExpanded = expandedModule === mod.id;
+              const currentTaskInMod = task.startsWith(`task${mod.id}_`);
+
+              return (
+                <div key={mod.id} className="flex flex-col items-center w-full">
+                  <button
+                    onClick={() => {
+                      if (!unlocked) return;
+                      setExpandedModule(isExpanded ? 0 : mod.id);
+                      setSidebarCollapsed(false); // Lock it open when they click
+                    }}
+                    disabled={!unlocked}
+                    className={`w-full flex items-center rounded-xl text-left transition-all ${
+                      sidebarExpanded ? "gap-2 px-2.5 py-2" : "justify-center p-2"
+                    } ${
+                      currentTaskInMod ? "bg-white/8 border border-white/10" :
+                      unlocked ? "hover:bg-white/5" : "opacity-35 cursor-not-allowed"
+                    }`}
+                  >
+                    {sidebarExpanded ? (
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-[9px] font-mono font-bold border transition-all"
+                        style={{
+                          borderColor: done ? "rgba(52,211,153,0.4)" : currentTaskInMod ? `${mod.color}50` : unlocked ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)",
+                          color: done ? "#34d399" : currentTaskInMod ? mod.color : unlocked ? "#94a3b8" : "#374151",
+                          backgroundColor: done ? "rgba(52,211,153,0.1)" : currentTaskInMod ? `${mod.color}15` : "transparent",
+                        }}
+                      >
+                        {done ? "✓" : !unlocked ? <Lock className="w-2.5 h-2.5" /> : mod.num}
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                        {renderModuleIcon(mod.iconName, unlocked, done ? "#34d399" : mod.color, "w-4.5 h-4.5")}
+                      </div>
+                    )}
+                    {sidebarExpanded && (
+                      <>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[8px] font-mono uppercase tracking-wider truncate" style={{ color: unlocked ? mod.color : "#374151" }}>
+                            MODULE {mod.num}
+                          </p>
+                          <p className={`text-[10px] truncate mt-0.5 ${currentTaskInMod ? "text-white font-medium" : unlocked ? "text-slate-400" : "text-slate-700"}`}>
+                            {mod.title}
+                          </p>
+                        </div>
+                        <ChevronRight className={`w-3 h-3 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""} ${unlocked ? "text-slate-500" : "text-slate-800"}`} />
+                      </>
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {sidebarExpanded && isExpanded && unlocked && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.18 }} className="overflow-hidden w-full">
+                        <div className="pl-9 pr-2 pb-1 pt-0.5 space-y-0.5">
+                          {mod.tasks.map((t) => {
+                            const tDone = isTaskDone(t.id);
+                            const tActive = task === t.id;
+                            return (
+                              <button key={t.id} onClick={() => { onTaskChange(t.id); setSidebarCollapsed(false); }}
+                                className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 transition-all hover:bg-white/5"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: tDone ? "#34d399" : tActive ? mod.color : "rgba(255,255,255,0.15)" }} />
+                                <span className="font-mono text-[10px] truncate"
+                                  style={{ color: tActive ? mod.color : tDone ? "#34d399" : "#64748b", fontWeight: tActive ? "700" : "400" }}>
+                                  {t.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+
+            {/* Final challenge */}
+            <button
+              disabled={completedModuleIds.length < 8}
+              onClick={() => { onTaskChange("final_challenge"); setSidebarCollapsed(false); }}
+              className={`w-full flex items-center rounded-xl text-left border transition-all ${
+                sidebarExpanded ? "gap-2 px-2.5 py-2 mt-1" : "justify-center p-2 mt-2"
+              } ${
+                completedModuleIds.length >= 8 ? "border-rose-400/20 bg-rose-500/8 hover:bg-rose-500/12" : "border-transparent opacity-25 cursor-not-allowed"
+              }`}
+            >
+              <div className="w-6 h-6 rounded-lg border border-rose-400/30 bg-rose-500/15 flex items-center justify-center text-rose-400 shrink-0">
+                <Rocket className="w-3 h-3" />
+              </div>
+              {sidebarExpanded && (
+                <div className="min-w-0">
+                  <p className="text-[8px] font-mono text-rose-400 uppercase tracking-wider">FINAL MISSION</p>
+                  <p className="text-[10px] text-slate-400 truncate">Escape Room</p>
+                </div>
+              )}
+            </button>
+          </nav>
+
+          {/* NOVA */}
+          <div className={`mx-2 mb-2 rounded-xl border border-violet-400/20 bg-violet-400/5 shrink-0 transition-all duration-300 ${sidebarExpanded ? "p-2.5" : "p-2.5 flex justify-center"}`}>
+            <div className="flex items-center gap-1.5 w-full justify-center">
+              <Bot className="w-4 h-4 text-violet-300 shrink-0" />
+              {sidebarExpanded && (
+                <>
+                  <span className="text-[8px] font-mono text-violet-300 uppercase tracking-wider min-w-0 truncate">NOVA · AI Guide</span>
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                </>
+              )}
+            </div>
+            {sidebarExpanded && (
+              <p className="text-[9px] text-slate-400 leading-relaxed mt-1">{getNovaHint(task)}</p>
+            )}
+          </div>
+        </aside>
+
+        {/* ── VIRTUAL BROWSER (content only) ── */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#040916] h-full overflow-hidden relative">
+
+          {/* Browser chrome */}
+          <div className="shrink-0 bg-[#08101f]/95 border-b border-white/8 backdrop-blur-md relative z-20">
+            {/* Tab strip */}
+            <div className="flex items-end gap-0 px-3 pt-2">
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-t-xl border border-b-0 text-[10px] font-mono bg-[#0d1628]/90 min-w-0 max-w-xs"
+                style={{ borderColor: `${accentColor}25` }}>
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: accentColor, boxShadow: `0 0 6px ${accentColor}80` }} />
+                <span className="truncate text-white/80">{activeModDef?.title ?? "Mercury Sandbox"}</span>
+              </div>
+            </div>
+
+            {/* URL row */}
+            <div className="flex items-center gap-2.5 px-3 pb-2 pt-1">
+              {/* Traffic lights */}
+              <div className="flex gap-1.5 shrink-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+              </div>
+
+              {/* Nav buttons */}
+              <div className="flex gap-0.5 shrink-0">
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-600 hover:text-slate-400 hover:bg-white/5 transition">
+                  <ArrowLeft className="w-3 h-3" />
+                </button>
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-700 cursor-not-allowed">
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+                <button className="w-6 h-6 rounded-md flex items-center justify-center text-slate-600 hover:text-slate-400 hover:bg-white/5 transition">
+                  <RefreshCw className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* URL bar */}
+              <div className="flex-1 flex items-center gap-2 bg-[#0a0f1e]/90 border rounded-lg px-3 py-1 min-w-0 transition-all duration-500"
+                style={{ borderColor: urlAnimating ? `${accentColor}50` : "rgba(255,255,255,0.1)", boxShadow: urlAnimating ? `0 0 12px ${accentColor}18` : "none" }}>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" style={{ boxShadow: "0 0 5px rgba(52,211,153,0.7)" }} />
+                  <span className="text-[8px] font-mono text-emerald-400/70 uppercase tracking-wider hidden sm:block">SECURE</span>
+                </div>
+                <div className="w-px h-2.5 bg-white/10 shrink-0" />
+                <motion.span key={currentUrl} initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }}
+                  className="font-mono text-[10px] truncate flex-1" style={{ color: accentColor }}>
+                  {currentUrl}
+                </motion.span>
+              </div>
+
+              <div className="shrink-0 flex items-center gap-1.5 bg-slate-900/50 border border-white/8 px-2 py-1 rounded-lg">
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+                <span className="font-mono text-[8px]" style={{ color: accentColor }}>SANDBOX</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Page content */}
+          <div ref={contentRef} className="flex-1 overflow-y-auto min-h-0 relative z-10 p-4">
+            <AnimatePresence mode="wait">
+              {task === "story" && (
+                <motion.div key="story" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <MercuryChapterOne onComplete={() => onTaskChange("task1_1")} />
+                </motion.div>
+              )}
+              {task === "task1_1" && (
+                <motion.div key="t1_1" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_1_MiddlemanMapper onComplete={() => onTaskChange("task1_2")} />
+                </motion.div>
+              )}
+              {task === "task1_2" && (
+                <motion.div key="t1_2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_2_CorruptedServer onComplete={() => onTaskChange("task1_3")} />
+                </motion.div>
+              )}
+              {task === "task1_3" && (
+                <motion.div key="t1_3" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
+                  <Task1_3_TradeDilemma onComplete={() => onTaskChange("task1_verify")} />
+                </motion.div>
+              )}
+
+              {/* Module Intro Card */}
+              {showIntro && currentModuleDef && (
+                <motion.div key={`intro-${introModuleId}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col justify-between">
+                  <ModuleIntroCard
+                    moduleId={introModuleId!}
+                    moduleTitle={currentModuleDef.title}
+                    moduleTheory={currentModuleDef.moduleTheory}
+                    rocketComponent={currentModuleDef.rocketComponent}
+                    tasks={currentModuleDef.tasks}
+                    moduleColor={currentModuleDef.color}
+                    onStart={() => {
+                      setAcknowledgedIntros(prev => ({ ...prev, [introModuleId!]: true }));
+                    }}
+                  />
+                </motion.div>
+              )}
+
+              {!showIntro && activeTaskInfo && !task.endsWith("_verify") && !["task1_1","task1_2","task1_3","final_challenge","completed"].includes(task) && (
+                <motion.div key={task} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  <GenericSandboxRunner taskDef={activeTaskInfo.taskDef} moduleColor={activeTaskInfo.color}
+                    onComplete={() => {
+                      const idx = MODULE1_TASKS.indexOf(task);
+                      onTaskChange(MODULE1_TASKS[idx + 1] || "completed");
+                    }}
+                  />
+                </motion.div>
+              )}
+
+              {([1,2,3,4,5,6,7,8] as const).map((modId) => {
+                const vk = `task${modId}_verify` as Module1Task;
+                const next = modId < 8 ? `task${modId + 1}_1` as Module1Task : "final_challenge";
+                const MODULE_TITLES: Record<number, string> = {
+                  1: "Why Does Blockchain Exist?",
+                  2: "Transactions & Digital Ledgers",
+                  3: "Blocks & Data Structures",
+                  4: "Mining & Proof of Work",
+                  5: "Nodes & Peer-to-Peer Networks",
+                  6: "Consensus Mechanisms",
+                  7: "Smart Contracts",
+                  8: "DeFi & Real-World Applications",
+                };
+                return task === vk ? (
+                  <motion.div key={vk} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                    <ModuleVerificationScreen moduleId={modId} moduleTitle={MODULE_TITLES[modId]}
+                      onVerified={() => onTaskChange(next)}
+                      onRetry={() => onTaskChange(`task${modId}_1` as Module1Task)}
+                    />
+                  </motion.div>
+                ) : null;
+              })}
+
+              {task === "final_challenge" && (
+                <motion.div key="final" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  <FinalEscapeRoom onComplete={handleLaunchRocket} />
+                </motion.div>
+              )}
+
+              {task === "completed" && (
+                <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                  className="h-full flex flex-col items-center justify-center p-8 text-center gap-6">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
+                    className="w-24 h-24 rounded-full flex items-center justify-center border-2"
+                    style={{ backgroundColor: "rgba(251,191,36,0.12)", borderColor: "rgba(251,191,36,0.4)", boxShadow: "0 0 50px rgba(251,191,36,0.25)" }}>
+                    <Trophy className="w-10 h-10 text-amber-400" />
+                  </motion.div>
+                  <div>
+                    <h1 className="font-rushblade text-3xl text-white">MERCURY COMPLETE</h1>
+                    <p className="text-slate-400 mt-2 text-sm max-w-sm">All 8 modules mastered. First Block badge unlocked.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    {[{ l: "XP Earned", v: "+800", c: "#22d3ee" }, { l: "Badge", v: "🏆 First Block", c: "#f59e0b" }, { l: "Next", v: "Venus ➔", c: "#8b5cf6" }].map((s) => (
+                      <div key={s.l} className="rounded-2xl border px-5 py-3 text-center" style={{ borderColor: `${s.c}25`, backgroundColor: `${s.c}08` }}>
+                        <p className="font-mono text-[9px] uppercase tracking-wider text-slate-500 mb-1">{s.l}</p>
+                        <p className="font-rushblade text-lg" style={{ color: s.c }}>{s.v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={handleLaunchRocket}
+                      className="px-7 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-[0_0_30px_rgba(251,191,36,0.4)] hover:scale-[1.02]">
+                      Back to Solar System
+                    </button>
+                    <Link to="/planets/$planet" params={{ planet: "venus" }} className="px-6 py-3 bg-violet-500/20 border border-violet-400/30 text-violet-300 hover:bg-violet-500/30 font-semibold text-sm rounded-xl transition-all">
+                      Enter Venus ➔
+                    </Link>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -918,181 +1518,28 @@ export default function MercuryModule() {
             /* 2. ACTIVE OPERATION SCREEN WORKSPACE */
             <motion.div
               key="workspace"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="flex flex-col relative flex-1 min-h-0 overflow-hidden gap-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="flex-1 flex flex-col min-h-0 overflow-hidden"
             >
-              <div className="w-full space-y-0 h-full flex flex-col min-h-0">
-                <div className="flex justify-between items-center border-b border-white/10 bg-slate-950/60 p-3 rounded-xl backdrop-blur-md shrink-0">
-                  <button
-                    onClick={() => {
-                      setActiveModule(null);
-                      setSelectedModuleId(null);
-                    }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-white transition"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back to Expedition Path
-                  </button>
-                  <span className="font-mono text-[9px] text-cyan-400 font-bold uppercase tracking-widest">
-                    ACTIVE TELEMETRY COMMS SANDBOX
-                  </span>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {task === "story" && (
-                    <motion.div
-                      key="story"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-slate-950/60 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-2xl space-y-5"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-400 shrink-0">
-                          <Compass className="w-6 h-6 animate-spin" style={{ animationDuration: "10s" }} />
-                        </div>
-                        <div>
-                          <h3 className="font-rushblade text-white text-sm tracking-wider">
-                            MODULE 01 — WHY DOES BLOCKCHAIN EXIST?
-                          </h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Concept: The Problem of Trust · Rocket Component: Launch Platform
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
-                        <p>
-                          Welcome to Mercury — the closest planet to the Sun and the first stop on your journey through the cosmos.
-                          Before you can build a rocket to leave this scorched world, you need to understand the fundamental problem
-                          that gave birth to blockchain: <span className="text-cyan-400 font-semibold">the problem of trust.</span>
-                        </p>
-                        <p>
-                          Mercury's central command center has been corrupted. Its single database — the backbone of all fuel supply
-                          routing — has been tampered with. Your mission is to understand what went wrong, and discover why a
-                          distributed system would have prevented it.
-                        </p>
-                        <p className="text-slate-400">
-                          By the end of this module you'll be able to answer one critical question:
-                          <span className="text-white font-semibold"> "Why can't we simply use MySQL/PostgreSQL for everything?"</span>
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-900/60 border border-white/5 rounded-xl p-3">
-                        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">3 Tasks · Estimated 15–20 min</p>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {["Map the Middlemen", "Corrupted Command", "Trade Dilemma"].map((t, i) => (
-                            <div key={i} className="bg-slate-950/60 border border-white/5 rounded-lg p-2 text-center">
-                              <div className="text-[11px] font-mono text-cyan-400 font-bold">1.{i + 1}</div>
-                              <div className="text-[9px] font-mono text-slate-500 mt-0.5 leading-tight">{t}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2 text-[10px] text-amber-400 font-mono">
-                        <Info className="w-4 h-4 shrink-0" />
-                        <span>
-                          MISSION OBJECTIVE: Complete all 3 tasks to assemble the Launch Platform — the first component of your escape rocket.
-                        </span>
-                      </div>
-
-                      <div className="flex justify-end pt-2">
-                        <button
-                          onClick={() => handleNextTask("task1_1")}
-                          className="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold px-5 py-2.5 rounded-full text-xs font-rushblade shadow-lg hover:shadow-cyan-500/15 transition"
-                        >
-                          Begin Task 1.1 ➔
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {task === "task1_1" && (
-                    <motion.div key="task1_1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_1_MiddlemanMapper onComplete={() => handleNextTask("task1_2")} />
-                    </motion.div>
-                  )}
-
-                  {task === "task1_2" && (
-                    <motion.div key="task1_2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_2_CorruptedServer onComplete={() => handleNextTask("task1_3")} />
-                    </motion.div>
-                  )}
-
-                  {task === "task1_3" && (
-                    <motion.div key="task1_3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Task1_3_TradeDilemma onComplete={() => handleNextTask("task1_verify")} />
-                    </motion.div>
-                  )}
-
-                  {/* Module Verify gates — one for each module */}
-                  {([1,2,3,4,5,6,7,8] as const).map((modId) => {
-                    const verifyKey = `task${modId}_verify` as Module1Task;
-                    const nextStart = modId < 8 ? `task${modId + 1}_1` as Module1Task : "final_challenge";
-                    const MODULE_TITLES: Record<number, string> = {
-                      1: "Why Does Blockchain Exist?",
-                      2: "Transactions & Digital Ledgers",
-                      3: "Blocks & Data Structures",
-                      4: "Mining & Proof of Work",
-                      5: "Nodes & Peer-to-Peer Networks",
-                      6: "Consensus Mechanisms",
-                      7: "Smart Contracts",
-                      8: "DeFi & Real-World Applications",
-                    };
-                    return task === verifyKey ? (
-                      <motion.div key={verifyKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col">
-                        <ModuleVerificationScreen
-                          moduleId={modId}
-                          moduleTitle={MODULE_TITLES[modId]}
-                          onVerified={() => handleNextTask(nextStart)}
-                          onRetry={() => {
-                            // Go back to first task of this module
-                            handleNextTask(`task${modId}_1` as Module1Task);
-                          }}
-                        />
-                      </motion.div>
-                    ) : null;
-                  })}
-
-                                  {showIntro && currentModuleDef && (
-                    <motion.div key={`intro-${introModuleId}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
-                      <ModuleIntroCard
-                        moduleId={introModuleId!}
-                        moduleTitle={currentModuleDef.title}
-                        moduleTheory={currentModuleDef.moduleTheory}
-                        rocketComponent={currentModuleDef.rocketComponent}
-                        tasks={currentModuleDef.tasks}
-                        moduleColor={currentModuleDef.color}
-                        onStart={() => {
-                          setAcknowledgedIntros(prev => ({ ...prev, [introModuleId!]: true }));
-                        }}
-                      />
-                    </motion.div>
-                  )}
-
-                  {!showIntro && activeTaskInfo && !task.endsWith("_verify") && (
-                    <motion.div key={task} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
-                      <GenericSandboxRunner
-                        taskDef={activeTaskInfo.taskDef}
-                        moduleColor={activeTaskInfo.color}
-                        onComplete={() => {
-                          const currentIdx = MODULE1_TASKS.indexOf(task);
-                          const nextTask = MODULE1_TASKS[currentIdx + 1] || "completed";
-                          handleNextTask(nextTask);
-                        }}
-                      />
-                    </motion.div>
-                  )}
-
-                  {task === "final_challenge" && (
-                    <motion.div key="final_challenge" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="h-full flex flex-col justify-between">
-                      <FinalEscapeRoom onComplete={handleLaunchRocket} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <MercuryWorkspace
+                task={task}
+                onTaskChange={handleNextTask}
+                onBack={() => {
+                  setActiveModule(null);
+                  setSelectedModuleId(null);
+                }}
+                completedModuleIds={completedModuleIds}
+                currentActiveModuleId={currentActiveModuleId}
+                activeTaskInfo={activeTaskInfo}
+                handleLaunchRocket={handleLaunchRocket}
+                showIntro={showIntro}
+                introModuleId={introModuleId}
+                currentModuleDef={currentModuleDef}
+                setAcknowledgedIntros={setAcknowledgedIntros}
+              />
             </motion.div>
           )}
         </AnimatePresence>

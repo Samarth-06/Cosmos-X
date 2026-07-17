@@ -3,19 +3,19 @@ export type Module1Task =
   // Module 1
   | "task1_1" | "task1_2" | "task1_3" | "task1_verify"
   // Module 2
-  | "task2_1" | "task2_2" | "task2_3" | "task2_4" | "task2_5" | "task2_verify"
+  | "task2_1" | "task2_2" | "task2_3" | "task2_verify"
   // Module 3
-  | "task3_1" | "task3_2" | "task3_3" | "task3_4" | "task3_5" | "task3_verify"
+  | "task3_1" | "task3_2" | "task3_3" | "task3_verify"
   // Module 4
-  | "task4_1" | "task4_2" | "task4_3" | "task4_4" | "task4_5" | "task4_verify"
+  | "task4_1" | "task4_2" | "task4_3" | "task4_verify"
   // Module 5
-  | "task5_1" | "task5_2" | "task5_3" | "task5_4" | "task5_5" | "task5_verify"
+  | "task5_1" | "task5_2" | "task5_3" | "task5_verify"
   // Module 6
-  | "task6_1" | "task6_2" | "task6_3" | "task6_4" | "task6_5" | "task6_verify"
+  | "task6_1" | "task6_2" | "task6_3" | "task6_verify"
   // Module 7
-  | "task7_1" | "task7_2" | "task7_3" | "task7_4" | "task7_5" | "task7_verify"
+  | "task7_1" | "task7_2" | "task7_3" | "task7_verify"
   // Module 8
-  | "task8_1" | "task8_2" | "task8_3" | "task8_4" | "task8_5" | "task8_verify"
+  | "task8_1" | "task8_2" | "task8_3" | "task8_verify"
   // Final timed challenge
   | "final_challenge"
   | "completed";
@@ -23,13 +23,13 @@ export type Module1Task =
 export const MODULE1_TASKS: Module1Task[] = [
   "story",
   "task1_1", "task1_2", "task1_3", "task1_verify",
-  "task2_1", "task2_2", "task2_3", "task2_4", "task2_5", "task2_verify",
-  "task3_1", "task3_2", "task3_3", "task3_4", "task3_5", "task3_verify",
-  "task4_1", "task4_2", "task4_3", "task4_4", "task4_5", "task4_verify",
-  "task5_1", "task5_2", "task5_3", "task5_4", "task5_5", "task5_verify",
-  "task6_1", "task6_2", "task6_3", "task6_4", "task6_5", "task6_verify",
-  "task7_1", "task7_2", "task7_3", "task7_4", "task7_5", "task7_verify",
-  "task8_1", "task8_2", "task8_3", "task8_4", "task8_5", "task8_verify",
+  "task2_1", "task2_2", "task2_3", "task2_verify",
+  "task3_1", "task3_2", "task3_3", "task3_verify",
+  "task4_1", "task4_2", "task4_3", "task4_verify",
+  "task5_1", "task5_2", "task5_3", "task5_verify",
+  "task6_1", "task6_2", "task6_3", "task6_verify",
+  "task7_1", "task7_2", "task7_3", "task7_verify",
+  "task8_1", "task8_2", "task8_3", "task8_verify",
   "final_challenge",
   "completed",
 ];
@@ -119,7 +119,7 @@ export function checkModuleVerification(moduleId: number): ModuleVerificationSta
       { id: "task1_3", title: "Trade Dilemma", minRequired: 10, max: 10 },
     ];
   } else {
-    taskList = Array.from({ length: 5 }, (_, i) => {
+    taskList = Array.from({ length: 3 }, (_, i) => {
       const taskNum = i + 1;
       return {
         id: `task${moduleId}_${taskNum}`,
@@ -133,19 +133,19 @@ export function checkModuleVerification(moduleId: number): ModuleVerificationSta
   const details = taskList.map((t) => {
     const record = scores[t.id];
     const score = record ? record.score : 0;
-    const passed = record ? true : false; // Any completed task is considered passed
+    const passed = record ? record.passed && score >= t.minRequired : false;
     return {
       taskId: t.id,
       title: t.title,
       passed,
       score,
       maxScore: t.max,
-      minRequired: 0,
+      minRequired: t.minRequired,
     };
   });
 
   const ready = details.every((d) => scores[d.taskId] !== undefined);
-  const passed = ready; // Simplify: module verification passes if all tasks are ready
+  const passed = details.every((d) => d.passed);
 
   return { ready, passed, details };
 }
@@ -157,3 +157,4 @@ export function resetMercuryProgress() {
   localStorage.removeItem(STORAGE_KEY_SCORES);
   localStorage.removeItem(STORAGE_KEY_VERIFIED_MODULES);
 }
+

@@ -51,15 +51,16 @@ export default function Nav() {
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="mx-auto mt-4 max-w-7xl px-4">
         <nav className="glass flex items-center justify-between rounded-full px-4 py-2.5 md:px-6">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="h-8.5 w-8.5 overflow-hidden relative rounded-lg border border-white/5 bg-slate-950/40 flex items-center justify-center transition-all group-hover:border-cyan-500/20 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.1)]">
+          <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <div className="h-8.5 w-8.5 overflow-hidden relative rounded-full border border-white/10 bg-slate-950 flex-shrink-0 flex items-center justify-center transition-all duration-300 shadow-[0_0_8px_rgba(6,182,212,0.1)] group-hover:border-cyan-500/30 group-hover:shadow-[0_0_12px_rgba(6,182,212,0.35)]">
               <img
                 src="/logo.jpg"
-                className="absolute w-[150%] h-[150%] max-w-none top-[-10%] left-[-25%] mix-blend-screen"
+                className="absolute w-[185%] h-[185%] max-w-none top-[-22%] left-[-42.5%] mix-blend-screen"
+                style={{ clipPath: 'inset(0% 0% 45% 0%)' }}
                 alt="CosmosX Logo"
               />
             </div>
-            <span className="font-display text-[15.5px] font-semibold tracking-tight text-white transition-colors group-hover:text-cyan-400">
+            <span className="font-display text-[15.5px] font-semibold tracking-tight text-white transition-colors duration-300 group-hover:text-cyan-400">
               Cosmos<span className="text-secondary group-hover:text-cyan-400">X</span>
             </span>
           </Link>

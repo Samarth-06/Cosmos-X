@@ -117,33 +117,37 @@ Cosmos-X/
 
 ---
 
-## 🗺️ Routing Table
+## 🗺️ Routing Table & Architecture
 
-TanStack Router uses **file-based routing** — every file in `src/routes/` is a route. The `routeTree.gen.ts` is auto-generated; never edit it manually.
+TanStack Router is configured for **file-based routing** where routes in `src/routes/` are auto-linked:
 
-### Current Routes
+| Path | Component File | Description |
+|------|----------------|-------------|
+| `/` | `routes/index.tsx` | Main Solar Orbit landing page with interactive 3D Solar System (R3F) and Hero journey maps. |
+| `/planets/mercury` | `routes/planets/mercury.tsx` | Immersive Mercury Space Escape Room cockpit simulator, tracking 8 modules and launch transitions. |
+| `/planets/$planet` | `routes/planets/$planet.tsx` | Dynamic planet preview academy launcher mapping to `<PlanetAcademy planetId={planet} />` (e.g., `/planets/venus`). |
 
-| Path | File | Description |
-|------|------|-------------|
-| `/` | `routes/index.tsx` | Landing page with interactive 3D Solar System |
-| `/planets/mercury` | `routes/planets/mercury.tsx` | Full Mercury mission: 8 modules + final challenge |
+### Routing Telemetry Flows
+1. **Interactive Entry**: Landing Page (`/`) ➔ Canvas click on Mercury ➔ routes to `/planets/mercury`.
+2. **Escaping Orbit**: Solver compiles 8 spacecraft parts ➔ opens cockpit final verification ➔ activates warpspeed liftoff checklist ➔ departs orbit ➔ landing thrusters descending ➔ routes to `/planets/venus`.
+3. **Curriculum Reset**: Reset CTA clears local progress ➔ returns to start of Module 1.
 
-### Planned Routes (Phase 2+)
+---
 
-| Path | File | Description |
-|------|------|-------------|
-| `/auth/login` | `routes/auth/login.tsx` | Sign up / Log in page |
-| `/auth/callback` | `routes/auth/callback.tsx` | Supabase OAuth callback handler |
-| `/dashboard` | `routes/dashboard/index.tsx` | User profile, XP, achievements, spacecraft collection |
-| `/planets/venus` | `routes/planets/venus.tsx` | Cryptography & Keys (locked) |
-| `/planets/earth` | `routes/planets/earth.tsx` | Consensus & Networks (locked) |
-| `/planets/mars` | `routes/planets/mars.tsx` | Wallets & Transactions (locked) |
-| `/planets/jupiter` | `routes/planets/jupiter.tsx` | Smart Contracts (locked) |
-| `/planets/saturn` | `routes/planets/saturn.tsx` | Tokens & Assets (locked) |
-| `/planets/uranus` | `routes/planets/uranus.tsx` | NFTs & Ownership (locked) |
-| `/planets/neptune` | `routes/planets/neptune.tsx` | Stellar Mainnet (locked) |
-| `/trade` | `routes/trade/index.tsx` | Stellar testnet trading hub |
-| `/trade/skins` | `routes/trade/skins.tsx` | Rocket skin NFT marketplace |
+## 💡 Concept & Analogy Matrix
+
+CosmosX replaces abstract terminology with interactive, tactile visual analogies:
+
+| Module / Beat | Concept | Real-World / Space Analogy | Tactile Action |
+|---------------|---------|---------------------|----------------|
+| **M1: Centralization** | Single Point of Outage | *A single central generator* powering 5 stations. If the hub gets struck by lightning, all stations go black. | Click nodes to realize none can communicate while central is offline. |
+| **M1: Auditability** | Database Tampering | *A silent ledger audit*. Checking transaction timestamps to catch where values were changed retroactively without log entries. | Scrub timeline to find where logs and storage values diverged. |
+| **M1: DB vs Blockchain** | Trust boundaries | *Normal Database* (Internal cafeteria ledger) vs *Blockchain* (Inter-station settlements between rival corporations). | Drag tickets to select normal DB vs decentralized blockchain nodes. |
+| **M2: Ledger Logs** | Append-Only States | *Cargo ledger logbook*. Reconstructing the current payload fuel balance by tracing the historical list of entries. | Compile transactions in sequence to calculate balance. |
+| **M2: Double-Spending** | Conflict Prevention | *A fast-food waiting line*. Processing transaction requests in order; rejecting subsequent transfers if balance is already depleted. | Accept first transaction, block the duplicate second. |
+| **M3: Block Chain** | Hashed Headers | *Locking shipping containers*. Linking container manifests together with numbered hash seals so old items cannot be shifted. | Match cargo block heights with previous-hash headers. |
+| **M7: Byzantine Agreement**| Federated Consensus | *Generals deciding on a siege*. Reaching network agreement through trusted overlapping circles (quorum slices) without a king. | Interact with mesh nodes to relay messages across general quorums. |
+| **M8: Cryptography** | Elliptic-Curve Signature | *A tamper-proof wax seal*. Generating cryptographic fingerprints (SHA-256) of engine blueprints to check for sabotage. | Select trusted references and calculate sha-256 to verify data. |
 
 ---
 

@@ -69,6 +69,17 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+
+            <linearGradient id="glow-orange-plasma" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#f97316" stopOpacity="0.65" />
+              <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="glow-yellow-fire" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#facc15" stopOpacity="0.9" />
+              <stop offset="60%" stopColor="#f97316" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
+            </linearGradient>
           </defs>
 
           {/* Alignment grid line */}
@@ -96,6 +107,63 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
               )}
               {isPart1Unlocked && <path d="M 12,225 L 108,225 L 98,245 L 22,245 Z" fill="#22d3ee" filter="url(#glow-heavy)" />}
             </motion.g>
+          )}
+
+          {/* LAYERED HIGH-FIDELITY ENGINE FLAME (Renders when all 8 modules are complete, layered behind struts) */}
+          {completedModules.length === 8 && (
+            <g className="pointer-events-none">
+              {/* Outer orange plasma spread */}
+              <motion.path
+                d="M 52,196 Q 28,225 60,250 Q 92,225 68,196 Z"
+                fill="url(#glow-orange-plasma)"
+                filter="url(#glow-orange)"
+                opacity="0.8"
+                animate={{
+                  d: [
+                    "M 52,196 Q 28,225 60,250 Q 92,225 68,196 Z",
+                    "M 52,196 Q 24,228 60,254 Q 96,228 68,196 Z",
+                    "M 52,196 Q 32,222 60,246 Q 88,222 68,196 Z",
+                    "M 52,196 Q 28,225 60,250 Q 92,225 68,196 Z"
+                  ]
+                }}
+                transition={{ duration: 0.16, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* Inner yellow hot fire core */}
+              <motion.path
+                d="M 54,196 Q 38,222 60,242 Q 82,222 66,196 Z"
+                fill="url(#glow-yellow-fire)"
+                filter="url(#glow-orange)"
+                opacity="0.95"
+                animate={{
+                  d: [
+                    "M 54,196 Q 38,222 60,242 Q 82,222 66,196 Z",
+                    "M 54,196 Q 34,225 60,246 Q 86,225 66,196 Z",
+                    "M 54,196 Q 42,219 60,238 Q 78,219 66,196 Z",
+                    "M 54,196 Q 38,222 60,242 Q 82,222 66,196 Z"
+                  ]
+                }}
+                transition={{ duration: 0.12, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* Center super-hot white ignition path */}
+              <motion.path
+                d="M 56,196 Q 46,212 60,230 Q 74,212 64,196 Z"
+                fill="#ffffff"
+                filter="url(#glow-cyan)"
+                opacity="1"
+                animate={{
+                  d: [
+                    "M 56,196 Q 46,212 60,230 Q 74,212 64,196 Z",
+                    "M 56,196 Q 43,214 60,233 Q 77,214 64,196 Z",
+                    "M 56,196 Q 49,210 60,227 Q 71,210 64,196 Z",
+                    "M 56,196 Q 46,212 60,230 Q 74,212 64,196 Z"
+                  ]
+                }}
+                transition={{ duration: 0.08, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* Mini spark emitters at nozzle base */}
+              <circle cx="53" cy="199" r="1.2" fill="#ffedd5" className="animate-ping" />
+              <circle cx="67" cy="199" r="1.2" fill="#ffedd5" className="animate-ping" style={{ animationDelay: "50ms" }} />
+            </g>
           )}
 
           {/* PART 8: NOSE WARHEAD (Unlocks with Module 8) */}
@@ -396,46 +464,6 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
           </g>
         </svg>
 
-        {/* Layered high-fidelity engine flame on launch completion */}
-        {completedModules.length === 8 && (
-          <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 w-8 h-28 pointer-events-none select-none">
-            {/* Outer Plasma Glow */}
-            <motion.div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-24 bg-rose-500 rounded-full blur-[6px]"
-              animate={{ height: [70, 95, 70], opacity: [0.35, 0.6, 0.35] }}
-              transition={{ duration: 0.15, repeat: Infinity }}
-            />
-            {/* Main Flame */}
-            <motion.div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-20 bg-linear-to-t from-transparent via-orange-500 to-amber-300 rounded-full blur-[2px]"
-              animate={{ height: [60, 85, 60], opacity: [0.8, 1, 0.8] }}
-              transition={{ duration: 0.1, repeat: Infinity }}
-            />
-            {/* Inner Core Hot Flame */}
-            <motion.div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2.5 h-12 bg-white rounded-full blur-[1px]"
-              animate={{ height: [40, 50, 40], opacity: [0.9, 1, 0.9] }}
-              transition={{ duration: 0.08, repeat: Infinity }}
-            />
-            {/* Spark particles */}
-            <div className="absolute inset-0 flex justify-center items-end">
-              {[...Array(6)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 h-1 bg-yellow-300 rounded-full absolute"
-                  initial={{ y: -20, x: (i - 3) * 4, opacity: 1, scale: 1 }}
-                  animate={{ y: 20, opacity: 0, scale: 0.2 }}
-                  transition={{
-                    duration: 0.4 + Math.random() * 0.3,
-                    repeat: Infinity,
-                    delay: i * 0.08,
-                    ease: "easeOut"
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 2-Column Assembly status report for zero scrolling and laptop viewport compatibility */}

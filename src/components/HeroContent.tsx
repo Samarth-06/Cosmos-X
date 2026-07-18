@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Compass, Play } from "lucide-react";
 
-export default function HeroContent() {
+interface HeroContentProps {
+  onBeginJourney: () => void;
+  onContinueLearning: () => void;
+}
+
+export default function HeroContent({ onBeginJourney, onContinueLearning }: HeroContentProps) {
   return (
     <div className="pointer-events-none relative z-10 flex min-h-screen items-center px-4 sm:px-8 lg:px-14">
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 pt-28 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
@@ -12,7 +17,7 @@ export default function HeroContent() {
           transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
           className="pointer-events-auto max-w-2xl"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/3 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-secondary shadow-[0_0_10px_currentColor]" />
             Interactive Blockchain Universe
           </div>
@@ -32,12 +37,18 @@ export default function HeroContent() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <button className="group inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary via-primary-glow to-secondary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_40px_-8px_var(--color-primary)] transition hover:shadow-[0_0_60px_-6px_var(--color-secondary)]">
+            <button
+              onClick={onBeginJourney}
+              className="group inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary via-primary-glow to-secondary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_40px_-8px_var(--color-primary)] transition hover:shadow-[0_0_60px_-6px_var(--color-secondary)] cursor-pointer"
+            >
               <Play className="h-4 w-4 fill-current" />
               Begin Journey
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-medium text-foreground backdrop-blur transition hover:bg-white/10">
+            <button
+              onClick={onContinueLearning}
+              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-medium text-foreground backdrop-blur transition hover:bg-white/10 cursor-pointer"
+            >
               Continue Learning
             </button>
             <button className="inline-flex items-center gap-2 px-2 py-3 text-sm font-medium text-muted-foreground transition hover:text-foreground">
@@ -71,7 +82,7 @@ export default function HeroContent() {
         transition={{ delay: 1.4, duration: 1 }}
         className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-center"
       >
-        <div className="mx-auto h-8 w-[1px] bg-linear-to-b from-transparent via-white/40 to-transparent" />
+        <div className="mx-auto h-8 w-px bg-linear-to-b from-transparent via-white/40 to-transparent" />
         <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.25em] text-muted-foreground">
           Scroll to launch
         </p>
@@ -144,7 +155,7 @@ function DashboardCard() {
       </div>
 
       {/* Next lesson */}
-      <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+      <div className="mt-6 rounded-2xl border border-white/8 bg-white/3 p-4">
         <div className="flex items-center justify-between">
           <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Recommended
@@ -186,7 +197,7 @@ function MiniStat({
       ? "bg-primary"
       : "bg-secondary";
   return (
-    <div className="rounded-xl border border-white/6 bg-white/[0.02] px-3 py-2.5">
+    <div className="rounded-xl border border-white/6 bg-white/2 px-3 py-2.5">
       <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
         <span className={`h-1 w-1 rounded-full ${dot} shadow-[0_0_6px_currentColor]`} />
         {label}

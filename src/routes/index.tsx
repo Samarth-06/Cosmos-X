@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, Suspense } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Canvas } from "@react-three/fiber";
 
 import Nav from "@/components/Nav";
@@ -8,12 +8,14 @@ import SolarSystem from "@/components/SolarSystem";
 import PlanetTooltip from "@/components/PlanetTooltip";
 import { PLANETS } from "@/lib/planets";
 import { getMercuryCompletion } from "@/lib/module1-store";
+import { AcademyPlanetId, getPlanetAcademyCompletion } from "@/lib/planet-academies";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
+  const router = useRouter();
   const scrollProgress = useRef(0);
   const [hovered, setHovered] = useState<string | null>(null);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -39,6 +41,23 @@ function Index() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handleBeginJourney = () => {
+    const overview = 0.1;
+    const target = overview + (0.5 / PLANETS.length) * (1 - overview);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({ top: target * max, behavior: "smooth" });
+  };
+
+  const handleContinueLearning = () => {
+    // Current planet is Mercury (0) or Venus (1) if Mercury is 100% complete
+    const isMercuryCompleted = getMercuryCompletion() === 100;
+    const targetPlanetIdx = isMercuryCompleted ? 1 : 0;
+    const overview = 0.1;
+    const target = overview + ((targetPlanetIdx + 0.5) / PLANETS.length) * (1 - overview);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({ top: target * max, behavior: "smooth" });
+  };
+
   return (
     <main className="relative">
       {/* Fixed 3D canvas */}
@@ -55,12 +74,14 @@ function Index() {
               setHoveredPlanet={setHovered}
               activePlanetIdx={activeIdx}
               onPlanetClick={(id) => {
-                const idx = PLANETS.findIndex((p) => p.id === id);
-                if (idx < 0) return;
-                const overview = 0.1;
-                const target = overview + ((idx + 0.5) / PLANETS.length) * (1 - overview);
-                const max = document.documentElement.scrollHeight - window.innerHeight;
-                window.scrollTo({ top: target * max, behavior: "smooth" });
+                if (id === "mercury") {
+                  router.navigate({ to: "/planets/mercury" });
+                } else {
+                  const planetExists = PLANETS.some((p) => p.id === id);
+                  if (planetExists) {
+                    router.navigate({ to: "/planets/$planet", params: { planet: id } });
+                  }
+                }
               }}
             />
           </Suspense>
@@ -76,9 +97,9 @@ function Index() {
       <PlanetTooltip id={hovered ?? (activeIdx >= 0 ? PLANETS[activeIdx]?.id ?? null : null)} />
 
       {/* Scroll-space: first page = hero content, each subsequent page = planet chapter */}
-      <div className="relative z-10">
+      <div className="relative z-10 pointer-events-none">
         <section className="relative h-screen">
-          <HeroContent />
+          <HeroContent onBeginJourney={handleBeginJourney} onContinueLearning={handleContinueLearning} />
         </section>
 
         {PLANETS.map((p, i) => (
@@ -110,10 +131,12 @@ function PlanetChapter({
   useEffect(() => {
     if (planet.id === "mercury") {
       setCompletion(getMercuryCompletion());
+    } else {
+      setCompletion(getPlanetAcademyCompletion(planet.id as AcademyPlanetId));
     }
   }, [planet.id]);
 
-  const isUnlocked = planet.id === "mercury";
+  const isUnlocked = true;
 
   return (
     <section className="relative flex min-h-screen items-end px-4 pb-20 sm:px-8 lg:px-14">
@@ -142,10 +165,11 @@ function PlanetChapter({
           </div>
           {isUnlocked ? (
             <Link
-              to="/planets/mercury"
+              to={planet.id === "mercury" ? "/planets/mercury" : "/planets/$planet"}
+              params={planet.id === "mercury" ? undefined : { planet: planet.id }}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary to-primary-glow px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-[0_0_30px_-8px_var(--color-primary)] transition hover:shadow-[0_0_40px_-4px_var(--color-primary)] cursor-pointer"
             >
-              Enter {planet.name}
+              {planet.id === "mercury" ? "Enter" : "Open Preview"} {planet.name}
             </Link>
           ) : (
             <button

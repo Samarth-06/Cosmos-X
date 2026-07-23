@@ -12,4 +12,20 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    build: {
+      rolldownOptions: {
+        // style-vendorizer is a missing peer dep inside @creit.tech/stellar-wallets-kit →
+        // @twind/preset-autoprefix. Externalizing it prevents Rolldown from failing the build.
+        // node:buffer / node:crypto are Node built-ins used by @stellar/stellar-sdk;
+        // the browser runtime stubs them via the existing polyfill layer.
+        external: ["style-vendorizer", "node:buffer", "node:crypto", "node:stream", "node:util"],
+      },
+    },
+    optimizeDeps: {
+      // Exclude the wallets-kit from pre-bundling so its internal twind dep isn't
+      // analyzed by Rolldown during dep-scan.
+      exclude: ["@creit.tech/stellar-wallets-kit"],
+    },
+  },
 });

@@ -9,18 +9,90 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlanetsVenusRouteImport } from './routes/planets/venus'
+import { Route as PlanetsUranusRouteImport } from './routes/planets/uranus'
+import { Route as PlanetsSaturnRouteImport } from './routes/planets/saturn'
+import { Route as PlanetsNeptuneRouteImport } from './routes/planets/neptune'
 import { Route as PlanetsMercuryRouteImport } from './routes/planets/mercury'
+import { Route as PlanetsMarsRouteImport } from './routes/planets/mars'
+import { Route as PlanetsJupiterRouteImport } from './routes/planets/jupiter'
+import { Route as PlanetsEarthRouteImport } from './routes/planets/earth'
 import { Route as PlanetsPlanetRouteImport } from './routes/planets/$planet'
 
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlanetsVenusRoute = PlanetsVenusRouteImport.update({
+  id: '/planets/venus',
+  path: '/planets/venus',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsUranusRoute = PlanetsUranusRouteImport.update({
+  id: '/planets/uranus',
+  path: '/planets/uranus',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsSaturnRoute = PlanetsSaturnRouteImport.update({
+  id: '/planets/saturn',
+  path: '/planets/saturn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsNeptuneRoute = PlanetsNeptuneRouteImport.update({
+  id: '/planets/neptune',
+  path: '/planets/neptune',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanetsMercuryRoute = PlanetsMercuryRouteImport.update({
   id: '/planets/mercury',
   path: '/planets/mercury',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsMarsRoute = PlanetsMarsRouteImport.update({
+  id: '/planets/mars',
+  path: '/planets/mars',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsJupiterRoute = PlanetsJupiterRouteImport.update({
+  id: '/planets/jupiter',
+  path: '/planets/jupiter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanetsEarthRoute = PlanetsEarthRouteImport.update({
+  id: '/planets/earth',
+  path: '/planets/earth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanetsPlanetRoute = PlanetsPlanetRouteImport.update({
@@ -31,36 +103,165 @@ const PlanetsPlanetRoute = PlanetsPlanetRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
+  '/docs': typeof DocsRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/planets/$planet': typeof PlanetsPlanetRoute
+  '/planets/earth': typeof PlanetsEarthRoute
+  '/planets/jupiter': typeof PlanetsJupiterRoute
+  '/planets/mars': typeof PlanetsMarsRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
+  '/planets/neptune': typeof PlanetsNeptuneRoute
+  '/planets/saturn': typeof PlanetsSaturnRoute
+  '/planets/uranus': typeof PlanetsUranusRoute
+  '/planets/venus': typeof PlanetsVenusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
+  '/docs': typeof DocsRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/planets/$planet': typeof PlanetsPlanetRoute
+  '/planets/earth': typeof PlanetsEarthRoute
+  '/planets/jupiter': typeof PlanetsJupiterRoute
+  '/planets/mars': typeof PlanetsMarsRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
+  '/planets/neptune': typeof PlanetsNeptuneRoute
+  '/planets/saturn': typeof PlanetsSaturnRoute
+  '/planets/uranus': typeof PlanetsUranusRoute
+  '/planets/venus': typeof PlanetsVenusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
+  '/docs': typeof DocsRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/marketplace': typeof MarketplaceRoute
   '/planets/$planet': typeof PlanetsPlanetRoute
+  '/planets/earth': typeof PlanetsEarthRoute
+  '/planets/jupiter': typeof PlanetsJupiterRoute
+  '/planets/mars': typeof PlanetsMarsRoute
   '/planets/mercury': typeof PlanetsMercuryRoute
+  '/planets/neptune': typeof PlanetsNeptuneRoute
+  '/planets/saturn': typeof PlanetsSaturnRoute
+  '/planets/uranus': typeof PlanetsUranusRoute
+  '/planets/venus': typeof PlanetsVenusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/planets/$planet' | '/planets/mercury'
+  fullPaths:
+    | '/'
+    | '/community'
+    | '/dashboard'
+    | '/docs'
+    | '/leaderboard'
+    | '/marketplace'
+    | '/planets/$planet'
+    | '/planets/earth'
+    | '/planets/jupiter'
+    | '/planets/mars'
+    | '/planets/mercury'
+    | '/planets/neptune'
+    | '/planets/saturn'
+    | '/planets/uranus'
+    | '/planets/venus'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/planets/$planet' | '/planets/mercury'
-  id: '__root__' | '/' | '/planets/$planet' | '/planets/mercury'
+  to:
+    | '/'
+    | '/community'
+    | '/dashboard'
+    | '/docs'
+    | '/leaderboard'
+    | '/marketplace'
+    | '/planets/$planet'
+    | '/planets/earth'
+    | '/planets/jupiter'
+    | '/planets/mars'
+    | '/planets/mercury'
+    | '/planets/neptune'
+    | '/planets/saturn'
+    | '/planets/uranus'
+    | '/planets/venus'
+  id:
+    | '__root__'
+    | '/'
+    | '/community'
+    | '/dashboard'
+    | '/docs'
+    | '/leaderboard'
+    | '/marketplace'
+    | '/planets/$planet'
+    | '/planets/earth'
+    | '/planets/jupiter'
+    | '/planets/mars'
+    | '/planets/mercury'
+    | '/planets/neptune'
+    | '/planets/saturn'
+    | '/planets/uranus'
+    | '/planets/venus'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommunityRoute: typeof CommunityRoute
+  DashboardRoute: typeof DashboardRoute
+  DocsRoute: typeof DocsRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   PlanetsPlanetRoute: typeof PlanetsPlanetRoute
+  PlanetsEarthRoute: typeof PlanetsEarthRoute
+  PlanetsJupiterRoute: typeof PlanetsJupiterRoute
+  PlanetsMarsRoute: typeof PlanetsMarsRoute
   PlanetsMercuryRoute: typeof PlanetsMercuryRoute
+  PlanetsNeptuneRoute: typeof PlanetsNeptuneRoute
+  PlanetsSaturnRoute: typeof PlanetsSaturnRoute
+  PlanetsUranusRoute: typeof PlanetsUranusRoute
+  PlanetsVenusRoute: typeof PlanetsVenusRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -68,11 +269,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/planets/venus': {
+      id: '/planets/venus'
+      path: '/planets/venus'
+      fullPath: '/planets/venus'
+      preLoaderRoute: typeof PlanetsVenusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/uranus': {
+      id: '/planets/uranus'
+      path: '/planets/uranus'
+      fullPath: '/planets/uranus'
+      preLoaderRoute: typeof PlanetsUranusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/saturn': {
+      id: '/planets/saturn'
+      path: '/planets/saturn'
+      fullPath: '/planets/saturn'
+      preLoaderRoute: typeof PlanetsSaturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/neptune': {
+      id: '/planets/neptune'
+      path: '/planets/neptune'
+      fullPath: '/planets/neptune'
+      preLoaderRoute: typeof PlanetsNeptuneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planets/mercury': {
       id: '/planets/mercury'
       path: '/planets/mercury'
       fullPath: '/planets/mercury'
       preLoaderRoute: typeof PlanetsMercuryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/mars': {
+      id: '/planets/mars'
+      path: '/planets/mars'
+      fullPath: '/planets/mars'
+      preLoaderRoute: typeof PlanetsMarsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/jupiter': {
+      id: '/planets/jupiter'
+      path: '/planets/jupiter'
+      fullPath: '/planets/jupiter'
+      preLoaderRoute: typeof PlanetsJupiterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planets/earth': {
+      id: '/planets/earth'
+      path: '/planets/earth'
+      fullPath: '/planets/earth'
+      preLoaderRoute: typeof PlanetsEarthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planets/$planet': {
@@ -87,8 +337,20 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommunityRoute: CommunityRoute,
+  DashboardRoute: DashboardRoute,
+  DocsRoute: DocsRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  MarketplaceRoute: MarketplaceRoute,
   PlanetsPlanetRoute: PlanetsPlanetRoute,
+  PlanetsEarthRoute: PlanetsEarthRoute,
+  PlanetsJupiterRoute: PlanetsJupiterRoute,
+  PlanetsMarsRoute: PlanetsMarsRoute,
   PlanetsMercuryRoute: PlanetsMercuryRoute,
+  PlanetsNeptuneRoute: PlanetsNeptuneRoute,
+  PlanetsSaturnRoute: PlanetsSaturnRoute,
+  PlanetsUranusRoute: PlanetsUranusRoute,
+  PlanetsVenusRoute: PlanetsVenusRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

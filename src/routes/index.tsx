@@ -9,6 +9,7 @@ import PlanetTooltip from "@/components/PlanetTooltip";
 import { PLANETS } from "@/lib/planets";
 import { getMercuryCompletion } from "@/lib/module1-store";
 import { AcademyPlanetId, getPlanetAcademyCompletion } from "@/lib/planet-academies";
+import { getUserState } from "@/lib/user-store";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -127,16 +128,19 @@ function PlanetChapter({
 }) {
   const num = String(index + 1).padStart(2, "0");
   const [completion, setCompletion] = useState(planet.completion);
+  const [isUnlocked, setIsUnlocked] = useState(planet.id === "mercury");
 
   useEffect(() => {
+    const user = getUserState();
     if (planet.id === "mercury") {
       setCompletion(getMercuryCompletion());
     } else {
-      setCompletion(getPlanetAcademyCompletion(planet.id as AcademyPlanetId));
+      const prevPlanet = PLANETS[index - 1]?.id;
+      const prevCompleted = prevPlanet ? user.completedPlanets.includes(prevPlanet) : false;
+      setIsUnlocked(prevCompleted);
+      setCompletion(user.planetProgress[planet.id] ?? getPlanetAcademyCompletion(planet.id as AcademyPlanetId) ?? 0);
     }
-  }, [planet.id]);
-
-  const isUnlocked = true;
+  }, [planet.id, index]);
 
   return (
     <section className="relative flex min-h-screen items-end px-4 pb-20 sm:px-8 lg:px-14">
@@ -165,8 +169,7 @@ function PlanetChapter({
           </div>
           {isUnlocked ? (
             <Link
-              to={planet.id === "mercury" ? "/planets/mercury" : "/planets/$planet"}
-              params={planet.id === "mercury" ? undefined : { planet: planet.id }}
+              to={`/planets/${planet.id}` as any}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary to-primary-glow px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-[0_0_30px_-8px_var(--color-primary)] transition hover:shadow-[0_0_40px_-4px_var(--color-primary)] cursor-pointer"
             >
               {planet.id === "mercury" ? "Enter" : "Open Preview"} {planet.name}

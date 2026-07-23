@@ -1,22 +1,27 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, LogOut, User } from "lucide-react";
+import { Menu, LogOut, User, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getUserState, getUserLevel, type UserState } from "@/lib/user-store";
+import { WalletConnectButton } from "@/features/achievements/WalletConnectButton";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "#dashboard" },
-  { label: "Learn", href: "#learn" },
-  { label: "Marketplace", href: "#marketplace" },
-  { label: "Docs", href: "#docs" },
-  { label: "Community", href: "#community" },
-  { label: "Leaderboard", href: "#leaderboard" },
+  { label: "Dashboard", to: "/dashboard" },
+  { label: "Learn", to: "/" },
+  { label: "Marketplace", to: "/marketplace" },
+  { label: "Docs", to: "/docs" },
+  { label: "Community", to: "/community" },
+  { label: "Leaderboard", to: "/leaderboard" },
 ];
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userState, setUserState] = useState<UserState | null>(null);
 
   useEffect(() => {
+    setUserState(getUserState());
+
     const checkUser = () => {
       const stored = localStorage.getItem("cosmos_x_user");
       if (stored) {
@@ -36,6 +41,8 @@ export default function Nav() {
       window.removeEventListener("cosmos-x-auth-change", checkUser);
     };
   }, []);
+
+  const level = userState ? getUserLevel(userState.xp) : "Cadet";
 
   const handleAuthClick = () => {
     if (user) {
@@ -68,12 +75,13 @@ export default function Nav() {
           <ul className="hidden items-center gap-1 lg:flex">
             {NAV_ITEMS.map((i) => (
               <li key={i.label}>
-                <a
-                  href={i.href}
+                <Link
+                  to={i.to as any}
+                  activeProps={{ className: "bg-white/10 text-foreground" }}
                   className="rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                 >
                   {i.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -102,6 +110,15 @@ export default function Nav() {
               <span>{user ? "Sign out" : "Sign in"}</span>
             </button>
 
+            {userState && (
+              <div className="hidden items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1 text-[11px] font-mono text-amber-400 sm:inline-flex">
+                <Zap className="h-3 w-3 fill-current" />
+                <span>{level} ({userState.xp} XP)</span>
+              </div>
+            )}
+            <div className="hidden sm:block w-40">
+              <WalletConnectButton />
+            </div>
             <button
               onClick={() => setOpen((o) => !o)}
               className="rounded-full p-1.5 text-muted-foreground hover:bg-white/5 lg:hidden"
@@ -117,12 +134,13 @@ export default function Nav() {
             <ul className="flex flex-col">
               {NAV_ITEMS.map((i) => (
                 <li key={i.label}>
-                  <a
-                    href={i.href}
+                  <Link
+                    to={i.to as any}
+                    onClick={() => setOpen(false)}
                     className="block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-white/5 hover:text-foreground"
                   >
                     {i.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -132,3 +150,4 @@ export default function Nav() {
     </header>
   );
 }
+

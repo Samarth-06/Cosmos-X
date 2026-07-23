@@ -33,6 +33,8 @@ import Task1_4_ComparisonEngine from "@/components/module/Task1_4_ComparisonEngi
 import Task1_5_CardSorter from "@/components/module/Task1_5_CardSorter";
 import GenericSandboxRunner from "@/components/module/GenericSandboxRunner";
 import FinalEscapeRoom from "@/components/module/FinalEscapeRoom";
+import { WalletConnectButton } from "@/features/achievements/WalletConnectButton";
+import { MintButton } from "@/features/achievements/MintButton";
 import { MERCURY_CURRICULUM } from "@/lib/mercury-curriculum";
 import {
   Module1Task,
@@ -964,6 +966,18 @@ function MercuryWorkspace({
                       </div>
                     ))}
                   </div>
+                  {/* On-chain achievement claim — connect a Stellar wallet and mint
+                      proof of Mercury completion to the Testnet contract. */}
+                  <div className="w-full max-w-sm rounded-2xl border border-cyan-400/25 bg-cyan-400/5 px-5 py-4 text-left">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-cyan-300/80 mb-3">
+                      Claim your on-chain proof
+                    </p>
+                    <WalletConnectButton />
+                    <div className="mt-3">
+                      <MintButton />
+                    </div>
+                  </div>
+
                   <div className="flex gap-3">
                     <button onClick={handleLaunchRocket}
                       className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_30px_rgba(251,191,36,0.4)] hover:scale-[1.02] cursor-pointer">

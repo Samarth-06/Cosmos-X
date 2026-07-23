@@ -45,11 +45,11 @@ All UI and task design must respect these rules:
 | **Styling** | Tailwind CSS v4 | Design system — all utility classes |
 | **UI Primitives** | Radix UI (Shadcn pattern) | Accessible headless components |
 | **Data Queries** | TanStack Query | Server-state management, caching |
-| **Progress State (now)** | `localStorage` | Guest-mode progress (pre-auth phase) |
-| **Progress State (planned)** | Supabase PostgreSQL | Authenticated user XP, scores, spacecraft state |
+| **Progress State** | `localStorage` | Guest-mode progress; marketplace fallback mode |
 | **Auth (planned)** | Supabase Auth | Email / OAuth login — added after core UX is solid |
-| **Terminal (planned)** | Xterm.js + WebContainers | Real in-browser task execution, no VM needed |
-| **Trading (planned)** | Stellar Testnet SDK | Real on-chain token swaps + NFT rocket skin economy |
+| **Wallet** | Stellar Wallets Kit (Freighter + xBull) | Achievement minting + marketplace signing |
+| **Trading** | Stellar Testnet marketplace Soroban contract | Exoplanet collectibles: list / buy / offer; localStorage fallback when unconfigured |
+| **Trading (planned)** | Mainnet + escrowed offers | See ROADMAP.md — not in current track |
 | **Fonts** | Space Grotesk, Inter, JetBrains Mono | Headings, body text, terminal/code respectively |
 
 ---
@@ -125,7 +125,19 @@ TanStack Router is configured for **file-based routing** where routes in `src/ro
 |------|----------------|-------------|
 | `/` | `routes/index.tsx` | Main Solar Orbit landing page with interactive 3D Solar System (R3F) and Hero journey maps. |
 | `/planets/mercury` | `routes/planets/mercury.tsx` | Immersive Mercury Space Escape Room cockpit simulator, tracking 8 modules and launch transitions. |
-| `/planets/$planet` | `routes/planets/$planet.tsx` | Dynamic planet preview academy launcher mapping to `<PlanetAcademy planetId={planet} />` (e.g., `/planets/venus`). |
+| `/planets/$planet` | `routes/planets/$planet.tsx` | Dynamic planet preview academy launcher mapping to `<PlanetAcademy planetId={planet} />`. |
+| `/planets/venus` | `routes/planets/venus.tsx` | Venus placeholder (concept: Cryptography & Keys). |
+| `/planets/earth` | `routes/planets/earth.tsx` | Earth placeholder (concept: Consensus & Networks). |
+| `/planets/mars` | `routes/planets/mars.tsx` | Mars placeholder (concept: Wallets & Transactions). |
+| `/planets/jupiter` | `routes/planets/jupiter.tsx` | Jupiter placeholder (concept: Smart Contracts). |
+| `/planets/saturn` | `routes/planets/saturn.tsx` | Saturn placeholder (concept: Tokens & Assets). |
+| `/planets/uranus` | `routes/planets/uranus.tsx` | Uranus placeholder (concept: NFTs & Ownership). |
+| `/planets/neptune` | `routes/planets/neptune.tsx` | Neptune placeholder (concept: The Final Launch). |
+| `/dashboard` | `routes/dashboard.tsx` | User profile, XP, badges, blockchain proof. |
+| `/marketplace` | `routes/marketplace.tsx` | Exoplanet NFT marketplace (Testnet live). |
+| `/leaderboard` | `routes/leaderboard.tsx` | Global leaderboard. |
+| `/community` | `routes/community.tsx` | Community feed + events. |
+| `/docs` | `routes/docs.tsx` | In-app documentation hub. |
 
 ### Routing Telemetry Flows
 1. **Interactive Entry**: Landing Page (`/`) ➔ Canvas click on Mercury ➔ routes to `/planets/mercury`.
@@ -361,6 +373,45 @@ When all 8 modules pass the verification screen → Final Timed Challenge unlock
 
 ---
 
+## Stellar Testnet Integration
+
+Mercury's completion screen mints a **real on-chain achievement** to the
+player's own Stellar wallet — a working Testnet vertical slice, not a mock.
+
+| | |
+|---|---|
+| **Network** | Testnet (`Test SDF Network ; September 2015`) |
+| **Contract ID** | `CAOVKUPD2VVWH7DFIRV57WBG6SRXXHIMUDCSWDNAL3SGCPE2GZEWVK3W` |
+| **Verify** | https://stellar.expert/explorer/testnet/contract/CAOVKUPD2VVWH7DFIRV57WBG6SRXXHIMUDCSWDNAL3SGCPE2GZEWVK3W |
+| **Contract source** | [`contracts/achievement/`](contracts/achievement/) (Soroban / Rust) |
+
+**How it works.** When a player finishes Mercury, the completion screen shows a
+"Claim your on-chain proof" panel. They connect a wallet (Freighter or xBull via
+[Stellar Wallets Kit](https://github.com/Creit-Tech/Stellar-Wallets-Kit)), click
+**Claim Achievement**, and sign the mint transaction *in their own wallet*. The
+contract's `mint(to)` requires `to.require_auth()`, so the player authorizes
+their own achievement — no hidden backend key. The dashboard's **Blockchain
+Proof** panel then persists a link to the claim transaction and re-verifies it
+live on-chain via `has_achievement`.
+
+**Architecture.** All Stellar code lives behind two folders so mission/curriculum
+code never imports the SDK directly:
+- `src/lib/stellar/` — network config + wallet-kit singleton (browser-only, SSR-safe)
+- `src/features/achievements/` — `useWallet`, `useMintAchievement`, `WalletConnectButton`, `MintButton`, `ProofScreen`
+
+**Setup.** Copy `.env.testnet.example` → `.env.local` and set
+`VITE_ACHIEVEMENT_CONTRACT_ID` to the deployed contract ID above. Then
+`npm run dev`.
+
+**Redeploy (after a Testnet reset).** Testnet wipes contracts periodically:
+```bash
+cd contracts/achievement
+./scripts/deploy-testnet.sh   # build → deploy → initialize → prints new ID
+```
+Paste the new ID into `.env.local`, update
+[`contracts/achievement/DEPLOYMENT.md`](contracts/achievement/DEPLOYMENT.md),
+and restart the dev server. See that file for the full deployment record.
+
 ## 🔐 Auth Strategy (Phase 2)
 
 > **Decision**: Build Mercury core experience as Guest Mode (localStorage) first. Add Supabase Auth once the core UX is polished. Guest progress will migrate to the authenticated account on first login.
@@ -428,4 +479,18 @@ npm run format
 | **Phase 2** | Supabase Auth + progress persistence + user dashboard | ⏳ Planned |
 | **Phase 3** | Venus → Neptune planet pages | ⏳ Planned |
 | **Phase 4** | Real terminal: Xterm.js + WebContainers | ⏳ Planned |
-| **Phase 5** | Stellar Testnet trading + rocket skin NFT economy | ⏳ Planned |
+| **Phase 5** | Stellar Testnet trading + marketplace contract | ✅ Live on Testnet (see CONTRACTS.md / ROADMAP.md) |
+| **Phase 6** | Stabilisation: admin audit, dead-code removal, docs, contract hardening | ✅ Complete (source). Testnet WASM redeploy pending. |
+
+---
+
+## 📘 Docs (Stellar / Marketplace)
+
+| Doc | Purpose |
+|-----|---------|
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Env + deploy overview |
+| [CONTRACTS.md](CONTRACTS.md) | Achievement vs marketplace APIs |
+| [ADMIN_GUIDE.md](ADMIN_GUIDE.md) | Foundation wallet / admin tab |
+| [USER_GUIDE.md](USER_GUIDE.md) | Trader UX and asset states |
+| [ROADMAP.md](ROADMAP.md) | Done / near-term / Mercury & Mainnet later |
+| [contracts/marketplace/DEPLOYMENT.md](contracts/marketplace/DEPLOYMENT.md) | Live contract IDs |

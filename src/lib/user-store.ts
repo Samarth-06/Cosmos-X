@@ -37,6 +37,7 @@ export interface UserState {
   planetProgress: Record<string, number>; // planet id -> % 0-100
   activityDates: string[]; // ISO dates of active days (last 30)
   recentActivity: ActivityItem[];
+  lastVisitedPlanet?: string; // Last planet route accessed by user
 }
 
 // ── Level thresholds ─────────────────────────
@@ -307,6 +308,50 @@ export function getEarnedBadges(): Badge[] {
 export function getLockedBadges(): Badge[] {
   const { earnedBadgeIds } = getUserState();
   return ALL_BADGES.filter((b) => !earnedBadgeIds.includes(b.id));
+}
+
+export const PLANET_METADATA: Record<string, { id: string; name: string; topic: string; route: string; tagline: string }> = {
+  mercury: { id: "mercury", name: "Mercury", topic: "Why Does Blockchain Exist?", route: "/planets/mercury", tagline: "Audit centralized command routing & single points of failure." },
+  venus: { id: "venus", name: "Venus", topic: "Cryptography & Keys", route: "/planets/venus", tagline: "See the SHA-256 avalanche effect live on Venus — no setup required." },
+  earth: { id: "earth", name: "Earth", topic: "Consensus & Networks", route: "/planets/earth", tagline: "Explore Byzantine fault tolerance & quorum slices." },
+  mars: { id: "mars", name: "Mars", topic: "Smart Contracts & Execution", route: "/planets/mars", tagline: "Audit gas fees, state changes & execution gates." },
+  jupiter: { id: "jupiter", name: "Jupiter", topic: "Scalability & Layer 2", route: "/planets/jupiter", tagline: "Master rollups, state channels & throughput." },
+  saturn: { id: "saturn", name: "Saturn", topic: "DeFi & Liquidity Pools", route: "/planets/saturn", tagline: "Forge custom tokens and automated market makers." },
+  uranus: { id: "uranus", name: "Uranus", topic: "Cross-Chain & Bridges", route: "/planets/uranus", tagline: "Inspect cryptographic proofs & atomic swaps." },
+  neptune: { id: "neptune", name: "Neptune", topic: "Stellar Mainnet Launch", route: "/planets/neptune", tagline: "Execute real transactions on Stellar Mainnet." },
+};
+
+export function getUserRank(xp: number): string {
+  const allXP = LEADERBOARD_USERS.map((u) => u.xp);
+  if (!allXP.includes(xp)) allXP.push(xp);
+  allXP.sort((a, b) => b - a);
+  const rankIndex = allXP.indexOf(xp) + 1;
+  return `#${rankIndex}`;
+}
+
+export function getOngoingPlanetInfo(userState: UserState): { id: string; name: string; topic: string; route: string; tagline: string; isOngoing: boolean } {
+  // If user has a last visited planet route recorded
+  if (userState.lastVisitedPlanet && PLANET_METADATA[userState.lastVisitedPlanet]) {
+    const info = PLANET_METADATA[userState.lastVisitedPlanet];
+    return { ...info, isOngoing: true };
+  }
+  // Otherwise find first uncompleted planet in sequence
+  const planetKeys = ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"];
+  for (const p of planetKeys) {
+    if (!userState.completedPlanets.includes(p)) {
+      return { ...PLANET_METADATA[p], isOngoing: (userState.planetProgress[p] || 0) > 0 };
+    }
+  }
+  // Fallback to mercury or neptune
+  return { ...PLANET_METADATA["mercury"], isOngoing: false };
+}
+
+export function setLastVisitedPlanet(planetId: string): void {
+  const state = getUserState();
+  if (PLANET_METADATA[planetId]) {
+    state.lastVisitedPlanet = planetId;
+    saveUserState(state);
+  }
 }
 
 export function formatTimeAgo(timestamp: number): string {

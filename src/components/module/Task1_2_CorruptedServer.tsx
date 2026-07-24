@@ -283,7 +283,13 @@ function QuizPart({ onPass }: { onPass: () => void }) {
    MAIN COMPONENT
 ───────────────────────────────────────────── */
 
-export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: () => void }) {
+export default function Task1_2_CorruptedServer({
+  onComplete,
+  sidebarExpanded = false,
+}: {
+  onComplete: () => void;
+  sidebarExpanded?: boolean;
+}) {
   const [step, setStep] = useState<Step>("theory");
   const [completedSteps, setCompletedSteps] = useState<Step[]>([]);
   const [demoMode, setDemoMode] = useState<"central" | "consensus">("central");
@@ -380,8 +386,6 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
   };
 
   const verifyAudit = () => {
-    // TX-001 is corrupted (amount changed 200 -> 2000)
-    // TX-002 is deleted (status deleted)
     const correctlyFlaggedTampered = selectedTampered.includes("TX-001") && selectedTampered.length === 1;
     const correctlyFlaggedDeleted = selectedDeleted.includes("TX-002") && selectedDeleted.length === 1;
 
@@ -400,14 +404,24 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
   return (
     <div className="flex h-full bg-[#040816] text-white overflow-hidden">
       
-      {/* Sidebar navigation */}
-      <aside className="w-52 shrink-0 border-r border-white/10 bg-slate-950/40 flex flex-col overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/8 shrink-0">
-          <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">Task 1.2</p>
-          <h3 className="font-rushblade text-xs text-white mt-1 leading-snug">Corrupted Command</h3>
+      {/* Chapter internal navigation */}
+      <aside className={`shrink-0 border-r border-white/10 bg-slate-950/50 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+        sidebarExpanded ? "w-56" : "w-16"
+      }`}>
+        <div className={`pt-3 pb-3 border-b border-white/10 shrink-0 transition-all duration-300 ${
+          sidebarExpanded ? "px-3.5" : "px-0 flex flex-col items-center justify-center text-center"
+        }`}>
+          <p className="font-mono text-[8px] text-cyan-400 font-semibold uppercase tracking-wider">
+            {sidebarExpanded ? "TASK 1.2" : "T 1.2"}
+          </p>
+          {sidebarExpanded && (
+            <h3 className="font-sans font-bold text-[10px] text-slate-100 mt-0.5 leading-tight tracking-tight truncate">
+              Corrupted Command
+            </h3>
+          )}
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1 scrollbar-none">
           {SIDEBAR_TASKS.map((task, i) => {
             const isDone = completedSteps.includes(task.id);
             const isActive = step === task.id;
@@ -415,89 +429,98 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
 
             return (
               <button key={task.id} onClick={() => unlocked && setStep(task.id)} disabled={!unlocked}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left transition-all text-[10px] font-mono ${
+                className={`w-full flex items-center rounded-xl text-left transition-all ${
+                  sidebarExpanded ? "gap-2 px-2.5 py-2 text-[10px] font-sans font-medium" : "justify-center p-2 text-[10px]"
+                } ${
                   isActive
-                    ? "bg-cyan-500/10 border border-cyan-400/20 text-cyan-300"
+                    ? "bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 shadow-sm"
                     : isDone
-                    ? "bg-emerald-500/5 border border-emerald-400/15 text-emerald-400"
+                    ? "bg-emerald-500/5 border border-emerald-400/20 text-emerald-400"
                     : unlocked
-                    ? "text-slate-400 hover:bg-white/5"
+                    ? "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                     : "text-slate-700 cursor-not-allowed"
                 }`}
+                title={!sidebarExpanded ? task.label : undefined}
               >
-                <span className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 text-[8px] ${
+                <span className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 text-[8.5px] font-bold ${
                   isDone ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-400" : isActive ? "border-cyan-400/60 bg-cyan-400/10 text-cyan-400" : "border-white/10 text-slate-600"
                 }`}>
-                  {isDone ? "✓" : !unlocked ? <Lock className="w-2 h-2" /> : task.icon}
+                  {isDone ? "✓" : !unlocked ? <Lock className="w-2.5 h-2.5" /> : task.icon}
                 </span>
-                <span className="truncate">{task.label}</span>
+                {sidebarExpanded && (
+                  <span className="truncate font-sans text-[10px]">{task.label}</span>
+                )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-3 bg-violet-500/5 border-t border-white/5 text-[9px] text-slate-400 leading-relaxed shrink-0">
-          <span className="font-bold text-violet-300 block mb-0.5">Objective:</span>
-          Analyze state database compromises, trigger network sync errors, and audit logs.
-        </div>
+        {sidebarExpanded && (
+          <div className="p-3 bg-slate-900/60 border-t border-white/10 text-[10px] text-slate-400 leading-normal shrink-0 font-sans">
+            <span className="font-mono text-[8px] font-bold text-violet-300 uppercase tracking-wider block mb-0.5">Objective:</span>
+            Analyze state database compromises, trigger network sync errors, and audit logs.
+          </div>
+        )}
       </aside>
 
       {/* Main page content container */}
-      <main className="flex-1 overflow-y-auto p-6 relative">
+      <main className="flex-1 overflow-y-auto p-6 md:p-8 relative">
         <AnimatePresence mode="wait">
 
           {/* ── STEP 1: THEORY ── */}
           {step === "theory" && (
             <motion.div key="theory" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6 w-full max-w-7xl">
               <div>
-                <p className="font-mono text-[8px] text-cyan-400 uppercase tracking-widest">Section 1: Core Theory</p>
-                <h2 className="text-xl font-bold text-white mt-0.5">Single Points of Failure</h2>
-                <p className="text-xs text-slate-400 leading-relaxed mt-1">
+                <p className="font-mono text-[11px] text-cyan-400 font-semibold uppercase tracking-wider mb-1">SECTION 1: CORE THEORY</p>
+                <h2 className="font-['Space_Grotesk'] text-xl md:text-2xl font-bold text-white tracking-tight leading-tight">Single Points of Failure</h2>
+                <p className="font-['Inter'] text-xs md:text-sm text-slate-300 leading-relaxed mt-1 max-w-3xl">
                   When databases rely on a single central controller, admin privilege breaches enable silent transaction overrides that bypass validation checks.
                 </p>
               </div>
 
               {/* Two-column layout grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start w-full">
                 
                 {/* Left Column: text cards and buttons */}
                 <div className="lg:col-span-6 space-y-4">
                   {/* Cards */}
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {[
                       { tag: "SPF RISK", title: "Administrative Keys", text: "Database root keys or server access privileges allow administrators to wipe transaction logs, overwrite records, or forge funds without client consent.", color: "#ef4444", bg: "rgba(239,68,68,0.1)", border: "#ef4444" },
                       { tag: "TAMPERING LORE", title: "Silent Integrity Breach", text: "Without independent database check nodes, clients have no fallback validation copies. Whatever the central server claims is accepted as absolute state truth.", color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "#f59e0b" },
                       { tag: "THE CURE", title: "Consensus Alignment", text: "By syncing data logs across multiple nodes, the system isolates compromised records. If one node alters a balance, it fails the consensus hash match.", color: "#10b981", bg: "rgba(16,185,129,0.1)", border: "#10b981" }
                     ].map((card, i) => (
-                      <div key={i} className="rounded-xl border border-white/5 bg-slate-950/60 p-3.5 flex gap-3.5 relative overflow-hidden" style={{ borderLeft: `3px solid ${card.border}` }}>
-                        <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ color: card.color, backgroundColor: card.bg }}>
-                          <Shield className="w-4 h-4" />
+                      <div key={i} className="rounded-2xl border border-white/10 bg-slate-950/70 p-5 flex gap-4 relative overflow-hidden shadow-lg transition-all hover:border-white/20" style={{ borderLeft: `4px solid ${card.border}` }}>
+                        <div className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5" style={{ color: card.color, backgroundColor: card.bg }}>
+                          <Shield className="w-4.5 h-4.5" />
                         </div>
-                        <div>
-                          <span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ color: card.color, backgroundColor: card.bg }}>{card.tag}</span>
-                          <h4 className="text-xs font-bold text-white mt-1.5">{card.title}</h4>
-                          <p className="text-[11px] text-slate-300 leading-relaxed mt-1">{card.text}</p>
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                          <span className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded uppercase tracking-wider inline-block" style={{ color: card.color, backgroundColor: card.bg }}>{card.tag}</span>
+                          <h4 className="font-['Space_Grotesk'] text-sm md:text-base font-bold text-slate-100 tracking-tight mt-0.5">{card.title}</h4>
+                          <p className="font-['Inter'] text-xs md:text-[13px] text-slate-300 leading-relaxed mt-1">{card.text}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <button onClick={() => goToStep("demo")} className="px-5 py-2.5 bg-cyan-400/20 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-400/30 text-xs font-bold font-mono rounded-xl transition flex items-center gap-1">
-                    Test Outage Sandbox <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="pt-2">
+                    <button onClick={() => goToStep("demo")} className="px-6 py-3 bg-cyan-400 text-slate-950 hover:bg-cyan-300 text-xs md:text-sm font-bold font-sans rounded-xl transition flex items-center gap-2 shadow-lg cursor-pointer">
+                      Test Outage Sandbox <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Right Column: Visual simulation viewer stacked vertically */}
-                <div className="lg:col-span-6 space-y-4">
-                  <div className="rounded-xl border border-rose-500/20 bg-[#0b060f]/60 p-4 space-y-3">
-                    <span className="font-mono text-[9px] text-rose-400 uppercase tracking-wider block">Centralized database (Tampered)</span>
-                    <div className="h-40 flex items-center justify-center">
+                <div className="lg:col-span-6 space-y-5">
+                  <div className="rounded-2xl border border-rose-500/25 bg-[#0c0714]/80 p-5 space-y-3.5 shadow-xl backdrop-blur-md">
+                    <span className="font-mono text-xs font-semibold text-rose-400 uppercase tracking-wider block border-b border-rose-500/20 pb-2">Centralized database (Tampered)</span>
+                    <div className="h-44 md:h-48 flex items-center justify-center">
                       <CentralizedTamperSVG corrupted={true} onTamper={() => {}} />
                     </div>
                   </div>
-                  <div className="rounded-xl border border-emerald-500/20 bg-[#040e0a]/60 p-4 space-y-3">
-                    <span className="font-mono text-[9px] text-emerald-400 uppercase tracking-wider block">Decentralized Replication Consensus</span>
-                    <div className="h-40 flex items-center justify-center">
+                  <div className="rounded-2xl border border-emerald-500/25 bg-[#040e0a]/80 p-5 space-y-3.5 shadow-xl backdrop-blur-md">
+                    <span className="font-mono text-xs font-semibold text-emerald-400 uppercase tracking-wider block border-b border-emerald-500/20 pb-2">Decentralized Replication Consensus</span>
+                    <div className="h-44 md:h-48 flex items-center justify-center">
                       <ConsensusVerifySVG compromisedNode={1} onCompromise={() => {}} />
                     </div>
                   </div>
@@ -518,9 +541,9 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
               {/* Left Column: Title, description, mode selectors, CTA */}
               <div className="lg:col-span-5 space-y-5 text-left">
                 <div>
-                  <p className="font-mono text-[8px] text-cyan-400 uppercase tracking-widest">Section 2: Interactive Sandbox</p>
-                  <h2 className="text-xl font-bold text-white mt-0.5">Simulate Administrative Tampering</h2>
-                  <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                  <p className="font-mono text-[11px] text-cyan-400 font-semibold uppercase tracking-wider mb-1">SECTION 2: INTERACTIVE SANDBOX</p>
+                  <h2 className="font-['Space_Grotesk'] text-xl md:text-2xl font-bold text-white tracking-tight leading-tight">Simulate Administrative Tampering</h2>
+                  <p className="font-['Inter'] text-xs md:text-sm text-slate-300 leading-relaxed mt-1">
                     Breach the servers below to alter accounts. Observe how clients update compared to a multi-node consensus.
                   </p>
                 </div>
@@ -559,7 +582,7 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
 
               {/* Right Column: Interactive visual simulation screen */}
               <div className="lg:col-span-7 space-y-4">
-                <div className="rounded-xl border border-white/10 bg-slate-950/80 p-5 flex flex-col items-center justify-center min-h-[360px] relative overflow-hidden shadow-2xl">
+                <div className="rounded-xl border border-white/10 bg-slate-950/80 p-5 flex flex-col items-center justify-center min-h-90 relative overflow-hidden shadow-2xl">
                   {/* Subtle decorative grid overlay */}
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none" />
 
@@ -689,7 +712,7 @@ export default function Task1_2_CorruptedServer({ onComplete }: { onComplete: ()
 
           {/* ── STEP 5: COMPLETE ── */}
           {step === "complete" && (
-            <motion.div key="complete" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[360px] text-center space-y-6">
+            <motion.div key="complete" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-90 text-center space-y-6">
               <div className="flex gap-2">
                 {[0, 1, 2].map((i) => (
                   <motion.div key={i} initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.3 + i * 0.15, type: "spring", stiffness: 200 }}>

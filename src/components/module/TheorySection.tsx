@@ -158,18 +158,18 @@ export default function TheorySection({ onComplete }: TheorySectionProps) {
 
         {/* Slide Content Area */}
         <div className="flex-1 space-y-4 w-full">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+          <div className="flex items-center gap-3 border-b border-white/5 pb-3">
             {activeSlide.icon}
             <div>
-              <h3 className="text-sm font-bold text-white leading-none">{activeSlide.title}</h3>
-              <p className="text-[10px] text-muted-foreground mt-1 font-mono uppercase tracking-wider">
+              <h3 className="font-['Space_Grotesk'] text-lg md:text-xl font-bold text-white tracking-tight leading-tight">{activeSlide.title}</h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5 font-mono uppercase tracking-wider">
                 {activeSlide.subtitle}
               </p>
             </div>
           </div>
 
           {/* Render Slide Paragraphs */}
-          <div className="space-y-2 text-xs text-slate-300 leading-relaxed min-h-[120px]">
+          <div className="space-y-2 font-['Inter'] text-xs md:text-sm text-slate-300 leading-relaxed min-h-30">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentSlideIdx}
@@ -179,7 +179,7 @@ export default function TheorySection({ onComplete }: TheorySectionProps) {
                 transition={{ duration: 0.3 }}
               >
                 {activeSlide.content.map((p, i) => (
-                  <p key={i} className="mb-2">
+                  <p key={i} className="mb-3">
                     {p}
                   </p>
                 ))}
@@ -187,7 +187,7 @@ export default function TheorySection({ onComplete }: TheorySectionProps) {
                 {activeSlide.customRender}
 
                 {activeSlide.note && (
-                  <div className="mt-4 bg-slate-900/40 border border-white/5 p-2 rounded text-[10px] text-muted-foreground font-mono">
+                  <div className="mt-4 bg-slate-900/40 border border-white/5 p-3 rounded-xl text-[13px] text-slate-400 font-mono">
                     💡 {activeSlide.note}
                   </div>
                 )}

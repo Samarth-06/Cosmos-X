@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 interface RocketAssemblyProps {
   completedModules: number[]; // Array of completed module IDs, e.g. [1]
@@ -26,11 +27,66 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
     { id: 1, label: "LAUNCH PLATFORM", code: "M1", isUnlocked: isPart1Unlocked, textOk: "ANCHORED" },
   ];
 
+  const [showInfo, setShowInfo] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-between h-full bg-[#030706] border border-white/10 rounded-2xl p-3.5 shadow-2xl relative overflow-hidden">
       {/* Blueprint grid background */}
       <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_center,#22d3ee_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.03)_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none" />
+
+      {/* Info button top-left */}
+      <div className="absolute top-2.5 left-2.5 z-30">
+        <button
+          onClick={() => setShowInfo((v) => !v)}
+          className="w-5 h-5 rounded-full border border-cyan-500/40 bg-cyan-500/10 flex items-center justify-center text-cyan-400 hover:bg-cyan-500/25 hover:border-cyan-400/70 transition-all text-[10px] font-bold leading-none shadow-[0_0_8px_rgba(34,211,238,0.2)] hover:shadow-[0_0_12px_rgba(34,211,238,0.4)]"
+          aria-label="Rocket info"
+        >
+          i
+        </button>
+
+        <AnimatePresence>
+          {showInfo && (
+            <motion.div
+              initial={{ opacity: 0, y: -6, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.94 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute top-7 left-0 w-52 rounded-xl border border-cyan-500/25 bg-[#07131f]/95 backdrop-blur-md p-3 shadow-[0_8px_32px_rgba(0,0,0,0.7),0_0_20px_rgba(34,211,238,0.08)] text-left"
+            >
+              {/* Top accent line */}
+              <div className="absolute inset-x-0 top-0 h-px rounded-t-xl bg-linear-to-r from-transparent via-cyan-400/50 to-transparent" />
+
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="text-base leading-none">🚀</span>
+                <span className="font-rushblade text-[10px] text-cyan-400 tracking-wider uppercase">Rocket System</span>
+              </div>
+
+              <ul className="space-y-1.5 font-mono text-[9px] leading-relaxed">
+                <li className="flex gap-1.5">
+                  <span className="text-cyan-500 shrink-0 mt-px">▸</span>
+                  <span className="text-slate-300">Complete each <span className="text-cyan-300 font-semibold">module</span> to assemble one rocket part, building the V-2 piece by piece.</span>
+                </li>
+                <li className="flex gap-1.5">
+                  <span className="text-emerald-400 shrink-0 mt-px">▸</span>
+                  <span className="text-slate-300">Finish <span className="text-emerald-300 font-semibold">all 8 modules</span> to fully unlock the rocket and earn the Mercury Graduate badge.</span>
+                </li>
+                <li className="flex gap-1.5">
+                  <span className="text-amber-400 shrink-0 mt-px">▸</span>
+                  <span className="text-slate-300">Rare in-mission events unlock exclusive <span className="text-amber-300 font-semibold">rocket skins</span> — tradable as NFTs in the CosmosX marketplace.</span>
+                </li>
+              </ul>
+
+              <button
+                onClick={() => setShowInfo(false)}
+                className="mt-2.5 w-full text-center text-[8px] font-mono text-slate-500 hover:text-cyan-400 transition-colors"
+              >
+                [ CLOSE ]
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="w-full text-center mb-1.5 relative z-10 border-b border-white/5 pb-1.5">
         <h3 className="font-rushblade text-xs text-cyan-400 tracking-wider">A-4 / V-2 VERIFICATION</h3>
@@ -39,7 +95,7 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
 
       {/* Realistic Checkered V-2 Rocket Schematic */}
       <div className="flex-1 flex items-center justify-center w-full min-h-0 relative z-10 py-1">
-        <svg className="w-auto h-full max-h-[295px] lg:max-h-[310px] min-h-[190px]" viewBox="0 0 120 260" fill="none">
+        <svg className="w-auto h-full max-h-73.75 lg:max-h-77.5 min-h-47.5" viewBox="0 0 120 260" fill="none">
           <defs>
             {/* Soft background aura glow */}
             <filter id="glow-heavy" x="-60%" y="-60%" width="220%" height="220%">
@@ -488,7 +544,7 @@ export default function RocketAssembly({ completedModules }: RocketAssemblyProps
                 }`}
               />
 
-              <span className="truncate max-w-[70px] uppercase tracking-wider text-[8px]" title={p.label}>
+              <span className="truncate max-w-17.5 uppercase tracking-wider text-[8px]" title={p.label}>
                 {p.label.split(" ")[0]} [{p.code}]
               </span>
 

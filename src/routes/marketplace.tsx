@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -671,8 +671,8 @@ function MarketplacePage() {
       <Toaster position="top-right" theme="dark" closeButton />
 
       {/* Starfield */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_center,white_0.7px,transparent_0.7px)] bg-[size:22px_22px] opacity-[0.06] z-0" />
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-indigo-950/5 via-transparent to-cyan-950/5 z-0" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_center,white_0.7px,transparent_0.7px)] bg-size-[22px_22px] opacity-[0.06] z-0" />
+      <div className="pointer-events-none fixed inset-0 bg-linear-to-br from-indigo-950/5 via-transparent to-cyan-950/5 z-0" />
 
       {/* Educational overlay — conceptual explainer, not a tx simulator */}
       <FreighterSimulator
@@ -686,6 +686,13 @@ function MarketplacePage() {
       <header className="sticky top-0 z-40 border-b border-white/8 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
           <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-white transition-colors border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg font-mono mr-1 cursor-pointer"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Back</span>
+            </Link>
             <span
               onClick={() => navigateToView("home")}
               className="cursor-pointer font-display text-base font-extrabold tracking-tight text-white hover:opacity-80 transition"
@@ -716,7 +723,7 @@ function MarketplacePage() {
 
             {state.walletConnected && state.walletAddress ? (
               <div className="flex items-center gap-2">
-                <div className="rounded-l-xl bg-white/[0.02] border border-r-0 border-white/5 px-3 py-1.5 flex items-center gap-1.5">
+                <div className="rounded-l-xl bg-white/2 border border-r-0 border-white/5 px-3 py-1.5 flex items-center gap-1.5">
                   <Coins className="h-3.5 w-3.5 text-secondary" />
                   <span className="font-mono text-xs font-bold text-foreground">
                     {liveMode && balance.loading && balance.status !== "ok"
@@ -763,7 +770,7 @@ function MarketplacePage() {
               <button
                 onClick={handleConnectWallet}
                 disabled={wallet.connecting || txPending}
-                className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-[0_0_20px_-4px_rgba(99,102,241,0.5)] transition hover:shadow-[0_0_20px_rgba(99,102,241,0.7)] flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-[0_0_20px_-4px_rgba(99,102,241,0.5)] transition hover:shadow-[0_0_20px_rgba(99,102,241,0.7)] flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Wallet className="h-3.5 w-3.5" />
                 {wallet.connecting ? "Connecting..." : "Connect Freighter"}
@@ -831,7 +838,7 @@ function MarketplacePage() {
               className="space-y-12"
             >
               {/* FEATURED HERO BANNER */}
-              <div className="relative rounded-3xl border border-amber-500/20 bg-gradient-to-r from-slate-950 via-[#0a0f24] to-amber-950/20 p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.06)]">
+              <div className="relative rounded-3xl border border-amber-500/20 bg-linear-to-r from-slate-950 via-[#0a0f24] to-amber-950/20 p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.06)]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(245,158,11,0.06)_0%,transparent_60%)] pointer-events-none" />
 
                 <div className="space-y-4 max-w-xl text-left">
@@ -885,7 +892,7 @@ function MarketplacePage() {
                         );
                       }
                       return (
-                        <span className="px-5 py-3 border border-white/10 bg-white/[0.03] text-muted-foreground rounded-xl text-xs font-bold font-mono">
+                        <span className="px-5 py-3 border border-white/10 bg-white/3 text-muted-foreground rounded-xl text-xs font-bold font-mono">
                           {featured.buyDisabledReason ?? featured.label}
                         </span>
                       );
@@ -893,7 +900,7 @@ function MarketplacePage() {
                   </div>
                 </div>
 
-                <div className="relative shrink-0 flex items-center justify-center h-72 w-72 bg-gradient-to-br from-amber-500/5 to-transparent rounded-full border border-white/5">
+                <div className="relative shrink-0 flex items-center justify-center h-72 w-72 bg-linear-to-br from-amber-500/5 to-transparent rounded-full border border-white/5">
                   <Planet3DViewer textureName="venus" color="#F59E0B" isLarge className="h-64 w-64" />
                   <div
                     className="absolute border border-amber-500/10 rounded-full w-[110%] h-[110%] pointer-events-none animate-spin"
@@ -914,7 +921,7 @@ function MarketplacePage() {
                   {COLLECTION_STATS.map((col, idx) => (
                     <div
                       key={idx}
-                      className={`rounded-2xl border ${col.border} bg-gradient-to-br ${col.color} p-4 flex justify-between items-center`}
+                      className={`rounded-2xl border ${col.border} bg-linear-to-br ${col.color} p-4 flex justify-between items-center`}
                     >
                       <div>
                         <span className="font-mono text-[10px] text-muted-foreground uppercase">Classification</span>
@@ -1170,16 +1177,16 @@ function MarketplacePage() {
 
                 {/* LEFT: 3D Globe + Chart */}
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="relative h-[380px] rounded-3xl border border-white/8 bg-gradient-to-b from-[#070b19] to-[#040816] overflow-hidden flex items-center justify-center p-6 shadow-2xl">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0.6px,transparent_0.6px)] bg-[size:16px_16px] pointer-events-none" />
+                  <div className="relative h-95 rounded-3xl border border-white/8 bg-linear-to-b from-[#070b19] to-[#040816] overflow-hidden flex items-center justify-center p-6 shadow-2xl">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0.6px,transparent_0.6px)] bg-size-[16px_16px] pointer-events-none" />
                     <Planet3DViewer
                       textureName={currentExoplanet.textureName}
                       color={currentExoplanet.color}
                       isLarge
                       className="h-72 w-72 z-10"
                     />
-                    <div className="absolute border border-dashed rounded-full w-[70vw] h-[70vw] lg:w-[480px] lg:h-[480px] border-white/5 pointer-events-none animate-spin" style={{ animationDuration: "120s" }} />
-                    <div className="absolute border border-dotted rounded-full w-[60vw] h-[60vw] lg:w-[400px] lg:h-[400px] border-white/5 pointer-events-none animate-spin" style={{ animationDuration: "80s" }} />
+                    <div className="absolute border border-dashed rounded-full w-[70vw] h-[70vw] lg:w-120 lg:h-120 border-white/5 pointer-events-none animate-spin" style={{ animationDuration: "120s" }} />
+                    <div className="absolute border border-dotted rounded-full w-[60vw] h-[60vw] lg:w-100 lg:h-100 border-white/5 pointer-events-none animate-spin" style={{ animationDuration: "80s" }} />
                     <div
                       className="absolute inset-0 pointer-events-none opacity-20"
                       style={{ background: `radial-gradient(circle at center, ${currentExoplanet.color}15 0%, transparent 80%)` }}
@@ -1282,7 +1289,7 @@ function MarketplacePage() {
                           <p className="text-[10px] text-muted-foreground">Connect Freighter to trade this asset on Stellar ledger.</p>
                           <button
                             onClick={handleConnectWallet}
-                            className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-3 font-sans font-bold text-white shadow-lg transition hover:opacity-90"
+                            className="w-full rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 py-3 font-sans font-bold text-white shadow-lg transition hover:opacity-90"
                           >
                             Connect Freighter Wallet
                           </button>
@@ -1357,12 +1364,12 @@ function MarketplacePage() {
                                 <button
                                   onClick={() => handleBuy(currentExoplanet.id)}
                                   disabled={txPending}
-                                  className="w-full rounded-xl bg-gradient-to-r from-secondary to-indigo-500 py-3 font-sans font-bold text-slate-950 hover:text-white transition shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-40"
+                                  className="w-full rounded-xl bg-linear-to-r from-secondary to-indigo-500 py-3 font-sans font-bold text-slate-950 hover:text-white transition shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-40"
                                 >
                                   Buy Exoplanet Token Now ({getPlanetPrice(currentExoplanet.id).toLocaleString()} XLM)
                                 </button>
                               ) : (
-                                <div className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-3 text-center text-[11px] text-muted-foreground font-sans font-semibold">
+                                <div className="w-full rounded-xl border border-white/10 bg-white/3 py-3 text-center text-[11px] text-muted-foreground font-sans font-semibold">
                                   {tradeStatusFor(currentExoplanet.id).buyDisabledReason ?? tradeStatusFor(currentExoplanet.id).label}
                                 </div>
                               )}
@@ -1430,9 +1437,9 @@ function MarketplacePage() {
                       <Coins className="h-4 w-4 text-accent" /> Active Ledger Offers
                     </h4>
                     {market.offers.filter((o) => o.planetId === currentExoplanet.id).length > 0 ? (
-                      <div className="space-y-2 max-h-[160px] overflow-y-auto font-mono text-[10px]">
+                      <div className="space-y-2 max-h-40 overflow-y-auto font-mono text-[10px]">
                         {market.offers.filter((o) => o.planetId === currentExoplanet.id).map((offer) => (
-                          <div key={offer.id} className="flex justify-between items-center bg-white/[0.01] border border-white/5 rounded-xl p-2.5">
+                          <div key={offer.id} className="flex justify-between items-center bg-white/1 border border-white/5 rounded-xl p-2.5">
                             <div>
                               <span className="text-white font-bold block">{offer.price.toLocaleString()} XLM</span>
                               <span className="text-muted-foreground">Bidder: {offer.bidderName} ({offer.bidder.slice(0, 6)}...)</span>
@@ -1458,7 +1465,7 @@ function MarketplacePage() {
                     <h4 className="font-display text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
                       <History className="h-4 w-4 text-indigo-400" /> Consensus Ledger Logs
                     </h4>
-                    <div className="space-y-2 max-h-[220px] overflow-y-auto font-mono text-[9px]">
+                    <div className="space-y-2 max-h-55 overflow-y-auto font-mono text-[9px]">
                       {state.transactions.filter((tx) => tx.planetId === currentExoplanet.id).map((tx) => (
                         <div key={tx.id} className="border-b border-white/5 pb-2.5 space-y-1">
                           <div className="flex justify-between font-bold">
@@ -1511,7 +1518,7 @@ function MarketplacePage() {
               <div className="lg:col-span-4 space-y-6">
 
                 {/* Profile Card */}
-                <div className="rounded-3xl border border-white/8 bg-gradient-to-b from-slate-900 to-[#040816] p-6 space-y-4">
+                <div className="rounded-3xl border border-white/8 bg-linear-to-b from-slate-900 to-[#040816] p-6 space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-4xl shadow-[0_0_15px_rgba(99,102,241,0.2)]">
                       {state.profile.avatar}
@@ -1522,7 +1529,7 @@ function MarketplacePage() {
                       <p className="font-mono text-[10px] text-muted-foreground">{state.profile.title}</p>
                     </div>
                   </div>
-                  <p className="font-sans text-xs text-muted-foreground leading-relaxed italic bg-white/[0.01] border border-white/5 rounded-xl p-3">
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed italic bg-white/1 border border-white/5 rounded-xl p-3">
                     "{state.profile.bio}"
                   </p>
                   {isEditingProfile ? (
@@ -1564,7 +1571,7 @@ function MarketplacePage() {
                     </h4>
                     <p className="font-mono text-[10px] text-muted-foreground">Connected address on Stellar Horizon network.</p>
                   </div>
-                  <div className="space-y-2 rounded-xl border border-white/5 bg-white/[0.01] p-4 text-left">
+                  <div className="space-y-2 rounded-xl border border-white/5 bg-white/1 p-4 text-left">
                     <span className="font-mono text-[9px] text-muted-foreground uppercase">
                       Ledger Balance {liveMode ? "(live · Horizon)" : "(dev credit)"}
                     </span>
@@ -1610,7 +1617,7 @@ function MarketplacePage() {
                         Disconnect Wallet
                       </button>
                     ) : (
-                      <button onClick={handleConnectWallet} className="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-600 font-sans font-bold text-white rounded-xl text-xs transition">
+                      <button onClick={handleConnectWallet} className="w-full py-2 bg-linear-to-r from-indigo-500 to-purple-600 font-sans font-bold text-white rounded-xl text-xs transition">
                         Connect Wallet
                       </button>
                     )}
@@ -1648,7 +1655,7 @@ function MarketplacePage() {
                       { label: "Role", value: chain.isAdmin ? "Administrator" : "Trader" },
                       { label: "Network", value: STELLAR_NETWORK || "TESTNET" },
                     ].map((row) => (
-                      <div key={row.label} className="border border-white/5 rounded-lg px-2 py-1.5 bg-white/[0.01]">
+                      <div key={row.label} className="border border-white/5 rounded-lg px-2 py-1.5 bg-white/1">
                         <div className="text-muted-foreground text-[8px] uppercase">{row.label}</div>
                         <div className="text-white font-bold mt-0.5">{row.value}</div>
                       </div>
@@ -1698,7 +1705,7 @@ function MarketplacePage() {
                       { label: "Active Listings", value: `${market.listings.filter((l) => market.ownedPlanets.includes(l.planetId)).length}`, color: "text-amber-400" },
                       { label: "Commander XP", value: `${learningState?.xp || 0} XP`, color: "text-emerald-400" },
                     ].map(({ label, value, color }) => (
-                      <div key={label} className="bg-white/[0.01] border border-white/5 rounded-xl p-3">
+                      <div key={label} className="bg-white/1 border border-white/5 rounded-xl p-3">
                         <span className="text-[8px] text-muted-foreground block uppercase">{label}</span>
                         <span className={`text-sm font-extrabold block mt-0.5 ${color}`}>{value}</span>
                       </div>
@@ -1830,7 +1837,7 @@ function MarketplacePage() {
                           {market.offers.filter((o) => market.ownedPlanets.includes(o.planetId)).map((offer) => {
                             const planet = EXOPLANETS_DATA.find((p) => p.id === offer.planetId);
                             return (
-                              <div key={offer.id} className="flex justify-between items-center border border-white/5 bg-white/[0.01] rounded-2xl p-4">
+                              <div key={offer.id} className="flex justify-between items-center border border-white/5 bg-white/1 rounded-2xl p-4">
                                 <div className="space-y-1">
                                   <span className="text-indigo-400 font-bold block">{planet?.name}</span>
                                   <span className="text-white text-sm font-bold block">{offer.price.toLocaleString()} XLM</span>
@@ -1884,7 +1891,7 @@ function MarketplacePage() {
                       </div>
                       <div className="space-y-3 font-mono text-[10px]">
                         {state.transactions.map((tx) => (
-                          <div key={tx.id} className="border border-white/5 bg-white/[0.01] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div key={tx.id} className="border border-white/5 bg-white/1 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="space-y-1.5">
                               <div className="flex items-center gap-2">
                                 <span className="text-indigo-400 font-bold uppercase">{tx.type} OPERATION</span>

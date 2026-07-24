@@ -58,6 +58,7 @@ interface Props {
   taskDef: TaskDef;
   moduleColor: string;
   onComplete: () => void;
+  sidebarExpanded?: boolean;
 }
 
 const TERMINAL_MISSION_BY_TASK: Record<string, TerminalMissionId> = {
@@ -86,7 +87,7 @@ function HighlightedText({ text, color }: { text: string; color: string }) {
     <span>
       {parts.map((part, i) =>
         BLOCKCHAIN_KEYWORDS.some(k => k.toLowerCase() === part.toLowerCase()) ? (
-          <span key={i} style={{ color }} className="font-bold font-mono text-[10px]">{part}</span>
+          <span key={i} style={{ color }} className="lc-keyword">{part}</span>
         ) : (
           <span key={i}>{part}</span>
         )
@@ -101,21 +102,21 @@ function TheorySection({ text, color }: { text: string; color: string }) {
   const prose = paragraphs.filter(p => !/^\d+\./.test(p.trim()));
 
   return (
-    <div className="space-y-3 text-[10.5px] leading-relaxed text-slate-300">
+    <div className="space-y-3.5 lc-body">
       {prose.map((para, i) => (
-        <p key={i} className="font-sans">
+        <p key={i}>
           <HighlightedText text={para} color={color} />
         </p>
       ))}
       {numbered.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {numbered.map((item, i) => {
             const match = item.match(/^(\d+\.\s*)(.*)/s);
             if (!match) return null;
             return (
-              <div key={i} className="flex gap-2 bg-slate-900/40 border border-white/5 rounded-xl p-2.5">
-                <span style={{ color }} className="font-mono font-bold text-[10px] shrink-0 mt-0.5">{match[1]}</span>
-                <span className="font-sans text-slate-300">
+              <div key={i} className="flex gap-3 bg-slate-950/70 border border-white/10 rounded-xl p-3.5 shadow-sm">
+                <span style={{ color }} className="lc-list-num shrink-0 mt-0.5">{match[1]}</span>
+                <span className="lc-list-body">
                   <HighlightedText text={match[2]} color={color} />
                 </span>
               </div>
@@ -167,42 +168,61 @@ function MCQPanel({
   };
 
   return (
-    <div className="flex flex-col h-full gap-3">
-      {/* Progress dots */}
-      <div className="flex gap-1.5 justify-center">
-        {questions.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIdx(i)}
-            className={`w-5 h-5 rounded-full text-[8px] font-mono font-bold transition-all border ${
-              i === idx
-                ? "scale-110"
-                : answers[i] !== undefined
-                ? answers[i] === questions[i].correct
-                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                  : "bg-rose-500/20 border-rose-500/40 text-rose-400"
-                : "bg-slate-900 border-white/10 text-slate-500"
-            }`}
-            style={i === idx ? { backgroundColor: `${color}20`, borderColor: `${color}60`, color } : {}}
-          >
-            {i + 1}
-          </button>
-        ))}
+    <div className="flex flex-col gap-2.5 flex-1 min-h-0">
+      {/* Top Header: Prev Button (Left) | Progress Dots (Center) | Next Button (Right) */}
+      <div className="flex items-center justify-between gap-2 shrink-0">
+        <button
+          disabled={idx === 0}
+          onClick={() => setIdx((i) => i - 1)}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-[9px] font-mono text-slate-300 hover:text-white hover:border-white/20 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer"
+        >
+          <ArrowLeft className="w-3 h-3" /> Prev
+        </button>
+
+        {/* Progress dots */}
+        <div className="flex gap-1.5 justify-center items-center">
+          {questions.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              className={`w-4.5 h-4.5 rounded-full text-[8px] font-mono font-bold transition-all border ${
+                i === idx
+                  ? "scale-110"
+                  : answers[i] !== undefined
+                  ? answers[i] === questions[i].correct
+                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                    : "bg-rose-500/20 border-rose-500/40 text-rose-400"
+                  : "bg-slate-900 border-white/10 text-slate-500"
+              }`}
+              style={i === idx ? { backgroundColor: `${color}20`, borderColor: `${color}60`, color } : {}}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
+        <button
+          disabled={idx === questions.length - 1}
+          onClick={() => setIdx((i) => i + 1)}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-[9px] font-mono text-slate-300 hover:text-white hover:border-white/20 disabled:opacity-20 disabled:pointer-events-none transition cursor-pointer"
+        >
+          Next <ArrowRight className="w-3 h-3" />
+        </button>
       </div>
 
       {/* Question */}
-      <div className="bg-slate-950/80 border border-white/10 rounded-2xl p-3.5">
-        <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 shrink-0">
+        <div className="flex items-center gap-1.5 mb-1">
           <HelpCircle className="w-3.5 h-3.5" style={{ color }} />
-          <span className="text-[8.5px] font-mono text-slate-400 uppercase tracking-widest font-bold">
+          <span className="lc-label">
             Q{idx + 1} of {questions.length}
           </span>
         </div>
-        <p className="text-[11px] text-white font-bold leading-relaxed">{q.question}</p>
+        <p className="lc-question">{q.question}</p>
       </div>
 
       {/* Options */}
-      <div className="grid gap-1.5 flex-1">
+      <div className="grid gap-1.5">
         {q.options.map((opt, i) => {
           const isSel = selected === i;
           const isCorr = i === q.correct;
@@ -217,11 +237,11 @@ function MCQPanel({
               key={i}
               onClick={() => handleSelect(i)}
               disabled={selected !== null}
-              className={`text-left border rounded-2xl px-3.5 py-2 text-[10px] font-mono transition-all flex items-center justify-between cursor-pointer ${cls}`}
+              className={`text-left border rounded-xl px-3 py-1.5 lc-option transition-all flex items-center justify-between cursor-pointer ${cls}`}
             >
               <span>{opt}</span>
-              {selected !== null && isCorr && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-              {selected !== null && isSel && !isCorr && <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />}
+              {selected !== null && isCorr && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1.5" />}
+              {selected !== null && isSel && !isCorr && <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0 ml-1.5" />}
             </button>
           );
         })}
@@ -233,9 +253,9 @@ function MCQPanel({
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-2"
+            className="space-y-2 mt-1 pb-1"
           >
-            <div className={`rounded-2xl p-2.5 border text-[9.5px] font-mono leading-relaxed ${
+            <div className={`rounded-xl p-2.5 border lc-explanation ${
               isCorrect
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
                 : "bg-rose-500/10 border-rose-500/20 text-rose-300"
@@ -247,33 +267,15 @@ function MCQPanel({
             </div>
             <button
               onClick={handleNext}
-              className="w-full flex items-center justify-center gap-1.5 text-slate-950 font-bold py-2.5 rounded-2xl text-[9px] font-rushblade uppercase tracking-wider transition cursor-pointer shadow-lg"
+              className="w-full flex items-center justify-center gap-1.5 text-slate-950 font-bold py-2.5 rounded-xl text-[9px] font-rushblade uppercase tracking-wider transition cursor-pointer shadow-lg hover:opacity-90 active:scale-[0.99]"
               style={{ backgroundColor: color }}
             >
-              {idx < questions.length - 1 ? "Next Question" : "Complete Task"}
+              <span>{idx < questions.length - 1 ? "Next Question" : "Complete Task"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Navigation row */}
-      <div className="flex justify-between items-center">
-        <button
-          disabled={idx === 0}
-          onClick={() => setIdx(i => i - 1)}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-[8px] font-mono text-slate-400 hover:text-white disabled:opacity-20 transition cursor-pointer"
-        >
-          <ArrowLeft className="w-2.5 h-2.5" /> Prev
-        </button>
-        <button
-          disabled={idx === questions.length - 1}
-          onClick={() => setIdx(i => i + 1)}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 text-[8px] font-mono text-slate-400 hover:text-white disabled:opacity-20 transition cursor-pointer"
-        >
-          Next <ArrowRight className="w-2.5 h-2.5" />
-        </button>
-      </div>
     </div>
   );
 }
@@ -406,7 +408,7 @@ const SIDEBAR_TASKS: SidebarTask[] = [
 ];
 
 // ─── Main Component ─────────────────────────────────────────────────────────
-export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete }: Props) {
+export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete, sidebarExpanded = false }: Props) {
   const [step, setStep] = useState<Step>("theory");
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -605,17 +607,23 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
   return (
     <div className="flex-1 min-h-0 flex bg-[#040816] text-white overflow-hidden w-full h-full">
       {/* Chapter internal navigation */}
-      <aside className="w-52 shrink-0 border-r border-white/10 bg-slate-950/40 flex flex-col overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/8 shrink-0">
-          <p className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">
-            {taskDef.id.replace("task", "Task ").replace("_", ".")}
+      <aside className={`shrink-0 border-r border-white/10 bg-slate-950/50 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+        sidebarExpanded ? "w-56" : "w-16"
+      }`}>
+        <div className={`pt-3 pb-3 border-b border-white/10 shrink-0 transition-all duration-300 ${
+          sidebarExpanded ? "px-3.5" : "px-0 flex flex-col items-center justify-center text-center"
+        }`}>
+          <p className="font-mono text-[8px] text-cyan-400 font-semibold uppercase tracking-wider">
+            {sidebarExpanded ? taskDef.id.replace("task", "TASK ").replace("_", ".") : `T ${taskDef.id.replace("task", "").replace("_", ".")}`}
           </p>
-          <h3 className="font-rushblade text-xs text-white mt-1 leading-snug truncate" style={{ color: moduleColor }}>
-            {taskDef.title.split(" — ")[1] || taskDef.title.split(" – ")[1] || taskDef.title}
-          </h3>
+          {sidebarExpanded && (
+            <h3 className="font-sans font-bold text-[10px] text-slate-100 mt-0.5 leading-tight tracking-tight truncate" style={{ color: moduleColor }}>
+              {taskDef.title.split(" — ")[1] || taskDef.title.split(" – ")[1] || taskDef.title}
+            </h3>
+          )}
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-1 scrollbar-none">
+        <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1 scrollbar-none">
           {SIDEBAR_TASKS.map((t) => {
             const isActive = step === t.id;
             const isDone = t.id === "theory" ? step !== "theory" : t.id === "challenge" ? success : false;
@@ -626,35 +634,42 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
                 key={t.id}
                 onClick={() => unlocked && setStep(t.id)}
                 disabled={!unlocked}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left transition-all text-[10px] font-mono ${
+                className={`w-full flex items-center rounded-xl text-left transition-all ${
+                  sidebarExpanded ? "gap-2 px-2.5 py-2 text-[10px] font-sans font-medium" : "justify-center p-2 text-[10px]"
+                } ${
                   isActive
-                    ? "bg-cyan-500/10 border border-cyan-400/20 text-cyan-300"
+                    ? "bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 shadow-sm"
                     : isDone
-                    ? "bg-emerald-500/5 border border-emerald-400/15 text-emerald-400"
+                    ? "bg-emerald-500/5 border border-emerald-400/20 text-emerald-400"
                     : unlocked
-                    ? "text-slate-400 hover:bg-white/5"
+                    ? "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                     : "text-slate-700 cursor-not-allowed"
                 }`}
+                title={!sidebarExpanded ? t.label : undefined}
               >
-                <span className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 text-[8px] ${
+                <span className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 text-[8.5px] font-bold ${
                   isDone ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-400" : isActive ? "border-cyan-400/60 bg-cyan-400/10 text-cyan-400" : "border-white/10 text-slate-600"
                 }`}>
                   {isDone ? "✓" : !unlocked ? <Lock className="w-2.5 h-2.5" /> : t.icon}
                 </span>
-                <span className="truncate">{t.label}</span>
+                {sidebarExpanded && (
+                  <span className="truncate font-sans text-[10px]">{t.label}</span>
+                )}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-3 bg-violet-500/5 border-t border-white/5 text-[9px] text-slate-400 leading-relaxed shrink-0">
-          <span className="font-bold text-violet-300 block mb-0.5">Objective:</span>
-          {taskDef.concept}
-        </div>
+        {sidebarExpanded && (
+          <div className="p-3 bg-slate-900/60 border-t border-white/10 text-[10px] text-slate-400 leading-normal shrink-0 font-sans">
+            <span className="font-mono text-[8px] font-bold text-violet-300 uppercase tracking-wider block mb-0.5">Objective:</span>
+            {taskDef.concept}
+          </div>
+        )}
       </aside>
 
       {/* Main page content container */}
-      <main className="flex-1 overflow-y-auto p-6 relative">
+      <main className="lc-content flex-1 overflow-y-auto p-5 md:p-7 relative">
         <AnimatePresence mode="wait">
           {/* STEP 1: THEORY */}
           {step === "theory" && (
@@ -666,38 +681,38 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
               className="space-y-6 w-full max-w-7xl"
             >
               <div>
-                <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: moduleColor }}>
-                  Section 1: Technical Theory
+                <p className="lc-section-label mb-1" style={{ color: moduleColor }}>
+                  SECTION 1: TECHNICAL THEORY
                 </p>
-                <h2 className="text-xl font-bold text-white mt-0.5">
+                <h2 className="lc-title text-white">
                   {taskDef.title.split(" — ")[1] || taskDef.title.split(" – ")[1] || taskDef.title}
                 </h2>
-                <p className="text-xs text-slate-400 leading-relaxed mt-1">{taskDef.concept}</p>
+                <p className="lc-intro mt-1.5 max-w-2xl">{taskDef.concept}</p>
               </div>
 
               {/* Two-column layout grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start w-full">
                 
                 {/* Left Column: Theory prose, glossary and proceed button */}
-                <div className={["task2_2", "task2_3", "task3_2", "task3_3", "task3_4", "task3_5", "task4_1", "task4_2", "task4_3", "task4_4", "task4_5", "task5_1", "task5_2", "task5_3", "task5_4", "task5_5", "task6_1", "task6_2", "task6_3", "task6_4", "task6_5"].includes(taskDef.id) ? "lg:col-span-5 space-y-4" : "lg:col-span-7 space-y-4"}>
+                <div className={["task2_2", "task2_3", "task3_2", "task3_3", "task3_4", "task3_5", "task4_1", "task4_2", "task4_3", "task4_4", "task4_5", "task5_1", "task5_2", "task5_3", "task5_4", "task5_5", "task6_1", "task6_2", "task6_3", "task6_4", "task6_5"].includes(taskDef.id) ? "lg:col-span-5 space-y-5" : "lg:col-span-7 space-y-5"}>
                   <TheorySection text={taskDef.theoryText} color={moduleColor} />
                   
                   {["task2_2", "task2_3", "task3_2", "task3_3", "task3_4", "task3_5", "task4_1", "task4_2", "task4_3", "task4_4", "task4_5", "task5_1", "task5_2", "task5_3", "task5_4", "task5_5", "task6_1", "task6_2", "task6_3", "task6_4", "task6_5"].includes(taskDef.id) && taskDef.keyTerms && taskDef.keyTerms.length > 0 && (
                     <div
-                       className="border rounded-2xl p-4 space-y-3"
-                       style={{ borderColor: `${moduleColor}25`, backgroundColor: `${moduleColor}05` }}
+                       className="border rounded-2xl p-4 space-y-3.5 shadow-md"
+                       style={{ borderColor: `${moduleColor}35`, backgroundColor: `${moduleColor}08` }}
                     >
-                      <div className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                        <Info className="w-3.5 h-3.5" style={{ color: moduleColor }} />
+                      <div className="lc-section-label flex items-center gap-2" style={{ color: moduleColor }}>
+                        <Info className="w-3.5 h-3.5" />
                         <span>Key Terms Glossary</span>
                       </div>
                       <div className="flex flex-col gap-2">
                         {taskDef.keyTerms.map((term, idx) => (
-                          <div key={idx} className="border border-white/5 bg-slate-950/60 p-2.5 rounded-xl">
-                            <span className="font-mono font-bold text-[10px] block" style={{ color: moduleColor }}>
+                          <div key={idx} className="border border-white/10 bg-slate-950/70 p-3 rounded-xl space-y-1">
+                            <span className="lc-card-title block" style={{ color: moduleColor }}>
                               {term.term}
                             </span>
-                            <span className="text-slate-400 text-[9.5px] mt-0.5 block leading-relaxed">{term.definition}</span>
+                             <span className="font-['Inter'] text-slate-300 text-xs md:text-[13px] block leading-relaxed">{term.definition}</span>
                           </div>
                         ))}
                       </div>
@@ -708,9 +723,9 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
                     <button
                       onClick={() => setStep("challenge")}
                       style={{ backgroundColor: moduleColor }}
-                      className="text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs font-mono flex items-center gap-1.5 hover:opacity-90 transition cursor-pointer"
+                      className="text-slate-950 font-bold px-6 py-3 rounded-xl text-xs md:text-sm font-sans flex items-center gap-2 hover:opacity-90 transition shadow-lg cursor-pointer"
                     >
-                      Proceed to Challenge <ArrowRight className="w-3.5 h-3.5" />
+                      Proceed to Challenge <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -819,29 +834,29 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full items-stretch min-h-0">
                 {/* Left Column: Parameters */}
-                <div className="lg:col-span-5 flex flex-col gap-4 overflow-y-auto pr-1">
+                <div className="lg:col-span-5 flex flex-col gap-3.5 overflow-y-auto pr-1">
                   <div className="bg-slate-900/50 rounded-2xl border border-white/5 p-4">
-                    <div className="text-[8.5px] font-mono uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{ color: moduleColor }}>
+                    <div className="lc-label mb-2 flex items-center gap-1.5" style={{ color: moduleColor }}>
                       <Zap className="w-3 h-3" /> Scenario Setup
                     </div>
-                    <div className="text-[10.5px] text-slate-300 font-sans leading-relaxed whitespace-pre-line border-l-2 pl-3" style={{ borderColor: `${moduleColor}40` }}>
+                    <div className="lc-setup whitespace-pre-line border-l-2 pl-3" style={{ borderColor: `${moduleColor}40` }}>
                       {taskDef.practical.setupText || "Review the technical checkpoint check questions on the console to proceed."}
                     </div>
                   </div>
 
                   <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <HelpCircle className="w-4 h-4 text-cyan-400" />
-                      <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">Audit Challenge</span>
+                      <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
+                      <span className="lc-label">Audit Challenge</span>
                     </div>
-                    <p className="text-[11.5px] text-white font-sans leading-relaxed font-semibold">
+                    <p className="lc-question">
                       {hasMCQ ? "Answer the core conceptual checks on the right to complete validation for this gate." : taskDef.practical.question}
                     </p>
                   </div>
                 </div>
 
                 {/* Right Column: Console / MCQ */}
-                <div className="lg:col-span-7 flex flex-col border border-white/10 bg-slate-950/60 rounded-2xl overflow-hidden min-h-[360px] lg:min-h-0">
+                <div className="lg:col-span-7 flex flex-col border border-white/10 bg-slate-950/60 rounded-2xl overflow-hidden min-h-90 lg:min-h-0">
                   <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5 bg-slate-900/30">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                     <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400 font-bold">
@@ -870,7 +885,7 @@ export default function GenericSandboxRunner({ taskDef, moduleColor, onComplete 
                             <div className="text-[8.5px] font-mono uppercase tracking-widest text-center" style={{ color: moduleColor }}>
                               🔍 Payload Dissector Active
                             </div>
-                            <div className="bg-black/80 border border-white/10 rounded-xl p-3 font-mono text-[9px] max-h-[200px] overflow-y-auto scrollbar-thin select-all">
+                            <div className="bg-black/80 border border-white/10 rounded-xl p-3 font-mono text-[9px] max-h-50 overflow-y-auto scrollbar-thin select-all">
                               {taskDef.id === "task2_1" && (
                                 <pre className="text-emerald-400 leading-relaxed">{`{
   "sender": "G_ALPHA_STATION_77",
@@ -984,7 +999,7 @@ Tx 4: G_SMUGGLER_VOID → G_STATION_BETA  → [Hash: 0xILLEGAL]`}</pre>
                             )}
 
                             {(taskDef.id === "task4_3" || taskDef.id === "task7_2") && (
-                              <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
+                              <div className="space-y-2 max-h-50 overflow-y-auto pr-1 scrollbar-thin">
                                 <div className="text-[8.5px] font-mono text-slate-400 text-center mb-1">Toggle classification for each statement:</div>
                                 {Array.from({ length: 6 }).map((_, idx) => {
                                   const id = idx + 1;
@@ -1001,7 +1016,7 @@ Tx 4: G_SMUGGLER_VOID → G_STATION_BETA  → [Hash: 0xILLEGAL]`}</pre>
                                           borderColor: !cur ? "rgba(255,255,255,0.05)" : `${moduleColor}40`,
                                           backgroundColor: !cur ? "transparent" : `${moduleColor}10`,
                                         }}
-                                        className="px-3 py-0.5 rounded-lg border font-mono font-bold text-[9px] transition-all min-w-[80px] text-center"
+                                        className="px-3 py-0.5 rounded-lg border font-mono font-bold text-[9px] transition-all min-w-20 text-center"
                                       >
                                         {!cur ? "Select" : cur === opt1 ? `${label1} (${opt1})` : `${label2} (${opt2})`}
                                       </button>
@@ -1080,7 +1095,7 @@ Tx 4: G_SMUGGLER_VOID → G_STATION_BETA  → [Hash: 0xILLEGAL]`}</pre>
 
                             {taskDef.id === "task8_4" && (
                               <div className="space-y-3">
-                                <div className="bg-black/90 border border-white/10 rounded-xl font-mono text-[9px] h-[110px] overflow-hidden p-2.5 space-y-1 text-slate-300">
+                                <div className="bg-black/90 border border-white/10 rounded-xl font-mono text-[9px] h-27.5 overflow-hidden p-2.5 space-y-1 text-slate-300">
                                   <div className="text-cyan-400">$ verify</div>
                                   <div className="text-emerald-400">
                                     {inputs.code === "MATRIX_PASS" ? "✓ Decision Matrix Verified — Code: MATRIX_PASS" : "Awaiting verification..."}
@@ -1144,7 +1159,7 @@ Tx 4: G_SMUGGLER_VOID → G_STATION_BETA  → [Hash: 0xILLEGAL]`}</pre>
                                   animate={block.status === "tampered" ? { scale: [1, 1.05, 1] } : {}}
                                   transition={{ duration: 0.5, repeat: Infinity }}
                                   onClick={() => { if (block.id === 2) toggleBlockchainTamper(idx); }}
-                                  className={`flex-1 min-w-[48px] border p-1.5 rounded-xl text-center font-mono transition-all ${
+                                  className={`flex-1 min-w-12 border p-1.5 rounded-xl text-center font-mono transition-all ${
                                     block.status === "valid" ? "bg-slate-900/60 border-white/10 hover:border-cyan-500/40 cursor-pointer"
                                     : block.status === "tampered" ? "bg-rose-950/40 border-rose-500/50 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
                                     : "bg-red-950/20 border-red-500/20 text-slate-500"
@@ -1311,10 +1326,11 @@ Tx 4: G_SMUGGLER_VOID → G_STATION_BETA  → [Hash: 0xILLEGAL]`}</pre>
 
               <button
                 onClick={() => { saveTaskScore(taskDef.id, 10, 10, true); onComplete(); }}
-                className="w-full max-w-xs text-slate-950 font-bold py-3 rounded-2xl text-[10px] font-rushblade tracking-wider flex items-center justify-center gap-1.5 transition shadow-lg cursor-pointer mx-auto hover:opacity-90"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-slate-950 font-bold text-xs font-rushblade tracking-wider transition-all duration-200 shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer mx-auto"
                 style={{ backgroundColor: moduleColor }}
               >
-                Lock Checkpoint & Proceed <ArrowRight className="w-3.5 h-3.5" />
+                <span>LOCK CHECKPOINT & PROCEED</span>
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </button>
             </motion.div>
           )}

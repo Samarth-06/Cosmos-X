@@ -213,7 +213,7 @@ function ProgressRail({ current, total }: { current: number; total: number }) {
       {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
-          className={`h-6 w-[2px] rounded-full transition-all ${
+          className={`h-6 w-0.5 rounded-full transition-all ${
             i === current
               ? "bg-secondary shadow-[0_0_8px_var(--color-secondary)]"
               : "bg-white/15"

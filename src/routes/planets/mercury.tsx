@@ -37,6 +37,12 @@ import { WalletConnectButton } from "@/features/achievements/WalletConnectButton
 import { MintButton } from "@/features/achievements/MintButton";
 import { MERCURY_CURRICULUM } from "@/lib/mercury-curriculum";
 import {
+  getUserState,
+  getUserLevel,
+  setLastVisitedPlanet,
+  type UserState,
+} from "@/lib/user-store";
+import {
   Module1Task,
   MODULE1_TASKS,
   getMercuryCurrentTask,
@@ -370,7 +376,7 @@ const MODULES = MERCURY_EXPEDITION_MODULES.map(m => ({
     { id: "task1_1" as Module1Task, label: "Map the Middlemen" },
     { id: "task1_2" as Module1Task, label: "Corrupted Command" },
     { id: "task1_3" as Module1Task, label: "Trade Dilemma" },
-  ] : (MERCURY_CURRICULUM.find(c => c.id === m.id)?.tasks || []).map(t => ({
+  ] : (MERCURY_CURRICULUM.find((c: any) => c.id === m.id)?.tasks || []).map((t: any) => ({
     id: t.id as Module1Task,
     label: t.title.split(" — ")[1] || t.title.split(" – ")[1] || t.title,
   })),
@@ -401,7 +407,7 @@ function MercuryWorkspace({
   currentModuleDef: any;
   setAcknowledgedIntros: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
 }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [tempDisableHover, setTempDisableHover] = useState(false);
   const sidebarExpanded = !sidebarCollapsed || (sidebarHovered && !tempDisableHover);
@@ -415,6 +421,10 @@ function MercuryWorkspace({
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
   const [currentSubStep, setCurrentSubStep] = useState<string>("");
+
+  useEffect(() => {
+    setLastVisitedPlanet("mercury");
+  }, []);
 
   useEffect(() => {
     const handleStateChange = (e: Event) => {
@@ -478,6 +488,30 @@ function MercuryWorkspace({
         .sparkle-line {
           background-size: 200% 100% !important;
           animation: sparkle-sweep 2.5s linear infinite;
+        }
+        @keyframes emergency-border-glow {
+          0%, 100% {
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.8), inset 0 0 5px rgba(139, 0, 0, 0.5);
+            border-color: #8b0000;
+          }
+          33% {
+            box-shadow: 0 0 20px rgba(220, 20, 60, 1), inset 0 0 12px rgba(220, 20, 60, 0.8);
+            border-color: #dc143c;
+          }
+          66% {
+            box-shadow: 0 0 35px rgba(255, 30, 30, 1), inset 0 0 18px rgba(255, 30, 30, 0.9);
+            border-color: #ff1e1e;
+          }
+        }
+        .emergency-alert-btn {
+          animation: emergency-border-glow 2.5s infinite ease-in-out;
+        }
+        @keyframes neon-pulse-indicator {
+          0%, 100% { opacity: 0.7; filter: drop-shadow(0 0 3px #39FF14); }
+          50% { opacity: 1; filter: drop-shadow(0 0 8px #39FF14) drop-shadow(0 0 12px #39FF14); }
+        }
+        .animate-neon-indicator {
+          animation: neon-pulse-indicator 2s infinite ease-in-out;
         }
       `}</style>
       {/* Background container matching landing page background */}
@@ -552,7 +586,7 @@ function MercuryWorkspace({
 
         {/* Task progress capsules */}
         <div className="ml-auto hidden md:flex items-center gap-1.5">
-          {(activeModDef?.tasks || []).map((t) => {
+          {(activeModDef?.tasks || []).map((t: any) => {
             const isDone = isTaskDone(t.id);
             const isActive = task === t.id;
             const neonBlue = "#00e5ff";
@@ -738,7 +772,7 @@ function MercuryWorkspace({
                     {sidebarExpanded && isExpanded && unlocked && (
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.18 }} className="overflow-hidden w-full">
                         <div className="pl-9 pr-2 pb-1 pt-0.5 space-y-0.5">
-                          {mod.tasks.map((t) => {
+                          {mod.tasks.map((t: any) => {
                             const tDone = isTaskDone(t.id);
                             const tActive = task === t.id;
                             return (
@@ -875,17 +909,17 @@ function MercuryWorkspace({
               )}
               {task === "task1_1" && (
                 <motion.div key="t1_1" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
-                  <Task1_1_MiddlemanMapper onComplete={() => onTaskChange("task1_2")} />
+                  <Task1_1_MiddlemanMapper onComplete={() => onTaskChange("task1_2")} sidebarExpanded={sidebarExpanded} />
                 </motion.div>
               )}
               {task === "task1_2" && (
                 <motion.div key="t1_2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
-                  <Task1_2_CorruptedServer onComplete={() => onTaskChange("task1_3")} />
+                  <Task1_2_CorruptedServer onComplete={() => onTaskChange("task1_3")} sidebarExpanded={sidebarExpanded} />
                 </motion.div>
               )}
               {task === "task1_3" && (
                 <motion.div key="t1_3" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full">
-                  <Task1_3_TradeDilemma onComplete={() => onTaskChange("task1_verify")} />
+                  <Task1_3_TradeDilemma onComplete={() => onTaskChange("task1_verify")} sidebarExpanded={sidebarExpanded} />
                 </motion.div>
               )}
 
@@ -908,7 +942,7 @@ function MercuryWorkspace({
 
               {!showIntro && activeTaskInfo && !task.endsWith("_verify") && !["task1_1","task1_2","task1_3","final_challenge","completed"].includes(task) && (
                 <motion.div key={task} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
-                  <GenericSandboxRunner taskDef={activeTaskInfo.taskDef} moduleColor={activeTaskInfo.color}
+                  <GenericSandboxRunner taskDef={activeTaskInfo.taskDef} moduleColor={activeTaskInfo.color} sidebarExpanded={sidebarExpanded}
                     onComplete={() => {
                       const idx = MODULE1_TASKS.indexOf(task);
                       onTaskChange(MODULE1_TASKS[idx + 1] || "completed");
@@ -1009,12 +1043,12 @@ export default function MercuryModule() {
   const match = task.match(/^task(\d)_1$/);
   const introModuleId = match ? parseInt(match[1]) : null;
   const showIntro = false;
-  const currentModuleDef = showIntro ? MERCURY_CURRICULUM.find(m => m.id === introModuleId) : null;
+  const currentModuleDef = showIntro ? MERCURY_CURRICULUM.find((m: any) => m.id === introModuleId) : null;
   const [showProfile, setShowProfile] = useState(false);
 
   const activeTaskInfo = (() => {
     for (const mod of MERCURY_CURRICULUM) {
-      const found = mod.tasks.find((t) => t.id === task);
+      const found = mod.tasks.find((t: any) => t.id === task);
       if (found) {
         return { taskDef: found, color: mod.color };
       }
@@ -1165,8 +1199,12 @@ export default function MercuryModule() {
   };
 
   const completedModuleIds = getVerifiedModules();
-  const currentActiveModuleId =
-    completedModuleIds.length < 8 ? completedModuleIds.length + 1 : 9; // 9 = final escape room
+  const currentActiveModuleId = (() => {
+    const match = task.match(/^task(\d+)_/);
+    if (match) return Math.min(8, Math.max(1, parseInt(match[1], 10)));
+    if (completedModuleIds.length === 0) return 1;
+    return Math.min(8, Math.max(1, completedModuleIds.length < 8 ? completedModuleIds.length + 1 : 8));
+  })();
 
   const renderBubbleIcon = (type: string, isUnlocked: boolean, color: string) => {
     const strokeColor = isUnlocked ? color : "#475569";
@@ -1384,33 +1422,22 @@ export default function MercuryModule() {
                       </div>
                     </div>
                   ) : (
-                    <motion.button
+                    <button
                       onClick={() => {
                         setActiveModule(9);
                         handleNextTask("final_challenge");
                       }}
-                      animate={{
-                        boxShadow: [
-                          "0 0 10px rgba(127,0,0,0.5)",
-                          "0 0 25px rgba(185,28,28,0.85)",
-                          "0 0 10px rgba(127,0,0,0.5)"
-                        ],
-                        scale: [1, 1.04, 1]
-                      }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="bg-linear-to-r from-red-700 to-rose-600 text-white border border-red-500 px-4 py-2.5 rounded-xl text-[10.5px] font-mono font-bold tracking-widest uppercase cursor-pointer pointer-events-auto flex items-center justify-center gap-1.5 relative overflow-hidden"
+                      className="emergency-alert-btn bg-linear-to-r from-red-700 to-rose-600 text-white border px-4 py-2.5 rounded-xl text-[10.5px] font-mono font-bold tracking-widest uppercase cursor-pointer pointer-events-auto flex items-center justify-center gap-1.5 relative overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0.08)_75%,transparent_75%,transparent)] bg-size-[15px_15px] animate-pulse" />
-                      <Rocket className="w-3.5 h-3.5 relative z-10 animate-bounce" />
+                      <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0.08)_75%,transparent_75%,transparent)] bg-size-[15px_15px] opacity-70" />
+                      <Rocket className="w-3.5 h-3.5 relative z-10" />
                       <span className="relative z-10">ENTER RESCUE MISSION</span>
                       <ArrowRight className="w-3.5 h-3.5 relative z-10" />
-                    </motion.button>
+                    </button>
                   )}
                 </div>
+
+
 
                 {/* Glassy bubbles rendered dynamically in circular orbit */}
                 <div className="absolute inset-0 z-10 pointer-events-none">
@@ -1517,21 +1544,6 @@ export default function MercuryModule() {
                               className={`${getLabelStyles(mod.angle, isSelected).className} select-none pointer-events-none z-10`}
                               transition={{ type: "spring", stiffness: 140, damping: 9 }}
                             >
-                              {/* Triangular active module indicator pointing downwards slightly higher */}
-                              {isActive && (
-                                <div className={`flex w-full ${getArrowAlignment(mod.angle)} mb-2`}>
-                                  <svg
-                                    width="8"
-                                    height="5"
-                                    viewBox="0 0 24 12"
-                                    fill="currentColor"
-                                    style={{ color: mod.color }}
-                                    className="animate-pulse"
-                                  >
-                                    <polygon points="12,12 0,0 24,0" />
-                                  </svg>
-                                </div>
-                              )}
                               <span
                                 className="block font-mono text-[8px] font-bold uppercase tracking-wider"
                                 style={{ color: isUnlocked ? mod.color : `${mod.color}70` }}
@@ -1664,7 +1676,7 @@ export default function MercuryModule() {
                 <div className="space-y-3">
                   <h4 className="font-rushblade text-slate-400 text-[10px] uppercase tracking-wider">Honors & Earned Badges</h4>
                   
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-100 overflow-y-auto pr-1">
                     {(() => {
                       const earnedIds = getEarnedBadges();
                       const earnedList = Object.values(MODULE_BADGES).filter(b => earnedIds.includes(b.id));

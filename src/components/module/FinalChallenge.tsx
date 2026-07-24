@@ -57,6 +57,25 @@ export default function FinalChallenge({ onComplete }: FinalChallengeProps) {
     },
   ];
 
+  const [shuffledQuestions, setShuffledQuestions] = useState<
+    { id: number; question: string; options: string[]; correctText: string; explanation: string }[]
+  >([]);
+
+  useEffect(() => {
+    const randomized = questions.map((q) => {
+      const correctText = q.options[q.correctIdx];
+      const shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
+      return {
+        id: q.id,
+        question: q.question,
+        options: shuffledOptions,
+        correctText,
+        explanation: q.explanation,
+      };
+    });
+    setShuffledQuestions(randomized);
+  }, []);
+
   // 60-second timer countdown
   useEffect(() => {
     if (isChallengeDone || timer <= 0) return;
@@ -66,10 +85,13 @@ export default function FinalChallenge({ onComplete }: FinalChallengeProps) {
     return () => clearInterval(interval);
   }, [timer, isChallengeDone]);
 
+  const activeQuestion = shuffledQuestions[activeQ] || questions[activeQ];
+
   const handleOptionSelect = (idx: number) => {
-    if (selectedOpt !== null) return; // Answered already
+    if (selectedOpt !== null || !activeQuestion) return; // Answered already
     setSelectedOpt(idx);
-    const correct = idx === questions[activeQ].correctIdx;
+    const chosenText = activeQuestion.options[idx];
+    const correct = chosenText === (activeQuestion.correctText || questions[activeQ].options[questions[activeQ].correctIdx]);
     setIsCorrect(correct);
 
     if (correct) {
@@ -90,8 +112,6 @@ export default function FinalChallenge({ onComplete }: FinalChallengeProps) {
       }, 1500);
     }
   };
-
-  const activeQuestion = questions[activeQ];
 
   return (
     <div className="bg-slate-950/60 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-2xl relative">

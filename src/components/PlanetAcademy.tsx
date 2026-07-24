@@ -21,6 +21,7 @@ import {
   PLANET_ACADEMIES,
   savePlanetAcademyCompletion,
 } from "@/lib/planet-academies";
+import { setLastVisitedPlanet } from "@/lib/user-store";
 
 interface PlanetAcademyProps {
   planetId: AcademyPlanetId;
@@ -44,12 +45,23 @@ export default function PlanetAcademy({ planetId }: PlanetAcademyProps) {
     setTerminalInput("");
     setTerminalLogs(["COSMOSX PREVIEW SHELL // simulation provider online", "No live network actions are available in this academy."]);
     setTerminalPassed({});
+    setLastVisitedPlanet(planetId);
   }, [academy.missions.length, planetId]);
 
   const mission = academy.missions[activeMission];
+
+  // Dynamically shuffle mission choices so correct answers have random non-patterned positions
+  const currentMissionChoices = useMemo(() => {
+    if (!mission) return { choices: [], correctIndex: 0 };
+    const correctText = mission.choices[mission.correct];
+    const shuffled = [...mission.choices].sort(() => 0.5 - Math.random());
+    const newCorrectIndex = shuffled.indexOf(correctText);
+    return { choices: shuffled, correctIndex: newCorrectIndex };
+  }, [planetId, activeMission, mission]);
+
   const selected = answers[activeMission];
   const hasAnswer = selected !== undefined;
-  const isCorrect = selected === mission.correct;
+  const isCorrect = selected === currentMissionChoices.correctIndex;
   const completion = Math.round((completed.size / academy.missions.length) * 100);
   const canLockCheckpoint = !mission.terminalCommand || terminalPassed[activeMission];
 
@@ -136,7 +148,7 @@ export default function PlanetAcademy({ planetId }: PlanetAcademyProps) {
         </nav>
 
         <AnimatePresence mode="wait">
-          <motion.section key={mission.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }} className="grid flex-1 gap-4 py-6 lg:min-h-[560px] lg:grid-cols-12">
+          <motion.section key={mission.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }} className="grid flex-1 gap-4 py-6 lg:min-h-140 lg:grid-cols-12">
             <article className="flex flex-col rounded-[1.7rem] border border-white/10 bg-white/3.5 p-5 backdrop-blur-xl lg:col-span-5">
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
                 <div><p className="font-mono text-[9px] uppercase tracking-[0.17em]" style={{ color: academy.color }}>{mission.phase}</p><h2 className="mt-1 text-2xl font-semibold tracking-tight">{mission.title}</h2></div>
@@ -159,7 +171,7 @@ export default function PlanetAcademy({ planetId }: PlanetAcademyProps) {
               </article>
 
               {mission.terminalCommand ? (
-                <article className="flex min-h-[220px] flex-1 flex-col overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#03060b] shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
+                <article className="flex min-h-55 flex-1 flex-col overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#03060b] shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
                   <div className="flex items-center justify-between border-b border-white/10 bg-white/3.5 px-4 py-3"><div className="flex items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-slate-300"><TerminalSquare className="h-4 w-4" style={{ color: academy.color }} /> Preview shell</div><span className="font-mono text-[7px] uppercase tracking-widest text-amber-300">simulation</span></div>
                   <div className="flex-1 overflow-y-auto px-4 py-3 font-mono text-[9px] leading-5 text-slate-400">{terminalLogs.map((log, index) => <p key={`${log}-${index}`} className={log.startsWith("✓") ? "text-emerald-300" : log.startsWith("error") ? "text-rose-300" : log.startsWith("learner@") ? "text-cyan-300" : ""}>{log}</p>)}</div>
                   <form onSubmit={runPreviewCommand} className="flex gap-2 border-t border-white/10 px-3 py-3"><Command className="mt-1 h-3.5 w-3.5 shrink-0" style={{ color: academy.color }} /><input value={terminalInput} onChange={(event) => setTerminalInput(event.target.value)} placeholder={mission.terminalCommand} className="min-w-0 flex-1 bg-transparent font-mono text-[10px] text-white outline-none placeholder:text-slate-700" autoComplete="off" spellCheck={false} /><button type="submit" className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-300 transition hover:bg-white/10"><ChevronRight className="h-3.5 w-3.5" /></button></form>
@@ -173,10 +185,10 @@ export default function PlanetAcademy({ planetId }: PlanetAcademyProps) {
             <article className="flex flex-col rounded-[1.7rem] border border-white/10 bg-white/4 p-5 backdrop-blur-xl lg:col-span-3">
               <div className="flex items-center gap-2"><Sparkles className="h-4 w-4" style={{ color: academy.color }} /><p className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">Knowledge check</p></div>
               <p className="mt-4 text-sm font-semibold leading-6 text-white">{mission.question}</p>
-              <div className="mt-4 space-y-2">{mission.choices.map((choice, index) => {
+              <div className="mt-4 space-y-2">{currentMissionChoices.choices.map((choice, index) => {
                 const selectedChoice = selected === index;
                 const reveal = hasAnswer;
-                const correctChoice = index === mission.correct;
+                const correctChoice = index === currentMissionChoices.correctIndex;
                 return <button key={choice} onClick={() => setAnswers((current) => ({ ...current, [activeMission]: index }))} className={`w-full rounded-xl border px-3 py-2.5 text-left font-mono text-[9px] leading-4 transition ${reveal && correctChoice ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-200" : reveal && selectedChoice ? "border-rose-400/60 bg-rose-400/10 text-rose-200" : "border-white/10 bg-black/15 text-slate-300 hover:border-white/25"}`}><span className="mr-2 text-slate-500">{String.fromCharCode(65 + index)}.</span>{choice}</button>;
               })}</div>
               <AnimatePresence>{hasAnswer && <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`mt-4 rounded-xl border p-3 text-[10px] leading-5 ${isCorrect ? "border-emerald-400/20 bg-emerald-400/8 text-emerald-100" : "border-amber-300/20 bg-amber-300/8 text-amber-100"}`}><p className="mb-1 font-mono text-[8px] font-bold uppercase tracking-widest">{isCorrect ? "Correct reasoning" : "Review the reasoning"}</p>{mission.explanation}</motion.div>}</AnimatePresence>

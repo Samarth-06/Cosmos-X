@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -162,7 +163,6 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transform: skewX(-5deg);
-  display: inline-block;
   text-shadow: 0 0 10px rgba(0, 216, 255, 0.2);
 }
 
@@ -323,7 +323,6 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transform: skewX(-5deg);
-  display: inline-block;
   text-shadow: 0 0 10px rgba(0, 216, 255, 0.2);
 }
 
@@ -766,3 +765,140 @@
   animation-fill-mode: forwards;
 
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CosmosX — Unified Learning Content Typography System (lc-*)
+   Applies ONLY inside .lc-content wrappers (learning content area).
+   Never modifies sidebar, nav, header, footer, or HUD typography.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Section label  (e.g. "SECTION 1: TECHNICAL THEORY") */
+.lc-section-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+}
+
+/* Lesson / task title (h2) */
+.lc-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem); /* 20–26px */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* Concept / intro paragraph (the one-liner under the title) */
+.lc-intro {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgb(148 163 184); /* slate-400 */
+}
+
+/* Body / theory prose paragraphs */
+.lc-body {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 400;
+  line-height: 1.75;
+  color: rgb(203 213 225); /* slate-300 */
+}
+
+/* Supporting / meta labels */
+.lc-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(100 116 139); /* slate-500 */
+}
+
+/* Card / subsection title (term, step, card header) */
+.lc-card-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+/* Key-term definition body text */
+.lc-definition {
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem; /* 12px */
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgb(148 163 184); /* slate-400 */
+}
+
+/* Callout / tip / note */
+.lc-note {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgb(148 163 184);
+}
+
+/* Challenge / scenario setup text */
+.lc-setup {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgb(203 213 225);
+}
+
+/* MCQ question text */
+.lc-question {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 600;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+/* MCQ option text */
+.lc-option {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+/* Numbered list item number */
+.lc-list-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 700;
+}
+
+/* Numbered list item body */
+.lc-list-body {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.7;
+  color: rgb(203 213 225);
+}
+
+/* Highlighted keyword inside theory prose */
+.lc-keyword {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+/* Explanation / debrief text (post-MCQ) */
+.lc-explanation {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 400;
+  line-height: 1.65;
+}
+

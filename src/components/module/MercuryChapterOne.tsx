@@ -423,7 +423,7 @@ function QuizSection({ onPass }: { onPass: () => void }) {
         <h4 className={`text-xl font-bold ${passed ? "text-emerald-300" : "text-rose-300"}`}>
           {passed ? `${score}/3 — Knowledge Check Passed!` : `${score}/3 — Keep Learning`}
         </h4>
-        <p className="text-sm text-slate-300 leading-relaxed max-w-sm mx-auto">
+        <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
           {passed
             ? "Excellent work. You've demonstrated understanding of centralization vs decentralization. The 51% Attack Simulator is now unlocked."
             : `You scored ${score}/3. Review the theory cards and try again — you need at least 2 correct to proceed.`}
@@ -485,7 +485,7 @@ function QuizSection({ onPass }: { onPass: () => void }) {
         >
           <div className="rounded-xl bg-slate-950/80 border border-white/10 p-4">
             <p className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest mb-2">Q{currentQ + 1}</p>
-            <h4 className="text-sm font-semibold text-white leading-relaxed">{q.q}</h4>
+            <h4 className="text-xs font-semibold text-white leading-relaxed">{q.q}</h4>
           </div>
 
           <div className="space-y-2">
@@ -672,7 +672,7 @@ function AttackSimulatorGame({ onWin }: { onWin: () => void }) {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2 max-w-[260px] mx-auto">
+            <div className="grid grid-cols-3 gap-2 max-w-65 mx-auto">
               {distributedPositions.map((node, i) => {
                 const isControlled = controlledNodes.has(i);
                 const isCentral = i === 0;
@@ -1091,9 +1091,9 @@ export default function MercuryChapterOne({ onComplete }: { onComplete: () => vo
                 className="p-6 md:p-8 space-y-6 w-full max-w-7xl"
               >
                 <div>
-                  <p className="font-mono text-[9px] text-cyan-400 uppercase tracking-[0.3em] mb-1">Core Theory</p>
-                  <h2 className="text-2xl font-bold text-white">Why Centralized Systems Fail</h2>
-                  <p className="text-sm text-slate-400 mt-1 max-w-xl">Compare what happens when the two architectures face the same threat.</p>
+                  <p className="font-mono text-[11px] text-cyan-400 font-semibold uppercase tracking-wider mb-1">SECTION 1: CORE THEORY</p>
+                  <h2 className="font-['Space_Grotesk'] text-xl md:text-2xl font-bold text-white tracking-tight leading-tight">Why Centralized Systems Fail</h2>
+                  <p className="font-['Inter'] text-xs md:text-sm text-slate-300 leading-relaxed mt-1 max-w-3xl">Compare what happens when the two architectures face the same threat.</p>
                 </div>
 
                 {/* Two-column layout grid */}
@@ -1204,9 +1204,9 @@ export default function MercuryChapterOne({ onComplete }: { onComplete: () => vo
                 className="p-6 md:p-8 space-y-6 w-full max-w-7xl"
               >
                 <div>
-                  <p className="font-mono text-[9px] text-purple-400 uppercase tracking-[0.3em] mb-1">Interactive Demo</p>
-                  <h2 className="text-2xl font-bold text-white">Pull the Failure Lever</h2>
-                  <p className="text-sm text-slate-400 mt-1">Choose a network topology, then simulate an attack. See the difference live.</p>
+                  <p className="font-mono text-[11px] text-purple-400 font-semibold uppercase tracking-wider mb-1">SECTION 2: INTERACTIVE DEMO</p>
+                  <h2 className="font-['Space_Grotesk'] text-xl md:text-2xl font-bold text-white tracking-tight leading-tight">Pull the Failure Lever</h2>
+                  <p className="font-['Inter'] text-xs md:text-sm text-slate-300 leading-relaxed mt-1">Choose a network topology, then simulate an attack. See the difference live.</p>
                 </div>
 
                 {/* Two-column layout grid */}
@@ -1330,9 +1330,9 @@ export default function MercuryChapterOne({ onComplete }: { onComplete: () => vo
                 className="p-6 md:p-8 space-y-5"
               >
                 <div>
-                  <p className="font-mono text-[9px] text-amber-400 uppercase tracking-[0.3em] mb-1">Knowledge Check</p>
-                  <h2 className="text-2xl font-bold text-white">Checkpoint Verified?</h2>
-                  <p className="text-sm text-slate-400 mt-1">Answer 3 questions. Score ≥ 2/3 to unlock the 51% Attack Simulator.</p>
+                  <p className="font-mono text-[8px] text-amber-400 uppercase tracking-widest">Section 3: Knowledge Check</p>
+                  <h2 className="text-xl font-bold text-white mt-0.5">Checkpoint Verified?</h2>
+                  <p className="text-xs text-slate-400 mt-1">Answer 3 questions. Score ≥ 2/3 to unlock the 51% Attack Simulator.</p>
                 </div>
 
                 <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 flex items-center gap-3">
@@ -1357,9 +1357,9 @@ export default function MercuryChapterOne({ onComplete }: { onComplete: () => vo
                 className="p-6 md:p-8 space-y-5"
               >
                 <div>
-                  <p className="font-mono text-[9px] text-rose-400 uppercase tracking-[0.3em] mb-1">Mission: 51% Attack Simulator</p>
-                  <h2 className="text-2xl font-bold text-white">Become the Attacker</h2>
-                  <p className="text-sm text-slate-400 mt-1">
+                  <p className="font-mono text-[8px] text-rose-400 uppercase tracking-widest">Section 4: Active Challenge</p>
+                  <h2 className="text-xl font-bold text-white mt-0.5">Become the Attacker</h2>
+                  <p className="text-xs text-slate-400 mt-1">
                     Experience both sides: show how easy it is to attack a centralized system, then try (and fail) against a distributed one.
                   </p>
                 </div>

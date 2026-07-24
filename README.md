@@ -1,496 +1,297 @@
-# Cosmos-X 🚀
+# 🌌 CosmosX — Interactive 3D Blockchain Learning Platform
 
-> **Maintainer Law** — This README is the **single source of truth**. Every route, feature, UI change, or architectural decision **must be reflected here** before merging. No exceptions.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Stellar](https://img.shields.io/badge/Blockchain-Stellar%20%2F%20Soroban-purple.svg)](https://stellar.org)
+[![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-cyan.svg)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 
----
+> **Master Blockchain Fundamentals & Stellar Soroban Smart Contracts through Cinematic 3D Solar System Space Simulations.**
 
-**Cosmos-X** is a gamified, space-themed blockchain learning platform built on the belief: *"Learn Blockchain by Doing."* Each planet in our Solar System is a learning tier — Mercury is unlocked first and covers blockchain fundamentals. As users complete each module on a planet, they assemble one part of that planet's spacecraft. Rare rocket skins are earned by scoring unexpectedly high, achieving speed-run completions, or triggering rare in-game events — not just by finishing. Once the full spacecraft is assembled and the final timed challenge is passed, the rocket lifts off and the next planet unlocks. Collected skins are tradeable on the Stellar testnet, creating a real on-chain economy around the learning journey.
-
----
-
-## 🌌 Vision & Core Promise
-
-> "Players repair a spacecraft communication system. They experience *why* blockchain exists before receiving an explanation. The aim is not to cover the most terms — it is to make the essential ideas stick."
-
-| Goal | Description |
-|------|-------------|
-| **Primary** | Turn complete beginners into confident blockchain developers via active, hands-on learning |
-| **Narrative** | Every planet is a mission campaign. Users don't "take a quiz" — they repair systems, catch sabotage, validate fuel transfers, and build consensus networks |
-| **Differentiator** | Not MCQ-only. Every concept follows: `Action → Discovery → Theory Unlock → Reward` |
-| **Long-term Hook** | Gamified XP + spacecraft assembly + tradeable NFT rocket skins on the Stellar testnet |
+CosmosX turns abstract blockchain concepts into interactive, visual space missions. Explorers learn decentralization, digital ledgers, block header hashing, consensus mechanisms, smart contract execution, and NFT trading—all before submitting their first transaction on the Stellar Testnet.
 
 ---
 
-## 🏛️ The 7 Non-Negotiable Teaching Rules (from Curriculum)
+## 📌 Table of Contents
 
-All UI and task design must respect these rules:
-1. **Curiosity before vocabulary** — player sees the problem before the term appears
-2. **Action before explanation** — every concept starts with manipulation, decision, or repair
-3. **Short theory after discovery** — 80–130 word theory unlock, never a lecture
-4. **Productive failure** — wrong moves show the consequence AND a recovery path
-5. **Real-world intuition first** — use banks, Google Drive, UPI, Git before blockchain jargon
-6. **No blockchain evangelism** — teach tradeoffs; give permission to choose a database
-7. **Mercury is blockchain-agnostic** — Stellar is a brief preview only; deep Stellar dev starts on later planets
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Framework** | React 19 + Vite 8 | Core frontend SPA |
-| **Routing** | TanStack Router (file-based) | Type-safe, auto-generated routing |
-| **3D Rendering** | React Three Fiber + Three.js | Interactive 3D Solar System on landing page |
-| **Animation** | Framer Motion + GSAP | Page transitions, liftoff cinematics, micro-animations |
-| **Styling** | Tailwind CSS v4 | Design system — all utility classes |
-| **UI Primitives** | Radix UI (Shadcn pattern) | Accessible headless components |
-| **Data Queries** | TanStack Query | Server-state management, caching |
-| **Progress State** | `localStorage` | Guest-mode progress; marketplace fallback mode |
-| **Auth (planned)** | Supabase Auth | Email / OAuth login — added after core UX is solid |
-| **Wallet** | Stellar Wallets Kit (Freighter + xBull) | Achievement minting + marketplace signing |
-| **Trading** | Stellar Testnet marketplace Soroban contract | Exoplanet collectibles: list / buy / offer; localStorage fallback when unconfigured |
-| **Trading (planned)** | Mainnet + escrowed offers | See ROADMAP.md — not in current track |
-| **Fonts** | Space Grotesk, Inter, JetBrains Mono | Headings, body text, terminal/code respectively |
+- [🌌 CosmosX — Interactive 3D Blockchain Learning Platform](#-cosmosx--interactive-3d-blockchain-learning-platform)
+  - [📌 Table of Contents](#-table-of-contents)
+  - [🚀 Overview](#-overview)
+  - [✨ Key Features \& Recent Enhancements](#-key-features--recent-enhancements)
+  - [🗺️ Application Route Map](#️-application-route-map)
+  - [🎓 Mercury Expedition Curriculum (Modules 1–8)](#-mercury-expedition-curriculum-modules-18)
+  - [📂 Directory \& Repository Structure](#-directory--repository-structure)
+  - [🛠️ Technology Stack](#️-technology-stack)
+  - [⚙️ Local Setup \& Installation](#️-local-setup--installation)
+  - [🔗 Stellar Testnet \& Soroban Smart Contracts](#-stellar-testnet--soroban-smart-contracts)
+  - [⚡ Supabase Integration](#-supabase-integration)
+  - [📚 Documentation \& References](#-documentation--references)
 
 ---
 
-## 📁 Project Structure
+## 🚀 Overview
+
+Learning blockchain development can feel overwhelming with abstract cryptographic math, terminal commands, and confusing terminology. **CosmosX** solves this by providing a **game-based 3D visual learning environment** where every planet represents a core domain of blockchain technology:
+
+1. **Mercury**: Blockchain Foundations (Centralization vs. Decentralization, Ledgers, Blocks, Cryptography, Consensus, Smart Contracts, Tokens, Use Cases)
+2. **Venus**: Cryptography, Keypairs & SHA-256 Hashing
+3. **Earth**: Consensus Mechanisms & Federated Byzantine Agreement (SCP)
+4. **Mars**: Smart Contracts & Soroban Execution Environments
+5. **Jupiter**: Scalability, Layer 2 & Rollups
+6. **Saturn**: Automated Market Makers (AMM) & Liquidity Pools
+7. **Uranus**: Cross-Chain Bridges & Cryptographic Proofs
+8. **Neptune**: Stellar Mainnet Launch & Real Transaction Execution
+
+---
+
+## ✨ Key Features & Recent Enhancements
+
+- 🪐 **Interactive 3D Solar System Engine**: Real-time Three.js / React Three Fiber interactive 3D planets with orbital physics, dynamic light reflections, and smooth camera transitions.
+- 🎨 **Task 1.3 Standardized Learning Typography**: Unified visual hierarchy across theory panels, interactive simulations, and knowledge checks using `Space Grotesk` headings, `Inter` body text, and `JetBrains Mono` code snippets.
+- 🎓 **8-Module Mercury Curriculum**: 30+ interactive tasks including Middleman Mapping, Corrupted Command Auditing, Barter Dilemma Solving, Mempool Gatekeeping, and Database vs. Blockchain matrices.
+- ⏱️ **Timed Escape Room Mission**: Final challenge forcing learners to apply all 8 modules under a timed 8-minute countdown to graduate from Mercury.
+- 💎 **Decentralized Exoplanet NFT Marketplace**: Soroban smart contract-backed asset trading with Freighter wallet integration, live ledger synchronization, buy/list/offer operations, and local fallback mode.
+- 🏆 **Gamification System**: XP accumulation, rank progression (Cadet → Galaxy Master), verifiable achievement badges, and streak tracking.
+- 🛡️ **Agent Profile Dossier**: Instant slide-over profile drawer showing learner stats, honors, module scores, and Supabase auth sync status.
+- ⚡ **Supabase Auth & Database Ready**: Fully typed query interface (`supabase-queries.ts`) supporting email auth, OAuth, profiles, user progress, and task scores.
+
+---
+
+## 🗺️ Application Route Map
+
+CosmosX uses **TanStack Router** for fully type-safe, client-side routing. Below is the complete route tree:
+
+| Route Path | Component / Page | Description |
+|---|---|---|
+| `/` | `src/routes/index.tsx` | **Main Solar System 3D Landing Page** — Interactive 3D solar system, hero section, planetary academy previews, and global HUD. |
+| `/planets/mercury` | `src/routes/planets/mercury.tsx` | **Mercury Expedition Workspace** — 8-Module curriculum workspace, theory views, interactive games, Agent Profile Dossier, and Escape Room. |
+| `/planets/$planet` | `src/routes/planets/$planet.tsx` | **Planet Explorer Fallback** — Dynamic route handler for Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. |
+| `/marketplace` | `src/routes/marketplace.tsx` | **Exoplanet NFT Marketplace** — Soroban contract-backed asset trading, data room explorer, Freighter wallet connect, and portfolio dashboard. |
+| `/dashboard` | `src/routes/dashboard.tsx` | **Commander Dashboard** — Personal learning metrics, valuation charts, XP breakdown, and progress tracking. |
+| `/leaderboard` | `src/routes/leaderboard.tsx` | **Global Leaderboard** — Community rank standings, top explorer profiles, and live activity feeds. |
+| `/community` | `src/routes/community.tsx` | **Explorer Community** — Discussion forums, strategy guides, and peer Q&A. |
+| `/docs` | `src/routes/docs.tsx` | **Documentation Hub** — Integrated technical guides, Soroban setup tutorials, and curriculum reference manual. |
+
+---
+
+## 🎓 Mercury Expedition Curriculum (Modules 1–8)
 
 ```
-Cosmos-X/
-├── public/                                  # Static assets (favicon, OG images)
-├── src/
-│   ├── assets/
-│   │   └── planets/                         # Planet texture images (sun, mercury … neptune .jpg)
-│   │
-│   ├── components/
-│   │   ├── Nav.tsx                          # Top navigation bar
-│   │   ├── HeroContent.tsx                  # Landing page hero — tagline + CTA
-│   │   ├── SolarSystem.tsx                  # 3D interactive Solar System (Three.js canvas)
-│   │   ├── PlanetTooltip.tsx                # Hover card showing planet topic + lock status
-│   │   └── module/                          # All task and module-level UI components
-│   │       ├── TaskWorkspaceLayout.tsx       # Shared 3-panel layout (sidebar | main | info)
-│   │       ├── TheorySection.tsx             # Renders the theory unlock card after each beat
-│   │       ├── TerminalSim.tsx               # Simulated terminal (to be upgraded to Xterm.js)
-│   │       ├── GenericSandboxRunner.tsx      # Generic task runner for Modules 2–8
-│   │       ├── RocketAssembly.tsx            # Spacecraft assembly visualization (8 parts)
-│   │       ├── ModuleVerificationScreen.tsx  # Score summary + pass/fail per task
-│   │       ├── FinalChallenge.tsx            # Timed final rescue sequence (post all 8 modules)
-│   │       ├── FinalEscapeRoom.tsx           # Gamified final escape-room wrapper
-│   │       ├── ArchitectureDecision.tsx      # Drag-to-classify architecture decision task
-│   │       ├── SpaceOrganism.tsx             # Visual simulation component
-│   │       ├── Task1_1_MiddlemanMapper.tsx   # M01 Beat 1: The black screen (central failure)
-│   │       ├── Task1_2_CorruptedServer.tsx   # M01 Beat 2: The silent edit (trust/audit)
-│   │       ├── Task1_3_TradeDilemma.tsx      # M01 Beat 3: Choose repair architecture
-│   │       ├── Task1_4_ComparisonEngine.tsx  # M01 comparison mechanics
-│   │       └── Task1_5_CardSorter.tsx        # M01 card sort: DB vs Blockchain
-│   │
-│   ├── hooks/                               # Custom React hooks
-│   │
-│   ├── lib/
-│   │   ├── planets.ts                       # Planet data config (id, topic, difficulty, 3D params)
-│   │   ├── mercury-curriculum.ts            # Full Mercury content (theory text + task copy)
-│   │   ├── module1-store.ts                 # Progress state: localStorage get/set/reset helpers
-│   │   ├── utils.ts                         # Shared utility: cn(), class merging
-│   │   ├── error-capture.ts                 # Unhandled error capture for server.ts recovery
-│   │   └── error-page.ts                    # Fallback HTML error page renderer
-│   │
-│   ├── routes/
-│   │   ├── __root.tsx                       # Root layout: HTML shell, SEO meta, error boundary, 404
-│   │   ├── index.tsx                        # Landing page: 3D Solar System + Hero
-│   │   └── planets/
-│   │       └── mercury.tsx                  # Mercury planet: full 8-module mission campaign
-│   │
-│   ├── routeTree.gen.ts                     # ⚠️ Auto-generated by TanStack Router — DO NOT EDIT
-│   ├── router.tsx                           # Router instance + QueryClient setup
-│   ├── server.ts                            # Nitro server entry point
-│   ├── start.ts                             # App bootstrap / entry
-│   └── styles.css                           # Global CSS, Tailwind directives, CSS variables
-│
-├── CosmosX_Mercury_Curriculum.pdf          # Friend's original curriculum design document
-├── package.json                             # name: cosmos-x
-├── vite.config.ts
-├── tsconfig.json
-├── AGENTS.md                                # Rules for AI agents working in this repo
-└── README.md                                # ← You are here
+MERCURY EXPEDITION
+├── Module 01: Why Does Blockchain Exist? (Dark Horizon)
+│   ├── Task 1.1: Map the Middlemen (Centralized Payment Routing)
+│   ├── Task 1.2: Corrupted Command (Single Point of Failure Audit)
+│   ├── Task 1.3: Trade Dilemma (The Trust Problem & Barter Solver)
+│   └── Module 01 Verification Gate
+├── Module 02: Transactions & Digital Ledgers (First Light)
+│   ├── Task 2.1–2.5: Transaction Payloads, Append-Only Bookkeeping, Mempool Gatekeeper
+│   └── Module 02 Verification Gate
+├── Module 03: Blocks & Blockchain Structure (Solar Rise)
+│   ├── Task 3.1–3.5: Block Headers, Genesis Blocks, Hashing Links, Throughput
+│   └── Module 03 Verification Gate
+├── Module 04: Cryptography & Keys (Peak Light)
+│   ├── Task 4.1–4.5: Hash Functions, Public/Private Keypairs, Signatures
+│   └── Module 04 Verification Gate
+├── Module 05: Consensus Mechanisms (Solar Flare)
+│   ├── Task 5.1–5.5: Byzantine Fault Tolerance, FBA, Quorum Slices
+│   └── Module 05 Verification Gate
+├── Module 06: Smart Contracts & Execution (Descent)
+│   ├── Task 6.1–6.5: Automated Code, State Transitions, Soroban Runtime
+│   └── Module 06 Verification Gate
+├── Module 07: Tokens & Asset Standards (Twilight)
+│   ├── Task 7.1–7.5: Native Assets, Fungible Tokens, Non-Fungible Tokens (NFTs)
+│   └── Module 07 Verification Gate
+├── Module 08: Real-World Applications & Synthesis (Nightfall)
+│   ├── Task 8.1–8.5: Immutability, Traceability, DB vs. Blockchain Matrix
+│   ├── Module 08 Verification Gate
+│   └── FINAL MISSION: Mercury Escape Room (Timed 8-Minute Challenge)
 ```
 
 ---
 
-## 🗺️ Routing Table & Architecture
-
-TanStack Router is configured for **file-based routing** where routes in `src/routes/` are auto-linked:
-
-| Path | Component File | Description |
-|------|----------------|-------------|
-| `/` | `routes/index.tsx` | Main Solar Orbit landing page with interactive 3D Solar System (R3F) and Hero journey maps. |
-| `/planets/mercury` | `routes/planets/mercury.tsx` | Immersive Mercury Space Escape Room cockpit simulator, tracking 8 modules and launch transitions. |
-| `/planets/$planet` | `routes/planets/$planet.tsx` | Dynamic planet preview academy launcher mapping to `<PlanetAcademy planetId={planet} />`. |
-| `/planets/venus` | `routes/planets/venus.tsx` | Venus placeholder (concept: Cryptography & Keys). |
-| `/planets/earth` | `routes/planets/earth.tsx` | Earth placeholder (concept: Consensus & Networks). |
-| `/planets/mars` | `routes/planets/mars.tsx` | Mars placeholder (concept: Wallets & Transactions). |
-| `/planets/jupiter` | `routes/planets/jupiter.tsx` | Jupiter placeholder (concept: Smart Contracts). |
-| `/planets/saturn` | `routes/planets/saturn.tsx` | Saturn placeholder (concept: Tokens & Assets). |
-| `/planets/uranus` | `routes/planets/uranus.tsx` | Uranus placeholder (concept: NFTs & Ownership). |
-| `/planets/neptune` | `routes/planets/neptune.tsx` | Neptune placeholder (concept: The Final Launch). |
-| `/dashboard` | `routes/dashboard.tsx` | User profile, XP, badges, blockchain proof. |
-| `/marketplace` | `routes/marketplace.tsx` | Exoplanet NFT marketplace (Testnet live). |
-| `/leaderboard` | `routes/leaderboard.tsx` | Global leaderboard. |
-| `/community` | `routes/community.tsx` | Community feed + events. |
-| `/docs` | `routes/docs.tsx` | In-app documentation hub. |
-
-### Routing Telemetry Flows
-1. **Interactive Entry**: Landing Page (`/`) ➔ Canvas click on Mercury ➔ routes to `/planets/mercury`.
-2. **Escaping Orbit**: Solver compiles 8 spacecraft parts ➔ opens cockpit final verification ➔ activates warpspeed liftoff checklist ➔ departs orbit ➔ landing thrusters descending ➔ routes to `/planets/venus`.
-3. **Curriculum Reset**: Reset CTA clears local progress ➔ returns to start of Module 1.
-
----
-
-## 💡 Concept & Analogy Matrix
-
-CosmosX replaces abstract terminology with interactive, tactile visual analogies:
-
-| Module / Beat | Concept | Real-World / Space Analogy | Tactile Action |
-|---------------|---------|---------------------|----------------|
-| **M1: Centralization** | Single Point of Outage | *A single central generator* powering 5 stations. If the hub gets struck by lightning, all stations go black. | Click nodes to realize none can communicate while central is offline. |
-| **M1: Auditability** | Database Tampering | *A silent ledger audit*. Checking transaction timestamps to catch where values were changed retroactively without log entries. | Scrub timeline to find where logs and storage values diverged. |
-| **M1: DB vs Blockchain** | Trust boundaries | *Normal Database* (Internal cafeteria ledger) vs *Blockchain* (Inter-station settlements between rival corporations). | Drag tickets to select normal DB vs decentralized blockchain nodes. |
-| **M2: Ledger Logs** | Append-Only States | *Cargo ledger logbook*. Reconstructing the current payload fuel balance by tracing the historical list of entries. | Compile transactions in sequence to calculate balance. |
-| **M2: Double-Spending** | Conflict Prevention | *A fast-food waiting line*. Processing transaction requests in order; rejecting subsequent transfers if balance is already depleted. | Accept first transaction, block the duplicate second. |
-| **M3: Block Chain** | Hashed Headers | *Locking shipping containers*. Linking container manifests together with numbered hash seals so old items cannot be shifted. | Match cargo block heights with previous-hash headers. |
-| **M7: Byzantine Agreement**| Federated Consensus | *Generals deciding on a siege*. Reaching network agreement through trusted overlapping circles (quorum slices) without a king. | Interact with mesh nodes to relay messages across general quorums. |
-| **M8: Cryptography** | Elliptic-Curve Signature | *A tamper-proof wax seal*. Generating cryptographic fingerprints (SHA-256) of engine blueprints to check for sabotage. | Select trusted references and calculate sha-256 to verify data. |
-
----
-
-## 🪐 Planet Curriculum Map
-
-| # | Planet | Topic | Difficulty | Est. Time | Status |
-|---|--------|--------|------------|-----------|--------|
-| 1 | ☿ **Mercury** | Genesis of Blockchain | Beginner | ~45 min | ✅ Unlocked |
-| 2 | ♀ Venus | Cryptography & Keys | Beginner | ~1h 10m | 🔒 Locked |
-| 3 | 🌍 Earth | Consensus & Networks | Intermediate | ~1h 30m | 🔒 Locked |
-| 4 | ♂ Mars | Wallets & Transactions | Intermediate | ~1h 20m | 🔒 Locked |
-| 5 | ♃ Jupiter | Smart Contracts | Advanced | ~2h 10m | 🔒 Locked |
-| 6 | ♄ Saturn | Tokens & Assets | Advanced | ~1h 50m | 🔒 Locked |
-| 7 | ⛢ Uranus | NFTs & Ownership | Advanced | ~1h 40m | 🔒 Locked |
-| 8 | ♆ Neptune | Stellar Mainnet | Expert | ~2h 30m | 🔒 Locked |
-
----
-
-## ☿ Mercury — Full Module Breakdown
-
-Mercury's campaign narrative: *"Repair a spacecraft communication system."* Each module unlocks one physical part of the Mercury rocket.
-
-### Task-Level Learning Loop (per Mission Beat)
+## 📂 Directory & Repository Structure
 
 ```
-Mission Briefing  →  Observe (system fails/behaves unexpectedly)
-    →  Interact (player clicks, drags, routes, decides)
-        →  Discovery (interface names the pattern)
-            →  Theory Unlock (80–130 words, familiar analogy)
-                →  Replay Twist (short variation, not a quiz)
-                    →  Reflection + XP Reward + Rocket Part
+CosmosX/
+├── contracts/                        # Soroban Smart Contracts (Rust)
+│   ├── achievement/                  # Achievement NFT Minting Contract
+│   │   ├── src/lib.rs                # Rust Contract logic
+│   │   └── Cargo.toml                # Soroban contract manifest
+│   └── marketplace/                  # Exoplanet Marketplace Contract
+│       ├── src/lib.rs                # Asset Registration, Minting, Listing & Bids
+│       └── Cargo.toml
+├── docs/                             # Comprehensive Technical Documentation
+│   ├── stellar-integration/          # 7-Part Stellar Testnet Integration Guides
+│   ├── ADMIN_GUIDE.md                # Platform Administration Guide
+│   ├── CONTRACTS.md                  # Soroban Smart Contract Architecture Spec
+│   ├── DEPLOYMENT.md                 # Deployment & Hosting Specs
+│   ├── USER_GUIDE.md                 # Learner & Commander Handbook
+│   ├── ROADMAP.md                    # Project Vision & Future Planetary Modules
+│   └── cosmox_vision_plan.md         # Full Technical Architecture & Vision
+├── public/                           # Public Static Web Assets
+│   ├── logo.jpg                      # Official CosmosX Planet Logo
+│   └── favicon.ico                   # Browser Favicon
+├── resources/                        # External Reference Materials & Assets
+│   └── CosmosX_Mercury_Curriculum.pdf# Complete 8-Module Official Curriculum Manual
+├── src/                              # Frontend Source Code
+│   ├── assets/                       # Planet Textures & Diagrams
+│   ├── components/                   # Core React Components
+│   │   ├── module/                   # Module Theory, Interactive Simulations & Games
+│   │   ├── SolarSystem.tsx           # Three.js 3D Solar System Canvas
+│   │   ├── Nav.tsx                   # Top Glassmorphism Navigation Bar
+│   │   ├── NFTCard.tsx               # Marketplace NFT Card Component
+│   │   └── Planet3DViewer.tsx        # 3D Planet Previewer Component
+│   ├── features/                     # Feature Modules
+│   │   ├── achievements/             # Soroban Achievement Minting Hooks & Buttons
+│   │   └── marketplace/              # Marketplace Chain State Sync & Admin Panels
+│   ├── hooks/                        # Custom React Hooks
+│   │   ├── useUserProgress.ts        # Learner Progress & XP Sync Hook
+│   │   ├── useTaskScore.ts           # Task Evaluation & Score Recording Hook
+│   │   └── useAuth.ts                # Supabase Authentication Hook
+│   ├── lib/                          # Core Data Stores & Utilities
+│   │   ├── stellar/                  # Stellar SDK & Freighter Wallet Client
+│   │   ├── supabase.ts               # Supabase Client Initialization
+│   │   ├── supabase-queries.ts       # Typed Supabase Database Helper Functions
+│   │   ├── user-store.ts             # Gamification & XP State Management
+│   │   ├── module1-store.ts          # Mercury Progress & Verification Store
+│   │   └── mercury-curriculum.ts     # Mercury Curriculum Content Schema
+│   ├── routes/                       # TanStack Router Page Routes
+│   │   ├── __root.tsx                # Root App Shell & Layout
+│   │   ├── index.tsx                 # Solar System 3D Landing Page
+│   │   ├── marketplace.tsx           # Exoplanet NFT Marketplace Page
+│   │   ├── dashboard.tsx             # Learner Dashboard Page
+│   │   ├── leaderboard.tsx           # Global Leaderboard Page
+│   │   ├── community.tsx             # Community Forum Page
+│   │   ├── docs.tsx                  # In-App Documentation Page
+│   │   └── planets/                  # Planet Workspace Routes
+│   ├── routeTree.gen.ts              # Auto-generated TanStack Route Tree
+│   ├── styles.css                    # Unified Design Tokens & Typography System
+│   └── main.tsx                      # App Entry Point
+├── package.json                      # Dependencies & NPM Scripts
+├── vite.config.ts                    # Vite Configuration & Rolldown Bundler Options
+└── tsconfig.json                     # TypeScript Compiler Configuration
 ```
 
 ---
 
-### Module 01 — Dark Horizon | *Why Does Blockchain Exist?*
-**Rocket Part**: Launch Platform | **XP**: 70 | **Color**: `#00E5FF`
+## 🛠️ Technology Stack
 
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | The Black Screen | Centralized System / Single Point of Failure | Tap blocked stations after central command fails; choose which function is blocked first |
-| 2 | The Silent Edit | Trust Problem / Auditability | Use rewind scrubber to compare 3 records; flag the moment a value changed without a matching event |
-| 3 | Choose the Repair Architecture | Database vs. Blockchain | Drag 3 repair tickets (cafeteria, rival-station settlement, announcement board) to 4 bays: normal DB / shared DB / blockchain / no system |
-
-**Player leaves able to**: Explain single point of failure, identify when a trusted admin is fine vs. when decentralization is required, decide when to NOT use blockchain.
-
----
-
-### Module 02 — First Light | *Transactions & Digital Ledgers*
-**Rocket Part**: Fuel Tank | **XP**: 70 | **Color**: `#3B82F6`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | Move the Oxygen | Transaction Anatomy / Append-Only Ledger | Drag sender badge, receiver badge, amount dial, fee chip, signature seal, receipt ID into dispatch tray; reconstruct balance from ledger timeline |
-| 2 | The Waiting Room | Transaction Lifecycle / Mempool | Drag lifecycle tiles into correct order: create → sign → broadcast → wait in mempool → validate → include in block |
-| 3 | Gatekeeper Under Pressure | Validation / Double Spend | Work a visual gate — pull 3 levers (balance, signature, sequence) per request; accept first valid 30-unit transfer, reject conflicting second |
-
-**Player leaves able to**: Read transaction fields as evidence, explain append-only ledger, trace lifecycle from creation to block inclusion, reject double-spend using validation rules.
-
----
-
-### Module 03 — Solar Rise | *Blocks & Blockchain Structure*
-**Rocket Part**: Combustion Chamber | **XP**: 70 | **Color**: `#8B5CF6`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | Pack the Cargo Block | Block Body / Header | Pack 4 transactions into a container; complete its header (height, timestamp, prev reference, tx root, protocol value) |
-| 2 | The First Page | Genesis Block / Initial State | Open 3 candidate genesis manifests; find the one with height=0, all-zero previous reference, initial allocations, network ID |
-| 3 | Capacity vs. Speed | Throughput / Chronological Chain | Use a rate dial to compare TPS; reconnect scrambled containers by matching height and previous-reference |
-
-**Player leaves able to**: Distinguish block header from body, recognize genesis block properties, calculate simple TPS, reconstruct chain chronologically.
-
----
-
-### Module 04 — Scorch Zone | *Hashing & Data Integrity*
-**Rocket Part**: Rocket Engine | **XP**: 70 | **Color**: `#EC4899`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | One Character, Total Failure | Hash Properties / Avalanche Effect | Split console: edit messages letter-by-letter, compare fingerprints; experience that identical input = same output, tiny edit = radically different hash |
-| 2 | Seal or Secret? | Hashing vs. Encryption | Route 6 mission needs to the right tool (hash or encrypt); test each with a "Can I recover the original?" switch |
-| 3 | Find the Altered Transmission | Checksum Integrity Audit | Drag incoming files to verifier; compare calculated vs. expected seals; quarantine mismatch; spot the altered word |
-
-**Player leaves able to**: Describe a hash as a deterministic fingerprint, experience the avalanche effect, use hashing for integrity detection, distinguish hashing from encryption.
-
----
-
-### Module 05 — Solar Peak | *How Blocks Are Connected*
-**Rocket Part**: Structural Frame | **XP**: 70 | **Color**: `#F59E0B`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | Connect the History Cables | Previous Block Hash | Drag fingerprint from each earlier block into the next block's previous-reference socket; experience incorrect connections sparking |
-| 2 | The Domino Corridor | Tamper Evidence / Block Header | Edit one transaction (20 → 200); watch block seals cascade-fail downstream; attempt local repair with header workbench |
-| 3 | The Lone Rewrite | Decentralized Security / Majority Control | Allocate compute between attacker and honest validators; observe why a locally valid altered chain cannot replace honest network history |
-
-**Player leaves able to**: Explain previous-block hash links, trace the domino tamper-effect, describe why local recalculation isn't enough, surface-level 51% attack intuition.
-
----
-
-### Module 06 — Solar Descent | *Decentralization & Distributed Networks*
-**Rocket Part**: Communications Array | **XP**: 70 | **Color**: `#10B981`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | Build the Storm Map | Network Topology | Wire 6 nodes in 3 layouts (hub-spoke, regional, mesh); trigger same outage; choose topology for 3 use cases |
-| 2 | Pass the Signal | Nodes / Gossip Protocol | Assign node roles (full, light, validator); set peer forwarding; place validation gate on forged message route |
-| 3 | Hold the Line | Fault Tolerance / BFT Intuition | Place backup nodes pre-storm; set honest-majority threshold; test whether enough honest nodes remain for safe decision |
-
-**Player leaves able to**: Distinguish centralized/decentralized/distributed topologies, explain full/light/validator node roles, trace gossip propagation, reason about crash and Byzantine fault tolerance.
-
----
-
-### Module 07 — Twilight Zone | *Consensus & Transaction Validation*
-**Rocket Part**: Navigation System | **XP**: 70 | **Color**: `#F97316`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | No Captain on the Bridge | Consensus / Byzantine Fault | Replay message paths; mark inconsistent sender; choose agreement rule that lets honest group converge without traitor cooperation |
-| 2 | The Cost of One Vote | Sybil Resistance / PoW & PoS | Give attacker 1,000 empty badges; observe one-node-one-vote collapse; run PoW puzzle race and PoS collateral round; place tradeoff cards |
-| 3 | Settle One History | Federated Agreement / Double-Spend Ordering | Highlight overlapping trust circles (quorum preview); order two conflicting 40-unit transfers from a 50-unit balance; validate safe one |
-
-**Player leaves able to**: Explain why distributed nodes need consensus, compare PoW vs PoS tradeoffs, surface-level understanding of federated/quorum agreement, resolve double-spend via ordering.
-
----
-
-### Module 08 — Eternal Night | *Immutability, Transparency & Choosing Blockchain*
-**Rocket Part**: Heat Shield | **XP**: 90 | **Color**: `#6366F1`
-
-| Beat | Title | Core Concept | Player Action |
-|------|-------|-------------|---------------|
-| 1 | Trace the Rare Mineral | Immutability / Transparency / Traceability | Follow dilithium canister backward through custody events; flag the one handoff not matching recorded evidence; try to erase old handoff |
-| 2 | Pay the Real Price | Tradeoffs / Limitations | Adjust volume, capacity, storage, fees for cafeteria (DB wins); respond to key-loss incident distinguishing "network broken" from "user lost auth" |
-| 3 | The Launch Architect | Use Cases / Final Decision Matrix | Route 8 live project requests to: database / shared DB+API / blockchain / no durable system; 3-question framework per request |
-
-**Player leaves able to**: Explain immutability as tamper-resistance not magic, use traceability for provenance, name key tradeoffs (speed/storage/fees/privacy), recognize valid blockchain use cases, choose the right architecture.
-
----
-
-### Mercury Finale — Launch Sequence (Timed)
-
-After all 8 modules, the player faces one connected rescue sequence using all learned mechanics:
-
-| Step | Mission | Mechanic Reused |
-|------|---------|-----------------|
-| 1 | Central Blackout | Module 01: identify missing source of truth |
-| 2 | Oxygen Queue | Module 02: validate 3 transfers, reject 1 forged |
-| 3 | Cargo Seal | Module 03: pack block, verify header |
-| 4 | Tamper Scan | Module 04: compare hash fingerprints |
-| 5 | Broken History | Module 05: find earliest altered block |
-| 6 | Storm Mesh | Module 06: bring independent peers online |
-| 7 | One Shared Course | Module 07: expose conflict, order two competing payments |
-| 8 | Architect's Choice | Module 08: select correct architecture + explain trust reason |
-
-**Pass criteria**: ≥ 40% correct on all tasks overall  
-**Reward**: Mercury Mission Patch + full Launch Rocket assembled + Venus unlocked + liftoff cinematic
-
----
-
-## 🎮 Scoring & Validation System
-
-| Rule | Value |
-|------|-------|
-| Minimum pass score per task | **40%** of max score |
-| Module passes when | All tasks individually pass ≥ 40% |
-| Module Verification Screen shows | Per-task scores, pass/fail indicators |
-| Spacecraft part assembles when | Module verified as passed |
-| Final timed test passes when | ≥ 40% overall accuracy |
-| Next planet unlocks when | Final challenge passed |
-
-**State storage** (Phase 1 — Guest Mode):
-- `cosmos-x-mercury-step` — current task ID in `localStorage`
-- `cosmos-x-mercury-completed` — completion % in `localStorage`
-- `cosmos-x-task-scores` — `{taskId: {score, maxScore, passed}}` in `localStorage`
-- `cosmos-x-verified-modules` — `[moduleId]` array in `localStorage`
-
----
-
-## 💻 Terminal Integration
-
-| Phase | Approach | Status |
-|-------|---------|--------|
-| Current | `TerminalSim.tsx` — simulated responses for guided tasks | ✅ Built |
-| Planned | **Xterm.js + WebContainers** — real Node.js execution in-browser, zero VM cost | ⏳ Phase 4 |
-
-**Execution model (planned)**:
-1. Task shows command to run (e.g., `stellar-sdk keypair --generate`)
-2. User runs it in the integrated terminal panel
-3. User pastes output/hash into answer field
-4. Platform regex-matches against expected output pattern
-5. Score recorded; theory unlock card appears
-
----
-
-## 🚀 Spacecraft Assembly System
-
-Mercury's rocket = **8 parts**, one per module. Data in `RocketAssembly.tsx`.
-
-| Module | Rocket Part Unlocked |
-|--------|---------------------|
-| 01 | Launch Platform |
-| 02 | Fuel Tank |
-| 03 | Combustion Chamber |
-| 04 | Rocket Engine |
-| 05 | Structural Frame |
-| 06 | Communications Array |
-| 07 | Navigation System |
-| 08 | Heat Shield |
-
-When all 8 modules pass the verification screen → Final Timed Challenge unlocks → Passing triggers **Liftoff Cinematic** (fully assembled rocket lifts off → lands on Venus → Venus unlocks on Solar System map).
-
----
-
-## Stellar Testnet Integration
-
-Mercury's completion screen mints a **real on-chain achievement** to the
-player's own Stellar wallet — a working Testnet vertical slice, not a mock.
-
-| | |
+| Layer | Technologies Used |
 |---|---|
-| **Network** | Testnet (`Test SDF Network ; September 2015`) |
-| **Contract ID** | `CAOVKUPD2VVWH7DFIRV57WBG6SRXXHIMUDCSWDNAL3SGCPE2GZEWVK3W` |
-| **Verify** | https://stellar.expert/explorer/testnet/contract/CAOVKUPD2VVWH7DFIRV57WBG6SRXXHIMUDCSWDNAL3SGCPE2GZEWVK3W |
-| **Contract source** | [`contracts/achievement/`](contracts/achievement/) (Soroban / Rust) |
-
-**How it works.** When a player finishes Mercury, the completion screen shows a
-"Claim your on-chain proof" panel. They connect a wallet (Freighter or xBull via
-[Stellar Wallets Kit](https://github.com/Creit-Tech/Stellar-Wallets-Kit)), click
-**Claim Achievement**, and sign the mint transaction *in their own wallet*. The
-contract's `mint(to)` requires `to.require_auth()`, so the player authorizes
-their own achievement — no hidden backend key. The dashboard's **Blockchain
-Proof** panel then persists a link to the claim transaction and re-verifies it
-live on-chain via `has_achievement`.
-
-**Architecture.** All Stellar code lives behind two folders so mission/curriculum
-code never imports the SDK directly:
-- `src/lib/stellar/` — network config + wallet-kit singleton (browser-only, SSR-safe)
-- `src/features/achievements/` — `useWallet`, `useMintAchievement`, `WalletConnectButton`, `MintButton`, `ProofScreen`
-
-**Setup.** Copy `.env.testnet.example` → `.env.local` and set
-`VITE_ACHIEVEMENT_CONTRACT_ID` to the deployed contract ID above. Then
-`npm run dev`.
-
-**Redeploy (after a Testnet reset).** Testnet wipes contracts periodically:
-```bash
-cd contracts/achievement
-./scripts/deploy-testnet.sh   # build → deploy → initialize → prints new ID
-```
-Paste the new ID into `.env.local`, update
-[`contracts/achievement/DEPLOYMENT.md`](contracts/achievement/DEPLOYMENT.md),
-and restart the dev server. See that file for the full deployment record.
-
-## 🔐 Auth Strategy (Phase 2)
-
-> **Decision**: Build Mercury core experience as Guest Mode (localStorage) first. Add Supabase Auth once the core UX is polished. Guest progress will migrate to the authenticated account on first login.
-
-**Planned Supabase schema:**
-
-```sql
--- Auth handled by Supabase Auth
-profiles          (id uuid, username text, avatar_url text, created_at timestamptz)
-
--- Per-task learning progress
-planet_progress   (id, user_id, planet_id, module_id, task_id, score, max_score, passed, completed_at)
-
--- Spacecraft assembly state
-spacecraft_state  (id, user_id, planet_id, assembled_parts int[], all_complete bool)
-
--- Trading economy
-wallet            (id, user_id, xlm_testnet_balance numeric, testnet_address text)
-transactions      (id, from_user, to_user, asset text, amount numeric, tx_hash text, created_at)
-rocket_skins      (id, skin_id text, rarity text, owner_user_id uuid, on_chain_token_id text)
-skin_listings     (id, skin_id text, asking_price numeric, seller_id uuid, active bool)
-```
+| **Frontend Framework** | React 18, TypeScript, Vite |
+| **Styling & Design** | Vanilla CSS Tokens, TailwindCSS v4, Framer Motion |
+| **3D Rendering** | Three.js, React Three Fiber (`@react-three/fiber`), `@react-three/drei` |
+| **Routing** | TanStack Router (`@tanstack/react-router`) |
+| **Blockchain Client** | `@stellar/stellar-sdk`, `@creit.tech/stellar-wallets-kit` (Freighter) |
+| **Smart Contracts** | Soroban CLI, Rust, WebAssembly (`wasm32-unknown-unknown`) |
+| **Backend & Auth** | Supabase Client (`@supabase/supabase-js`) |
+| **State & Storage** | LocalStorage persistence + Supabase cloud fallback sync |
 
 ---
 
-## 💎 Future Scope — Trading & Gamification (Phase 5)
+## ⚙️ Local Setup & Installation
 
-### Stellar Testnet Trading Hub (`/trade`)
-- Stellar provides free testnet XLM for development
-- Users interact with the real Stellar testnet via the integrated terminal tasks
-- A Trading Hub visualizes order books and lets users safely practice swaps and transfers
+### Prerequisites
 
-### Rocket Skin Economy
-Borrowing from FPS gun-skin culture:
-- **Earning**: Rare skins awarded during special events, perfect scores, or speed-run completions
-- **Rarity Tiers**: Common → Rare → Legendary → One-of-a-Kind
-- **On-Chain**: Skins are tokenized as Stellar assets; listed, bid on, and traded peer-to-peer
-- **The genius**: Users learn NFTs and on-chain ownership by *actually doing it* — the skin trading system IS the Saturn/Uranus curriculum made tangible
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
+- **Freighter Wallet Extension** (optional for testnet transactions): [Freighter Download](https://www.freighter.app/)
 
----
-
-## ⚙️ Local Development
+### Step 1: Clone Repository & Install Dependencies
 
 ```bash
-# Install dependencies
+git clone https://github.com/Samarth-06/CosmosX.git
+cd CosmosX
 npm install
+```
 
-# Start dev server
+### Step 2: Configure Environment Variables
+
+Create a `.env.local` file in the root directory (or copy `.env.testnet.example`):
+
+```bash
+cp .env.testnet.example .env.local
+```
+
+Example `.env.local` configuration:
+
+```env
+# Stellar Testnet RPC & Network Settings
+VITE_STELLAR_NETWORK=TESTNET
+VITE_STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+VITE_STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+
+# Deployed Soroban Smart Contract Addresses (Testnet)
+VITE_ACHIEVEMENT_CONTRACT_ID=CA...
+VITE_MARKETPLACE_CONTRACT_ID=CB...
+
+# Supabase Authentication & Database Configuration (Optional)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+### Step 3: Run Development Server
+
+```bash
 npm run dev
+```
 
-# Lint
-npm run lint
+Open your browser and navigate to `http://localhost:5173/`.
 
-# Format code
-npm run format
+---
+
+## 🔗 Stellar Testnet & Soroban Smart Contracts
+
+CosmosX includes two production-grade Soroban smart contracts written in Rust:
+
+1. **Achievement Contract** (`contracts/achievement/`):
+   - Mints verifiable Soulbound Achievement NFTs to learners upon completing verification gates.
+2. **Exoplanet Marketplace Contract** (`contracts/marketplace/`):
+   - Handles asset registration, minting, fixed-price listings, buy orders, bids, and ownership transfers directly on Stellar Testnet.
+
+### Compiling & Deploying Contracts
+
+To compile and deploy smart contracts to Stellar Testnet (requires `soroban-cli` installed):
+
+```bash
+# Build contracts to WebAssembly
+cd contracts/marketplace
+cargo build --target wasm32-unknown-unknown --release
+
+# Deploy contract to Stellar Testnet
+soroban contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/cosmosx_marketplace.wasm \
+  --source <YOUR_STELLAR_SECRET_KEY> \
+  --network testnet
 ```
 
 ---
 
-## 📋 Development Phases
+## ⚡ Supabase Integration
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| **Phase 1** | Mercury — all 8 modules, tasks, terminal sim, scoring, verification, finale | 🔨 In Progress |
-| **Phase 2** | Supabase Auth + progress persistence + user dashboard | ⏳ Planned |
-| **Phase 3** | Venus → Neptune planet pages | ⏳ Planned |
-| **Phase 4** | Real terminal: Xterm.js + WebContainers | ⏳ Planned |
-| **Phase 5** | Stellar Testnet trading + marketplace contract | ✅ Live on Testnet (see CONTRACTS.md / ROADMAP.md) |
-| **Phase 6** | Stabilisation: admin audit, dead-code removal, docs, contract hardening | ✅ Complete (source). Testnet WASM redeploy pending. |
+CosmosX is pre-wired for **Supabase Auth & Database Synchronization**. All query helpers are centralized in `src/lib/supabase-queries.ts`.
+
+### Supabase Tables Schema
+- `profiles`: User display names, avatar URLs, title ranks, and activity timestamps.
+- `user_progress`: Total XP, current streak, verified module arrays, and completion percentages.
+- `task_scores`: Individual score records for each curriculum task.
+- `module_completions`: Verification gate logs.
+
+*Note: If Supabase keys are not set, CosmosX seamlessly operates in local state mode with zero errors.*
 
 ---
 
-## 📘 Docs (Stellar / Marketplace)
+## 📚 Documentation & References
 
-| Doc | Purpose |
-|-----|---------|
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Env + deploy overview |
-| [CONTRACTS.md](CONTRACTS.md) | Achievement vs marketplace APIs |
-| [ADMIN_GUIDE.md](ADMIN_GUIDE.md) | Foundation wallet / admin tab |
-| [USER_GUIDE.md](USER_GUIDE.md) | Trader UX and asset states |
-| [ROADMAP.md](ROADMAP.md) | Done / near-term / Mercury & Mainnet later |
-| [contracts/marketplace/DEPLOYMENT.md](contracts/marketplace/DEPLOYMENT.md) | Live contract IDs |
+For in-depth developer guides, architectural diagrams, and curriculum material, explore the following resources:
+
+- 📖 [User & Commander Handbook](docs/USER_GUIDE.md)
+- 🛠️ [Admin & Operator Guide](docs/ADMIN_GUIDE.md)
+- 📝 [Soroban Smart Contract Specification](docs/CONTRACTS.md)
+- 🌐 [Deployment & Hosting Guide](docs/DEPLOYMENT.md)
+- 🗺️ [Project Roadmap & Vision](docs/ROADMAP.md)
+- 📜 [Official Mercury Curriculum PDF Manual](resources/CosmosX_Mercury_Curriculum.pdf)
+- 📡 [7-Part Stellar Integration Guides](docs/stellar-integration/)
+
+---
+
+<p center><strong>CosmosX Operations Unit · Master Blockchain by Exploring the Solar System.</strong></p>
